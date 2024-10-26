@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import '../css/AppHeader.css';
 import logo from "../logo.svg";
 
-const AppHeader = ({ onMenuClick, handleLoggedIn, currentPage, notifications}) => {
+const AppHeader = ({ onMenuClick, handleLoggedIn, currentPage, notifications, organisationType}) => {
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     
@@ -42,7 +42,7 @@ const AppHeader = ({ onMenuClick, handleLoggedIn, currentPage, notifications}) =
         <header>
             <img className="logo" src={logo} alt="SciWork" />
             <ul className="menu">
-                {['Main Page', 'Schedule', 'Projects'].map((page) => (
+                {['Main Page', 'Schedule', (organisationType) ? 'Projects' : 'Subjects'].map((page) => (
                 <li
                     key={page}
                     onClick={() => handleClick(page)}
@@ -75,7 +75,7 @@ const AppHeader = ({ onMenuClick, handleLoggedIn, currentPage, notifications}) =
                     )}
                     {isDropdownOpen && (
                         <ul className="more">
-                            {['Profile', 'Notifications', 'chats', 'Settings'].map((page) => (
+                            {['Profile', 'Notifications', 'Chats', 'Settings'].map((page) => (
                             <li
                                 key={page}
                                 onClick={() => handleClick(page)}
@@ -83,7 +83,7 @@ const AppHeader = ({ onMenuClick, handleLoggedIn, currentPage, notifications}) =
                                 style={{
                                 fontWeight: currentPage === page ? 'bold' : 'normal',
                                 pointerEvents: currentPage === page ? 'none' : 'auto',
-                                opacity: currentPage === page ? 0.5 : 1,
+                                opacity: currentPage === page ? 0.5 : 1
                                 }}
                             >
                                 <p>{page}</p>
