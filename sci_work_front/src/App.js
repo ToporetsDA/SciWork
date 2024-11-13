@@ -7,9 +7,10 @@ import AppContent from './Components/AppContent'
 
 function App() {
 
-  const userData = {
-    currentFilter: "A-Z"
-  }
+  const [userData, setUserData] = useState({
+    currentSortFilter: "A-Z",
+    currentStatusFilter: "all",
+  });
 
   const projects = [
     {
@@ -40,13 +41,13 @@ function App() {
     },
     {
       name: "Project 2",
-      startDate: "2024-03-04",
-      endDate: "2024-09-27",
+      startDate: "2024-05-07",
+      endDate: "2024-11-27",
       access: "project manager",
       activities: [
         {
           name: "Sprint Planning",
-          startDate: "2024-03-04",
+          startDate: "2024-05-07",
           endDate: "2024-09-18",
           repeat: true,
           interval: 7,
@@ -65,7 +66,7 @@ function App() {
       ]
     },
     {
-      name: "Project 3",
+      name: "Project 4",
       startDate: "2023-03-04",
       endDate: "2024-08-27",
       access: "project manager",
@@ -91,7 +92,7 @@ function App() {
       ]
     },
     {
-      name: "Project 4",
+      name: "Naming pro 3",
       startDate: "2024-03-04",
       endDate: "2024-12-27",
       access: "project manager",
@@ -147,14 +148,6 @@ function App() {
     }
   }, [currentPage]);
   
-  //nav
-
-  const setCurrent = (p, a) => {
-    setCurrentProject(p);
-    setCurrentActivity(a);
-    console.log(`Now in: ${p} : ${a}`);
-  };
-  
   //main
   
   //Html
@@ -182,7 +175,8 @@ function App() {
                 setCurrentActivity={setCurrentActivity}
               />
               <AppContent
-              userData={userData}
+                userData={userData}
+                setUserData={setUserData}
                 page={currentPage}
                 subPage={currentActivity}
                 data={projects}

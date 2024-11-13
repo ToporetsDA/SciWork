@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import '../css/AppContent.css';
 import * as Pages from './pages';
 
-const AppContent = ({userData, page, subPage, data, currentProject, currentActivity, setCurrentPage, setCurrentProject, setCurrentActivity}) => {
+const AppContent = ({userData, setUserData, page, subPage, data, currentProject, currentActivity, setCurrentPage, setCurrentProject, setCurrentActivity}) => {
 
     const loadPageComponent = (pageName) => {
         const formattedPageName = (pageName === 'Subjects' || pageName === 'Project') ? 'Projects' : pageName;
@@ -20,6 +20,7 @@ const AppContent = ({userData, page, subPage, data, currentProject, currentActiv
                 <Suspense fallback={<div>Loading...</div>}>
                     <PageComponent
                         userData={userData}
+                        setUserData={setUserData}
                         data={data}
                         currentProject={currentProject}
                         setCurrentPage={setCurrentPage}
