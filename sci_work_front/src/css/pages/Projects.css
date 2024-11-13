@@ -1,3 +1,27 @@
+.itemList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
 
+.card {
+  width: 25%;
+  min-width: 300px;
+  margin: 20px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 2px solid grey;
+}
+.card .name {
+  display: flex;
+  gap: 20px;
+}
+.card .timeLimit {
+  width: 100%;
+  height: 40px;
+  font-size: 20px;
+}
 
 /*# sourceMappingURL=Projects.css.map */

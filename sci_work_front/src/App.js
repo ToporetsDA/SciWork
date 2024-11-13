@@ -6,24 +6,129 @@ import AppNav from './Components/AppNav'
 import AppContent from './Components/AppContent'
 
 function App() {
+
+  const userData = {
+    currentFilter: "A-Z"
+  }
+
+  const projects = [
+    {
+      name: "Project 1",
+      startDate: "2024-03-04",
+      endDate: "2024-11-08",
+      access: "user",
+      activities: [
+        {
+          name: "Team Meeting",
+          startDate: "2024-03-04",
+          endDate: "2024-10-04",
+          repeat: true,
+          interval: 7,
+          thirdParty: true,
+          serviceName: "Zoom"
+        },
+        {
+          name: "Code review",
+          startDate: "2024-03-04",
+          endDate: "2024-11-06",
+          repeat: false,
+          interval: null,
+          thirdParty: false,
+          serviceName: null
+        }
+      ]
+    },
+    {
+      name: "Project 2",
+      startDate: "2024-03-04",
+      endDate: "2024-09-27",
+      access: "project manager",
+      activities: [
+        {
+          name: "Sprint Planning",
+          startDate: "2024-03-04",
+          endDate: "2024-09-18",
+          repeat: true,
+          interval: 7,
+          thirdParty: true,
+          serviceName: "Zoom"
+        },
+        {
+          name: "Review",
+          startDate: "2024-09-16",
+          endDate: "2024-09-20",
+          repeat: true,
+          interval: 2,
+          thirdParty: true,
+          serviceName: "Google Meet"
+        }
+      ]
+    },
+    {
+      name: "Project 3",
+      startDate: "2023-03-04",
+      endDate: "2024-08-27",
+      access: "project manager",
+      activities: [
+        {
+          name: "Sprint Planning",
+          startDate: "2023-03-04",
+          endDate: "2024-09-18",
+          repeat: true,
+          interval: 7,
+          thirdParty: true,
+          serviceName: "Zoom"
+        },
+        {
+          name: "Review",
+          startDate: "2024-09-16",
+          endDate: "2024-09-20",
+          repeat: true,
+          interval: 2,
+          thirdParty: true,
+          serviceName: "Google Meet"
+        }
+      ]
+    },
+    {
+      name: "Project 4",
+      startDate: "2024-03-04",
+      endDate: "2024-12-27",
+      access: "project manager",
+      activities: [
+        {
+          name: "Sprint Planning",
+          startDate: "2024-03-04",
+          endDate: "2024-09-18",
+          repeat: true,
+          interval: 7,
+          thirdParty: true,
+          serviceName: "Zoom"
+        },
+        {
+          name: "Review",
+          startDate: "2024-09-16",
+          endDate: "2024-09-20",
+          repeat: true,
+          interval: 2,
+          thirdParty: true,
+          serviceName: "Google Meet"
+        }
+      ]
+    }
+  ];
+
   //general
+  //this is for the whole app
   const [currentPage, setCurrentPage] = useState('Home Page');
-  const [currentProject, setCurrentProject] = useState(null);
-  const [currentActivity, setCurrentActivity] = useState(null);
+  //these are for AppContent
+  const [currentProject, setCurrentProject] = useState(undefined);
+  const [currentActivity, setCurrentActivity] = useState(undefined);
 
   //header
   const [isCompany, setIsCompany] = useState(true);
   const [isLoggedIn, setLoggedIn] = useState(true);
   const [notificationsCount, setNotificationsCount] = useState(5);
-
-  const handleMenuClick = (page) => {
-    if (currentPage === page) {
-      return;
-    }
-    setCurrentPage(page);
-
-    console.log(`Navigating to ${page}`);
-  };
 
   const handleLoggedIn = (val) => {
     setLoggedIn(val);
@@ -35,13 +140,14 @@ function App() {
       setNotificationsCount(0);
     }
   }, [currentPage]);
+
+  useEffect(() => {
+    if (currentPage) {
+      setCurrentProject(undefined);
+    }
+  }, [currentPage]);
   
   //nav
-  const [recentActivities, setRecentActivities] = useState([]);
-  const [projects, setProjects] = useState([//implement actual data reading from server
-    { name: 'Project 1', activities: ['Activity 1.1', 'Activity 1.2'] },
-    { name: 'Project 2', activities: ['Activity 2.1', 'Activity 2.2'] },
-  ]);
 
   const setCurrent = (p, a) => {
     setCurrentProject(p);
@@ -59,7 +165,7 @@ function App() {
         return (
           <div className="App">
             <AppHeader
-              onMenuClick={handleMenuClick}
+              onMenuClick={setCurrentPage}
               handleLoggedIn={handleLoggedIn}
               currentPage={currentPage}
               notifications={notificationsCount}
@@ -67,18 +173,24 @@ function App() {
             />
             <div>
               <AppNav
-                projects={projects}
-                currentProject={currentProject}
-                recentActivities={recentActivities}
-                onLogout={() => handleLoggedIn(false)}
+                data={projects}
                 currentPage={currentPage}
-                currentSubPage={currentActivity}
+                currentProject={currentProject}
+                currentActivity={currentActivity}
                 organisationType={isCompany}
-                setCurPA={setCurrent}
+                setCurrentProject={setCurrentProject}
+                setCurrentActivity={setCurrentActivity}
               />
               <AppContent
+              userData={userData}
                 page={currentPage}
                 subPage={currentActivity}
+                data={projects}
+                currentProject={currentProject}
+                currentActivity={currentActivity}
+                setCurrentPage={setCurrentPage}
+                setCurrentProject={setCurrentProject}
+                setCurrentActivity={setCurrentActivity}
               />
             </div>
           </div>

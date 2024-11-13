@@ -5,7 +5,7 @@ const Schedule = () => {
 
     return (
         <>
-            
+            YOU. ARE. LATE!
         </>
     )}
 

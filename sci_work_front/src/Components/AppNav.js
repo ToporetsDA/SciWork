@@ -1,33 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import '../css/AppNav.css';
 
-const AppNav = ({ projects, currentProject, recentActivities, onLogout, currentPage, currentActivity, organisationType, setCurPA }) => {
+const AppNav = ({ data, currentPage, currentProject, currentActivity, organisationType, setCurrentProject, setCurrentActivity }) => {
   
-  const [updatedRecentActivities, setUpdatedRecentActivities] = useState(recentActivities);
-
-  useEffect(() => {
-    if (recentActivities.length > 0) {
-      setUpdatedRecentActivities(recentActivities);
-    }
-  }, [recentActivities]);
+  //project.name and activity.name pairs
+  const [recentActivities, setRecentActivities] = useState([{project: currentProject, activity: currentActivity}]);
 
   const clearRecent = () => {
-    setUpdatedRecentActivities([]);
+    setRecentActivities([{project: currentProject, activity: currentActivity}]);
   };
 
+  useEffect(() => {
+    if (currentProject && currentActivity) {
+      setRecentActivities((prevActivities) => {
+        // Check if the current project/activity is already in the recentActivities
+        const activityExists = prevActivities.some(recent => 
+          recent.activity === currentActivity && recent.project === currentProject);
+        if (!activityExists) {
+          return [...prevActivities, { project: currentProject, activity: currentActivity }];
+        }
+        return prevActivities;
+      });
+    }
+  }, [currentProject, currentActivity, recentActivities]);
+
+  //project, activity, recent.project, recent.activity are strings, not objects
   const handleClick = (project, activity) => {
-    const activityExists = updatedRecentActivities.some(recent =>
-      recent.activity === activity && recent.project.name === project.name);
+    const activityExists = recentActivities.some(recent =>
+      recent.activity === activity && recent.project === project);
 
     if (!activityExists) {
-      console.log(`before ${updatedRecentActivities}`);
-        setUpdatedRecentActivities((prevActivities) => [
+      console.log(`before ${recentActivities}`);
+        setRecentActivities((prevActivities) => [
           ...prevActivities,
-          { project: project, activity }
+          { project: project, activity: activity }
         ]);
       }
-    setCurPA(project, activity);
-    console.log(`after ${updatedRecentActivities}`);
+      setCurrentProject(project);
+      setCurrentActivity(activity);
+
+    console.log(`after ${recentActivities}`);
   };
 
   return (
@@ -44,22 +56,22 @@ const AppNav = ({ projects, currentProject, recentActivities, onLogout, currentP
           {organisationType ? 'Projects' : 'Subjects'}
         </h4>
 
-        {projects.map((project) => (
+        {data.map((project) => (
           <li key={project.name}>
             <details>
               <summary>{project.name}</summary>
               <ul>
                 {project.activities.map((activity) => (
                 <li
-                  key={activity}
-                  onClick={() => handleClick(project.name, activity)}
-                  className={currentPage === activity ? 'active' : ''}
+                  key={activity.name}
+                  onClick={() => handleClick(project.name, activity.name)}
+                  className={currentPage === activity.name ? 'active' : ''}
                   style={{
-                  fontWeight: currentPage === activity ? 'bold' : 'normal',
-                  pointerEvents: currentPage === activity ? 'none' : 'auto',
-                  opacity: currentPage === activity ? 0.5 : 1,
+                  fontWeight: currentPage === activity.name ? 'bold' : 'normal',
+                  pointerEvents: currentPage === activity.name ? 'none' : 'auto',
+                  opacity: currentPage === activity.name ? 0.5 : 1,
                   }}
-                >{activity}</li>
+                >{activity.name}</li>
                 ))}
               </ul>
             </details>
@@ -69,19 +81,19 @@ const AppNav = ({ projects, currentProject, recentActivities, onLogout, currentP
         
       <ul className="recent">
         <h4>Recent</h4>
-        {projects.map((project) => {
+        {data.map((project) => {
 
-          const projectRecentActivities = updatedRecentActivities.filter(recent => recent.project === project.name);
+          const projectRecentActivities = recentActivities.filter(recent => recent.project === project.name);
+          if (projectRecentActivities) {
 
-          if (projectRecentActivities.length > 0) {
             return (
               <li key={project.name}>
                 <details>
                   <summary>{project.name}</summary>
                   <ul>
-                    {projectRecentActivities.map((recent, index) => (
+                    {projectRecentActivities.map((recent) => (
                       <li
-                        key={index}
+                        key={recent.activity}
                         onClick={() => handleClick(recent.project, recent.activity)}
                         className={currentPage === recent.activity ? 'active' : ''}
                         style={{
@@ -104,7 +116,7 @@ const AppNav = ({ projects, currentProject, recentActivities, onLogout, currentP
         })}
 
         <button
-          style={{ display: updatedRecentActivities.length === 0 ? 'none' : 'block' }}
+          style={{ display: recentActivities.length === 1 ? 'none' : 'block' }}
           onClick={clearRecent}
         >
           Close all

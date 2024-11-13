@@ -42,7 +42,7 @@ const AppHeader = ({ onMenuClick, handleLoggedIn, currentPage, notifications, or
         <header>
             <img className="logo" src={logo} alt="SciWork" />
             <ul className="menu">
-                {['Main Page', 'Schedule', (organisationType) ? 'Projects' : 'Subjects'].map((page) => (
+                {['Home Page', 'Schedule', (organisationType) ? 'Projects' : 'Subjects'].map((page) => (
                 <li
                     key={page}
                     onClick={() => handleClick(page)}
