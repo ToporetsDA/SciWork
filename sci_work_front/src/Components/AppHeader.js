@@ -2,21 +2,24 @@ import React, { useState, useRef, useEffect } from 'react';
 import '../css/AppHeader.css';
 import logo from "../logo.svg";
 
-const AppHeader = ({ onMenuClick, handleLoggedIn, currentPage, notifications, organisationType}) => {
+const AppHeader = ({ state, setState, handleLoggedIn, notifications, organisationType}) => {
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     
 
     //go to page
     const handleClick = (page) => {
-        onMenuClick(page);
+        setState(prevState => ({
+            ...prevState,
+            currentPage: page
+        }));
         setDropdownOpen(false);
-    };
+    }
 
     //open dropdown menu with more pages
     const handleMore = () => {
         setDropdownOpen(!isDropdownOpen);
-    };
+    }
 
     //log out
     const handleLogOut = () => {
@@ -36,7 +39,7 @@ const AppHeader = ({ onMenuClick, handleLoggedIn, currentPage, notifications, or
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [dropdownRef]);
+    }, [dropdownRef])
 
     return (
         <header>
@@ -46,11 +49,11 @@ const AppHeader = ({ onMenuClick, handleLoggedIn, currentPage, notifications, or
                 <li
                     key={page}
                     onClick={() => handleClick(page)}
-                    className={currentPage === page ? 'active' : ''}
+                    className={state.currentPage === page ? 'active' : ''}
                     style={{
-                    fontWeight: currentPage === page ? 'bold' : 'normal',
-                    pointerEvents: currentPage === page ? 'none' : 'auto',
-                    opacity: currentPage === page ? 0.5 : 1,
+                    fontWeight: state.currentPage === page ? 'bold' : 'normal',
+                    pointerEvents: state.currentPage === page ? 'none' : 'auto',
+                    opacity: state.currentPage === page ? 0.5 : 1,
                     }}
                 >
                     <p>{page}</p>
@@ -79,11 +82,11 @@ const AppHeader = ({ onMenuClick, handleLoggedIn, currentPage, notifications, or
                             <li
                                 key={page}
                                 onClick={() => handleClick(page)}
-                                className={currentPage === page ? 'active' : ''}
+                                className={state.currentPage === page ? 'active' : ''}
                                 style={{
-                                fontWeight: currentPage === page ? 'bold' : 'normal',
-                                pointerEvents: currentPage === page ? 'none' : 'auto',
-                                opacity: currentPage === page ? 0.5 : 1
+                                fontWeight: state.currentPage === page ? 'bold' : 'normal',
+                                pointerEvents: state.currentPage === page ? 'none' : 'auto',
+                                opacity: state.currentPage === page ? 0.5 : 1
                                 }}
                             >
                                 <p>{page}</p>

@@ -2,17 +2,14 @@ import React, { Suspense } from 'react';
 import '../css/AppContent.css';
 import * as Pages from './pages';
 
-const AppContent = ({userData, setUserData, page, subPage, data, currentProject, currentActivity, setCurrentPage, setCurrentProject, setCurrentActivity}) => {
+const AppContent = ({userData, setUserData, state, setState, data, setData}) => {
 
     const loadPageComponent = (pageName) => {
         const formattedPageName = (pageName === 'Subjects' || pageName === 'Project') ? 'Projects' : pageName;
         return Pages[formattedPageName.replace(/\s+/g, '')];
-    };
+    }
 
-    const PageComponent = page ? loadPageComponent(page) : undefined;
-
-    const pagesThatRequireData = ['Projects', 'Schedule']; // Adjust or add more activity names as needed
-    //Also handle activity pages when added
+    const PageComponent = state.currentPage ? loadPageComponent(state.currentPage) : undefined;
 
     return (
         <main className="content">
@@ -21,11 +18,10 @@ const AppContent = ({userData, setUserData, page, subPage, data, currentProject,
                     <PageComponent
                         userData={userData}
                         setUserData={setUserData}
+                        state={state}
+                        setState={setState}
                         data={data}
-                        currentProject={currentProject}
-                        setCurrentPage={setCurrentPage}
-                        setCurrentProject={setCurrentProject}
-                        setCurrentActivity={setCurrentActivity}
+                        setData={setData}
                     />
                 </Suspense>
             ) : (

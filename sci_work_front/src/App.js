@@ -8,11 +8,12 @@ import AppContent from './Components/AppContent'
 function App() {
 
   const [userData, setUserData] = useState({
+    genStatus: 0, //0 - client representative(full access), 1 - manager (can add/edit items), 2 - supervisor, 3 - user
     currentSortFilter: "A-Z",
     currentStatusFilter: "all",
-  });
+  })
 
-  const projects = [
+  const [projects, setProjects] = useState([
     {
       name: "Project 1",
       startDate: "2024-03-04",
@@ -23,6 +24,7 @@ function App() {
           name: "Team Meeting",
           startDate: "2024-03-04",
           endDate: "2024-10-04",
+          page: false,
           repeat: true,
           interval: 7,
           thirdParty: true,
@@ -32,6 +34,7 @@ function App() {
           name: "Code review",
           startDate: "2024-03-04",
           endDate: "2024-11-06",
+          page: false,
           repeat: false,
           interval: null,
           thirdParty: false,
@@ -49,6 +52,7 @@ function App() {
           name: "Sprint Planning",
           startDate: "2024-05-07",
           endDate: "2024-09-18",
+          page: false,
           repeat: true,
           interval: 7,
           thirdParty: true,
@@ -58,6 +62,7 @@ function App() {
           name: "Review",
           startDate: "2024-09-16",
           endDate: "2024-09-20",
+          page: false,
           repeat: true,
           interval: 2,
           thirdParty: true,
@@ -75,6 +80,7 @@ function App() {
           name: "Sprint Planning",
           startDate: "2023-03-04",
           endDate: "2024-09-18",
+          page: false,
           repeat: true,
           interval: 7,
           thirdParty: true,
@@ -84,6 +90,7 @@ function App() {
           name: "Review",
           startDate: "2024-09-16",
           endDate: "2024-09-20",
+          page: false,
           repeat: true,
           interval: 2,
           thirdParty: true,
@@ -101,6 +108,7 @@ function App() {
           name: "Sprint Planning",
           startDate: "2024-03-04",
           endDate: "2024-09-18",
+          page: false,
           repeat: true,
           interval: 7,
           thirdParty: true,
@@ -110,6 +118,7 @@ function App() {
           name: "Review",
           startDate: "2024-09-16",
           endDate: "2024-09-20",
+          page: false,
           repeat: true,
           interval: 2,
           thirdParty: true,
@@ -117,14 +126,15 @@ function App() {
         }
       ]
     }
-  ];
+  ])
 
   //general
   //this is for the whole app
-  const [currentPage, setCurrentPage] = useState('Home Page');
-  //these are for AppContent
-  const [currentProject, setCurrentProject] = useState(undefined);
-  const [currentActivity, setCurrentActivity] = useState(undefined);
+  const [state, setState] = useState({
+    currentPage: 'Home Page',
+    currentProject: undefined,
+    currentActivity: undefined
+  });
 
   //header
   const [isCompany, setIsCompany] = useState(true);
@@ -134,19 +144,22 @@ function App() {
   const handleLoggedIn = (val) => {
     setLoggedIn(val);
     console.log(`Logged in: ${isLoggedIn}`);
-  };
+  }
 
   useEffect(() => {
-    if (currentPage === 'Notifications') {
+    if (state.currentPage === 'Notifications') {
       setNotificationsCount(0);
     }
-  }, [currentPage]);
+  }, [state.currentPage])
 
   useEffect(() => {
-    if (currentPage) {
-      setCurrentProject(undefined);
+    if (state.currentPage) {
+      setState(prevState => ({
+        ...prevState,
+        currentProject: undefined
+      }));
     }
-  }, [currentPage]);
+  }, [state.currentPage])
   
   //main
   
@@ -158,33 +171,26 @@ function App() {
         return (
           <div className="App">
             <AppHeader
-              onMenuClick={setCurrentPage}
+              state={state}
+              setState={setState}
               handleLoggedIn={handleLoggedIn}
-              currentPage={currentPage}
               notifications={notificationsCount}
               organisationType={isCompany}
             />
             <div>
               <AppNav
                 data={projects}
-                currentPage={currentPage}
-                currentProject={currentProject}
-                currentActivity={currentActivity}
+                state={state}
+                setState={setState}
                 organisationType={isCompany}
-                setCurrentProject={setCurrentProject}
-                setCurrentActivity={setCurrentActivity}
               />
               <AppContent
                 userData={userData}
                 setUserData={setUserData}
-                page={currentPage}
-                subPage={currentActivity}
+                state={state}
+                setState={setState}
                 data={projects}
-                currentProject={currentProject}
-                currentActivity={currentActivity}
-                setCurrentPage={setCurrentPage}
-                setCurrentProject={setCurrentProject}
-                setCurrentActivity={setCurrentActivity}
+                setData={setProjects}
               />
             </div>
           </div>
