@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback }  from 'react';
 import '../../../css/pages/shared/ControlPanel.css';
 
-const ControlPanel = ({ currentItem }) => {
+const ControlPanel = ({ setData, currentItem }) => {
 
     return (
         <div>

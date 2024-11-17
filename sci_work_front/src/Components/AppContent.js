@@ -1,6 +1,7 @@
-import React, { Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import '../css/AppContent.css';
 import * as Pages from './pages';
+import AddEditItem from './pages/dialogs/AddEditItem';
 
 const AppContent = ({userData, setUserData, state, setState, data, setData}) => {
 
@@ -11,8 +12,16 @@ const AppContent = ({userData, setUserData, state, setState, data, setData}) => 
 
     const PageComponent = state.currentPage ? loadPageComponent(state.currentPage) : undefined;
 
+    const [openAddEditItemDialog, setOpenAddEditItemDialog] = useState(undefined);
+
     return (
         <main className="content">
+            {openAddEditItemDialog && (
+                <AddEditItem
+                    setData={setData}
+                    currentItem={openAddEditItemDialog}
+                />
+            )}
             {PageComponent ? (
                 <Suspense fallback={<div>Loading...</div>}>
                     <PageComponent
@@ -22,6 +31,7 @@ const AppContent = ({userData, setUserData, state, setState, data, setData}) => 
                         setState={setState}
                         data={data}
                         setData={setData}
+                        setOpenAddEditItemDialog={setOpenAddEditItemDialog}
                     />
                 </Suspense>
             ) : (

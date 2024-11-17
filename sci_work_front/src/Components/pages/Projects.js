@@ -1,9 +1,8 @@
-import React, { useState, useEffect, Suspense }  from 'react';
+import React, { useState, Suspense }  from 'react';
 import '../../css/pages/Projects.css';
 import ControlPanel from './shared/ControlPanel';
-import AddEditItem from './dialogs/AddEditItem';
 
-const Projects = ({ userData, setUserData, state, setState, data, setData }) => {
+const Projects = ({ userData, setUserData, state, setState, data, setData, setOpenAddEditItemDialog }) => {
 
     //open project
 
@@ -22,7 +21,23 @@ const Projects = ({ userData, setUserData, state, setState, data, setData }) => 
         activities: state.currentProject?.activities ? state.currentProject.activities : []
     }, [state.currentProject, data]);
 
-    const [openAddEditItemDialog, setOpenAddEditItemDialog] = useState(undefined);
+    // Delete item
+    const handleDelete = (itemToDelete) => {
+        setData(prevProjects =>
+            prevProjects.map(project => {
+                if (project.name === state.currentProject?.name) {
+                    return {
+                        ...project,
+                        activities: project.activities.map(activity =>
+                            activity.name === (itemToDelete.name) ? { ...activity, deleted: true } : activity
+                        )
+                    };
+                }
+                return (project.name === itemToDelete.name ? { ...project, deleted: true } : project);
+            })
+        );
+        console.log(data);
+    };
 
     return (
         <>
@@ -34,12 +49,6 @@ const Projects = ({ userData, setUserData, state, setState, data, setData }) => 
                 setItemsToDisplay={setItemsToDisplay}
                 setOpenAddEditItemDialog={setOpenAddEditItemDialog}
             />
-            {openAddEditItemDialog && (
-                <AddEditItem
-                    setData={setData}
-                    currentItem={openAddEditItemDialog}
-                />
-            )}
             <div className='itemList'>
                 {(!state.currentProject) ? (
                     <Suspense fallback={<div>Loading projects...</div>}>
@@ -59,6 +68,22 @@ const Projects = ({ userData, setUserData, state, setState, data, setData }) => 
                                 <p className='timeLimit'>
                                     {project.startDate ? project.startDate : 'N/A'} - {project.endDate}
                                 </p>
+                                {!project.deleted && userData.genStatus < 2 &&
+                                    <div className='actions'>
+                                        <button
+                                            className='gearButton'
+                                            onClick={() => setOpenAddEditItemDialog(project)}
+                                        >
+                                            ⚙️
+                                        </button>
+                                        <button
+                                            className='deleteButton'
+                                            onClick={() => handleDelete(project)}
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
+                                }
                             </div>
                         ))}
                     </Suspense>
@@ -81,6 +106,22 @@ const Projects = ({ userData, setUserData, state, setState, data, setData }) => 
                                     <p className='details'>
                                         {activity.thirdParty ? `Service: ${activity.serviceName}` : 'No third-party service'}
                                     </p>
+                                    {!activity.deleted && userData.genStatus < 2 &&
+                                        <div className='actions'>
+                                            <button
+                                                className='gearButton'
+                                                onClick={() => setOpenAddEditItemDialog(activity)}
+                                            >
+                                                ⚙️
+                                            </button>
+                                            <button
+                                                className='deleteButton'
+                                                onClick={() => handleDelete(activity)}
+                                            >
+                                                🗑️
+                                            </button>
+                                        </div>
+                                    }
                                 </div>
                             ))
                         ) : (
@@ -93,3 +134,5 @@ const Projects = ({ userData, setUserData, state, setState, data, setData }) => 
     )}
 
 export default Projects
+
+//try to keep condition separately in here, apart from current project

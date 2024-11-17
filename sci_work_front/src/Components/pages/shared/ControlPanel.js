@@ -8,73 +8,50 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
         state: ["all", "expired", "expiring"]
     }
 
-    const [isDropdownOpen, setIsDropdownOpen] = useState({
-        sort: false,
-        state: false
-    });
-
-    const [currentItemDisplaySettings, setCurrentItemDisplaySettings] = useState({
-        sort: userData.currentSortFilter,
-        state: userData.currentStateFilter,
-        searchQuery: ''
-    });
+    const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+    const [isStateDropdownOpen, setIsStateDropdownOpen] = useState(false);
+    const [currentSortOption, setCurrentSortOption] = useState(userData.currentSortFilter);
+    const [currentStateOption, setCurrentStateOption] = useState(userData.currentStateFilter);
+    const [searchQuery, setSearchQuery] = useState("");
 
     const sortDropdownRef = useRef(null);
     const stateDropdownRef = useRef(null);
 
     useEffect(() => {
-        setCurrentItemDisplaySettings(prevData => ({
-            ...prevData,
-            searchQuery: ''
-        }));
+        setSearchQuery("");
     }, [state.currentProject]);
 
     //update filter values
 
     useEffect(() => {
         if (userData) {
-            setCurrentItemDisplaySettings(prevData => ({
-                ...prevData,
-                sort: userData.currentSortFilter,
-                state: userData.currentStatusFilter
-            }));
+            setCurrentSortOption(userData.currentSortFilter);
+            setCurrentStateOption(userData.currentStatusFilter);
         }
     }, [userData])
 
     const handleSortOptionSelect = (option) => {
         setUserData(prevData => ({ ...prevData, currentSortFilter: option }));
-        setIsDropdownOpen(prevState => ({
-            ...prevState,
-            sort: false
-        }));
+        setIsSortDropdownOpen(false);
     }
 
     const handleStateOptionSelect = (option) => {
         setUserData(prevData => ({ ...prevData, currentStatusFilter: option }));
-        setIsDropdownOpen(prevState => ({
-            ...prevState,
-            state: false
-        }));
+        setIsStateDropdownOpen(false);
     }
 
     //close filter option lists on click outside
 
     const handleClickOutside = useCallback((event) => {
-        if (isDropdownOpen.sort && sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
-            setIsDropdownOpen(prevState => ({
-                ...prevState,
-                sort: false
-            }));
+        if (isSortDropdownOpen && sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
+            setIsSortDropdownOpen(false);
         }
-        if (isDropdownOpen.state && stateDropdownRef.current && !stateDropdownRef.current.contains(event.target)) {
-            setIsDropdownOpen(prevState => ({
-                ...prevState,
-                state: false
-            }));
+        if (isStateDropdownOpen && stateDropdownRef.current && !stateDropdownRef.current.contains(event.target)) {
+            setIsStateDropdownOpen(false);
         }
-    }, [isDropdownOpen]);
+    }, [isSortDropdownOpen, isStateDropdownOpen]);
 
-    useEffect(() => {
+    useState(() => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -85,21 +62,21 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
 
     const sortItems = useCallback((items) => {
         return items.sort((a, b) => {
-            if (currentItemDisplaySettings.sort === "A-Z") {
+            if (currentSortOption === "A-Z") {
                 return a.name.localeCompare(b.name);
             }
-            if (currentItemDisplaySettings.sort === "Z-A") {
+            if (currentSortOption === "Z-A") {
                 return b.name.localeCompare(a.name);
             }
-            if (currentItemDisplaySettings.sort === "start date") {
+            if (currentSortOption === "start date") {
                 return new Date(a.startDate) - new Date(b.startDate);
             }
-            if (currentItemDisplaySettings.sort === "end date") {
+            if (currentSortOption === "end date") {
                 return new Date(a.endDate) - new Date(b.endDate);
             }
             return 0;
         });
-    }, [currentItemDisplaySettings.sort]);
+    }, [currentSortOption]);
 
     //filter items
 
@@ -107,14 +84,22 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
         let filtered = items;
 
         // Filter by state first
-        if (currentItemDisplaySettings.state !== "all") {
+        if (currentStateOption !== "all") {
             filtered = filtered.filter(item => {
+
+                // //deleted Items are only visible for supervisor and organisation owner. Used for corruption checks
+                // if (userData.genStatus !== 0 && userData.genStatus !== 2 && item.deleted === true) {
+                //     console.log("I was deleted!");
+                //     console.log(item);
+                //     return false;
+                // }
+
                 const endDate = new Date(item.endDate);
                 const timeDifference = (endDate - new Date()) / (24 * 60 * 60 * 1000); // days remaining
-                if (currentItemDisplaySettings.state === "expired" && timeDifference < 0) {
+                if (currentStateOption === "expired" && timeDifference < 0) {
                     return true; // Expired items
                 }
-                if (currentItemDisplaySettings.state === "expiring" && timeDifference < 30 && timeDifference >= 0) {
+                if (currentStateOption === "expiring" && timeDifference < 30 && timeDifference >= 0) {
                     return true; // Expiring items (within 30 days)
                 }
                 return false;
@@ -122,15 +107,15 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
         }
 
         // Filter by search query
-        if (currentItemDisplaySettings.searchQuery.trim() !== "") {
+        if (searchQuery.trim() !== "") {
             filtered = filtered.filter(item =>
-                item.name.toLowerCase().includes(currentItemDisplaySettings.searchQuery.toLowerCase()) // Case-insensitive search
+                item.name.toLowerCase().includes(searchQuery.toLowerCase()) // Case-insensitive search
             );
             console.log(filtered);
         }
 
         return filtered;
-    }, [currentItemDisplaySettings])
+    }, [currentStateOption, searchQuery])
 
     //data to display
 
@@ -156,25 +141,22 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
         <div className='controlPanel'>
             <input
                 type="text"
-                value={currentItemDisplaySettings.searchQuery}
-                onChange={(e) => setCurrentItemDisplaySettings(prevData => ({
-                    ...prevData,
-                    searchQuery: e.target.value
-                }))}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search"
                 className="search-input"
             />
             <button
                 className="filter-button"
-                onClick={() => setIsDropdownOpen(prevState => ({...prevState, sort: !isDropdownOpen.sort }))}
+                onClick={() => {setIsSortDropdownOpen(!isSortDropdownOpen)}}
                 ref={sortDropdownRef}
             >
-                {currentItemDisplaySettings.sort}
+                {currentSortOption}
             </button>
-            {isDropdownOpen.sort && (
+            {isSortDropdownOpen && (
                 <ul className="dropdown">
                     {filterOptions.sort.map((option, index) => (
-                        <li key={index} onClick={() => handleSortOptionSelect(option)}>
+                        <li key={index} onClick={() => { handleSortOptionSelect(option)}}>
                             {option}
                         </li>
                     ))}
@@ -183,12 +165,12 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
 
             <button
                 className="filter-button"
-                onClick={() => setIsDropdownOpen(prevState => ({...prevState, state: !isDropdownOpen.state }))}
+                onClick={() => setIsStateDropdownOpen(!isStateDropdownOpen)}
                 ref={stateDropdownRef}
             >
-                {currentItemDisplaySettings.state}
+                {currentStateOption}
             </button>
-            {isDropdownOpen.state && (
+            {isStateDropdownOpen && (
                 <ul className="dropdown">
                     {filterOptions.state.map((option, index) => (
                         <li key={index} onClick={() => handleStateOptionSelect(option)}>

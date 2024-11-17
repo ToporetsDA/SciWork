@@ -8,7 +8,7 @@ import AppContent from './Components/AppContent'
 function App() {
 
   const [userData, setUserData] = useState({
-    genStatus: 0, //0 - client representative(full access), 1 - manager (can add/edit items), 2 - supervisor, 3 - user
+    genStatus: 0, //0 - client representative(organisation owner, full access), 1 - manager (add/edit items), 2 - supervisor, 3 - user
     currentSortFilter: "A-Z",
     currentStatusFilter: "all",
   })
