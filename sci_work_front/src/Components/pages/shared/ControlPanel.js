@@ -83,16 +83,13 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
     const filterItems = useCallback((items) => {
         let filtered = items;
 
+        if (userData.genStatus !== 0 && userData.genStatus !== 2) {
+            filtered = filtered.filter(item => !item.deleted);
+        }
+
         // Filter by state first
         if (currentStateOption !== "all") {
             filtered = filtered.filter(item => {
-
-                // //deleted Items are only visible for supervisor and organisation owner. Used for corruption checks
-                // if (userData.genStatus !== 0 && userData.genStatus !== 2 && item.deleted === true) {
-                //     console.log("I was deleted!");
-                //     console.log(item);
-                //     return false;
-                // }
 
                 const endDate = new Date(item.endDate);
                 const timeDifference = (endDate - new Date()) / (24 * 60 * 60 * 1000); // days remaining
