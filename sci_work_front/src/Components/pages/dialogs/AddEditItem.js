@@ -1,13 +1,15 @@
 import React, { useState}  from 'react';
 import '../../../css/pages/dialogs/AddEditItem.css';
 
+import { v4 as uuidv4 } from 'uuid';
+
 const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructure, defaultStructure, isCompany, setOpenAddEditItemDialog }) => {
 
     const [selectedType, setSelectedType] = useState(state.currentProject ? "Activity" : "Project"); // Default to "Project"
 
     // Initialize form values based on default type
 
-    const initializeFormValues = (defaultValues) => {
+    const initializeFormValues = (defaultValues, itemStructure) => {
         if (currentItem === true) {
             // If currentItem is 'true', return default values for a new item
             return Object.keys(defaultValues).reduce((acc, key) => {
@@ -25,7 +27,7 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructu
     };
 
     const [formValues, setFormValues] = useState(() => {
-        return initializeFormValues(defaultStructure.project);
+        return initializeFormValues(defaultStructure[selectedType.toLowerCase()], itemStructure[selectedType.toLowerCase()]);
     });
 
      // Reset form values for the new type  -   -   -   -   -   -   -   -   -   -   I'll need it while making schedule
@@ -51,6 +53,11 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructu
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const newItem = {
+            ...formValues,
+            id: currentItem?.id || (state.currentProject ? `${state.currentProject.id}-${state.currentProject.length}` : uuidv4()), // Retain existing ID if editing, otherwise generate a new one
+        };
 
         //validation
         const newErrors = {};
@@ -106,21 +113,27 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructu
         if (selectedType === "Activity" && state.currentProject) {
             setData((prev) => {
                 const updatedData = prev.map((project) => {
-                    if (project.name === state.currentProject.name) {
-                        // Update the project activities
+                    if (project.id === state.currentProject.id) {
+                        // Check if the activity already exists in the project
+                        const existingIndex = project.activities?.findIndex((item) => item.id === newItem.id);
+                        console.log(existingIndex);
+                        
+                        const updatedActivities = existingIndex !== -1
+                        ? project.activities.map((item, idx) => idx === existingIndex ? newItem : item) // Update activity
+                        : [...(project.activities || []), newItem]; // Add activity
+
                         const updatedProject = {
                             ...project,
-                            activities: project.activities ? [...project.activities, formValues] : [formValues]
+                            activities: updatedActivities,
                         };
-        
-                        // Update the state.currentProject
-                        if (state.currentProject.name === project.name) {
+
+                        // Update state.currentProject
+                        if (state.currentProject.id === project.id) {
                             setState((prevState) => ({
                                 ...prevState,
-                                currentProject: updatedProject
+                                currentProject: updatedProject,
                             }));
                         }
-        
                         return updatedProject;
                     }
                     return project;
@@ -132,12 +145,12 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructu
                 const existingIndex = prev.findIndex((item) => item.name === currentItem.name);
         
                 if (existingIndex !== -1) {
-                    // Update
+                    // Update project
                     const updatedData = [...prev];
                     updatedData[existingIndex] = { ...prev[existingIndex], ...formValues };
                     return updatedData;
                 } else {
-                    // Add
+                    // Add project
                     return [...prev, formValues];
                 }
             });
@@ -193,3 +206,5 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructu
 }
 
 export default ControlPanel
+
+//fix Activity add\edit and restriction logic for item add/edit

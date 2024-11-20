@@ -71,7 +71,8 @@ function App() {
           repeat: true,
           interval: 7,
           thirdParty: true,
-          serviceName: "Zoom"
+          serviceName: "Zoom",
+          id: 11
         },
         {
           name: "Code review",
@@ -81,9 +82,11 @@ function App() {
           repeat: false,
           interval: null,
           thirdParty: false,
-          serviceName: null
+          serviceName: null,
+          id: 12
         }
-      ]
+      ],
+      id: 1
     },
     {
       name: "Project 2",
@@ -99,7 +102,8 @@ function App() {
           repeat: true,
           interval: 7,
           thirdParty: true,
-          serviceName: "Zoom"
+          serviceName: "Zoom",
+          id: 21
         },
         {
           name: "Review",
@@ -109,14 +113,16 @@ function App() {
           repeat: true,
           interval: 2,
           thirdParty: true,
-          serviceName: "Google Meet"
+          serviceName: "Google Meet",
+          id: 22
         }
-      ]
+      ],
+      id: 2
     },
     {
       name: "Project 4",
       startDate: "2023-03-04",
-      endDate: "2024-08-27",
+      endDate: "2024-12-27",
       access: 1,
       activities: [
         {
@@ -127,19 +133,22 @@ function App() {
           repeat: true,
           interval: 7,
           thirdParty: true,
-          serviceName: "Zoom"
+          serviceName: "Zoom",
+          id: 31
         },
         {
           name: "Review",
           startDate: "2024-09-16",
-          endDate: "2024-09-20",
+          endDate: "2024-12-12",
           page: false,
           repeat: true,
           interval: 2,
           thirdParty: true,
-          serviceName: "Google Meet"
+          serviceName: "Google Meet",
+          id: 32
         }
-      ]
+      ],
+      id: 3
     },
     {
       name: "Naming pro 3",
@@ -155,7 +164,8 @@ function App() {
           repeat: true,
           interval: 7,
           thirdParty: true,
-          serviceName: "Zoom"
+          serviceName: "Zoom",
+          id: 41
         },
         {
           name: "Review",
@@ -165,9 +175,11 @@ function App() {
           repeat: true,
           interval: 2,
           thirdParty: true,
-          serviceName: "Google Meet"
+          serviceName: "Google Meet",
+          id: 42
         }
-      ]
+      ],
+      id: 4
     }
   ])
 
