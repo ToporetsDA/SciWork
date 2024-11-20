@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback }  from 'react';
 import '../../../css/pages/shared/ControlPanel.css';
 
-const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, setOpenAddEditItemDialog }) => {
+const ControlPanel = ({ userData, setUserData, state, data, rights, setItemsToDisplay, setOpenAddEditItemDialog }) => {
 
     const filterOptions = {
         sort: ["A-Z", "Z-A", "start date", "end date"],
@@ -83,9 +83,7 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
     const filterItems = useCallback((items) => {
         let filtered = items;
 
-        if (userData.genStatus !== 0 && userData.genStatus !== 2) {
-            filtered = filtered.filter(item => !item.deleted);
-        }
+        filtered = filtered.filter(item => !item.deleted || (item.deleted && rights.fullView.includes(item.access)));
 
         // Filter by state first
         if (currentStateOption !== "all") {
@@ -112,7 +110,7 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
         }
 
         return filtered;
-    }, [currentStateOption, searchQuery])
+    }, [currentStateOption, searchQuery, rights.fullView])
 
     //data to display
 
@@ -141,10 +139,10 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search"
-                className="search-input"
+                className="searchInput"
             />
             <button
-                className="filter-button"
+                className="filterButton"
                 onClick={() => {setIsSortDropdownOpen(!isSortDropdownOpen)}}
                 ref={sortDropdownRef}
             >
@@ -161,7 +159,7 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
             )}
 
             <button
-                className="filter-button"
+                className="filterButton"
                 onClick={() => setIsStateDropdownOpen(!isStateDropdownOpen)}
                 ref={stateDropdownRef}
             >
@@ -176,8 +174,8 @@ const ControlPanel = ({ userData, setUserData, state, data, setItemsToDisplay, s
                     ))}
                 </ul>
             )}
-            {(userData.genStatus < 2) && (
-                <button className="add-item" onClick={() => setOpenAddEditItemDialog()}>
+            {rights.edit.includes(userData.genStatus) && (
+                <button className="addItem" onClick={() => setOpenAddEditItemDialog(true)}>
                     Add
                 </button>
             )}

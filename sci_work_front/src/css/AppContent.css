@@ -4,6 +4,7 @@ menu {
 }
 
 main {
+  position: relative;
   width: 100%;
 }
 

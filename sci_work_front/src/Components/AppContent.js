@@ -3,7 +3,7 @@ import '../css/AppContent.css';
 import * as Pages from './pages';
 import AddEditItem from './pages/dialogs/AddEditItem';
 
-const AppContent = ({userData, setUserData, state, setState, data, setData}) => {
+const AppContent = ({userData, setUserData, state, setState, data, setData, rights, itemStructure, defaultStructure, isCompany}) => {
 
     const loadPageComponent = (pageName) => {
         const formattedPageName = (pageName === 'Subjects' || pageName === 'Project') ? 'Projects' : pageName;
@@ -18,8 +18,15 @@ const AppContent = ({userData, setUserData, state, setState, data, setData}) => 
         <main className="content">
             {openAddEditItemDialog && (
                 <AddEditItem
+                    data={data}
                     setData={setData}
+                    state={state}
+                    setState={setState}
                     currentItem={openAddEditItemDialog}
+                    itemStructure={itemStructure}
+                    defaultStructure={defaultStructure}
+                    isCompany={isCompany}
+                    setOpenAddEditItemDialog={setOpenAddEditItemDialog}
                 />
             )}
             {PageComponent ? (
@@ -31,6 +38,7 @@ const AppContent = ({userData, setUserData, state, setState, data, setData}) => 
                         setState={setState}
                         data={data}
                         setData={setData}
+                        rights={rights}
                         setOpenAddEditItemDialog={setOpenAddEditItemDialog}
                     />
                 </Suspense>

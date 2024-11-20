@@ -7,18 +7,61 @@ import AppContent from './Components/AppContent'
 
 function App() {
 
+  const rights = {
+    fullView: [0, 2],
+    interact: [0, 1, 3],
+    edit: [0, 1]
+  }
+
   const [userData, setUserData] = useState({
-    genStatus: 1, //0 - client representative(organisation owner, full access), 1 - manager (add/edit items), 2 - supervisor, 3 - user
+    genStatus: 1,//0 - item creator/organisation owner, 1 - manager (add/edit items), 2 - supervisor, 3 - user
     currentSortFilter: "A-Z",
     currentStatusFilter: "all",
   })
+
+  const itemStructure = {
+    project: {
+      name: 'text',
+      startDate: 'date',
+      endDate: 'date',
+    },
+    activity: {
+      name: 'text',
+      startDate: 'date',
+      endDate: 'date',
+      repeat: 'checkbox',
+      interval: 'number',
+      thirdParty: 'checkbox',
+      serviceName: 'text'
+    }
+  }
+
+  const defaultStructure = {
+    project: {
+      name: '',
+      startDate: '',
+      endDate: '',
+      access: userData.genStatus,
+      activities: []
+    },
+    activity: {
+      name: '',
+      startDate: '',
+      endDate: '',
+      page: false,
+      repeat: false,
+      interval: -1,
+      thirdParty: false,
+      serviceName: ''
+    }
+  };
 
   const [projects, setProjects] = useState([
     {
       name: "Project 1",
       startDate: "2024-03-04",
       endDate: "2024-11-08",
-      access: "user",
+      access: 3,
       activities: [
         {
           name: "Team Meeting",
@@ -46,7 +89,7 @@ function App() {
       name: "Project 2",
       startDate: "2024-05-07",
       endDate: "2024-11-27",
-      access: "project manager",
+      access: 1,
       activities: [
         {
           name: "Sprint Planning",
@@ -74,7 +117,7 @@ function App() {
       name: "Project 4",
       startDate: "2023-03-04",
       endDate: "2024-08-27",
-      access: "project manager",
+      access: 1,
       activities: [
         {
           name: "Sprint Planning",
@@ -102,7 +145,7 @@ function App() {
       name: "Naming pro 3",
       startDate: "2024-03-04",
       endDate: "2024-12-27",
-      access: "project manager",
+      access: 2,
       activities: [
         {
           name: "Sprint Planning",
@@ -137,7 +180,7 @@ function App() {
   });
 
   //header
-  const [isCompany, setIsCompany] = useState(true);
+  const isCompany = true;
   const [isLoggedIn, setLoggedIn] = useState(true);
   const [notificationsCount, setNotificationsCount] = useState(5);
 
@@ -191,6 +234,10 @@ function App() {
                 setState={setState}
                 data={projects}
                 setData={setProjects}
+                rights={rights}
+                itemStructure={itemStructure}
+                defaultStructure={defaultStructure}
+                isCompany={isCompany}
               />
             </div>
           </div>

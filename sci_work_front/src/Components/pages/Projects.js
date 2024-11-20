@@ -2,7 +2,7 @@ import React, { useState, Suspense }  from 'react';
 import '../../css/pages/Projects.css';
 import ControlPanel from './shared/ControlPanel';
 
-const Projects = ({ userData, setUserData, state, setState, data, setData, setOpenAddEditItemDialog }) => {
+const Projects = ({ userData, setUserData, state, setState, data, setData, rights, setOpenAddEditItemDialog }) => {
 
     //open project
 
@@ -26,17 +26,28 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, setOp
         setData(prevProjects =>
             prevProjects.map(project => {
                 if (project.name === state.currentProject?.name) {
-                    return {
+
+                    // Update the project activities
+                    const updatedProject = {
                         ...project,
                         activities: project.activities.map(activity =>
                             activity.name === (itemToDelete.name) ? { ...activity, deleted: true } : activity
                         )
                     };
+    
+                    // Update the state.currentProject
+                    if (state.currentProject.name === project.name) {
+                        setState((prevState) => ({
+                            ...prevState,
+                            currentProject: updatedProject
+                        }));
+                    }
+    
+                    return updatedProject;
                 }
                 return (project.name === itemToDelete.name ? { ...project, deleted: true } : project);
             })
         );
-        console.log(data);
     };
 
     return (
@@ -46,6 +57,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, setOp
                 setUserData={setUserData}
                 state={state}
                 data={data}
+                rights={rights}
                 setItemsToDisplay={setItemsToDisplay}
                 setOpenAddEditItemDialog={setOpenAddEditItemDialog}
             />
@@ -68,17 +80,23 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, setOp
                                 <p className='timeLimit'>
                                     {project.startDate ? project.startDate : 'N/A'} - {project.endDate}
                                 </p>
-                                {!project.deleted && userData.genStatus < 2 &&
+                                {!project.deleted && rights.edit.includes(project.access) &&
                                     <div className='actions'>
                                         <button
                                             className='gearButton'
-                                            onClick={() => setOpenAddEditItemDialog(project)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenAddEditItemDialog(project)
+                                            }}
                                         >
                                             ⚙️
                                         </button>
                                         <button
                                             className='deleteButton'
-                                            onClick={() => handleDelete(project)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(project);
+                                            }}
                                         >
                                             🗑️
                                         </button>
@@ -106,21 +124,27 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, setOp
                                     <p className='details'>
                                         {activity.thirdParty ? `Service: ${activity.serviceName}` : 'No third-party service'}
                                     </p>
-                                    {!activity.deleted && userData.genStatus < 2 &&
+                                    {!activity.deleted && rights.edit.includes(state.currentProject.access) &&
                                         <div className='actions'>
-                                            <button
-                                                className='gearButton'
-                                                onClick={() => setOpenAddEditItemDialog(activity)}
-                                            >
-                                                ⚙️
-                                            </button>
-                                            <button
-                                                className='deleteButton'
-                                                onClick={() => handleDelete(activity)}
-                                            >
-                                                🗑️
-                                            </button>
-                                        </div>
+                                        <button
+                                            className='gearButton'
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setOpenAddEditItemDialog(activity);
+                                            }}
+                                        >
+                                            ⚙️
+                                        </button>
+                                        <button
+                                            className='deleteButton'
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(activity)
+                                            }}
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
                                     }
                                 </div>
                             ))
@@ -135,4 +159,4 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, setOp
 
 export default Projects
 
-//try to keep condition separately in here, apart from current project
+// Separate list to display condition from state?
