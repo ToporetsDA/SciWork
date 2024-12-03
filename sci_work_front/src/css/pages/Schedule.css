@@ -1,3 +1,57 @@
-
+.scheduleContainer {
+  display: flex;
+  max-height: 70vh;
+  flex-wrap: wrap;
+  padding: 2.5%;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.scheduleContainer .currentMap {
+  width: 7.5%;
+}
+.scheduleContainer .scheduleVMap {
+  width: 90%;
+  flex-shrink: 0;
+  margin: 0 0 10px 0;
+}
+.scheduleContainer .scheduleHMap {
+  width: 7.5%;
+}
+.scheduleContainer .schedule {
+  width: 90%;
+  display: grid;
+  gap: 0;
+  border: 1px solid black;
+}
+.scheduleContainer .schedule .scheduleCell {
+  border: inherit;
+  min-height: 80px;
+}
+.scheduleContainer .schedule .scheduleItem {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.scheduleContainer .schedule h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #333;
+}
+.scheduleContainer .schedule p {
+  margin: 0.25rem 0;
+  font-size: 1rem;
+  color: #666;
+}
+.scheduleContainer .activityBlock {
+  position: absolute;
+  background-color: rgba(100, 150, 255, 0.7);
+  border: 1px solid #005fdd;
+  border-radius: 5px;
+  overflow: hidden;
+  text-align: center;
+  font-size: 0.9em;
+}
 
 /*# sourceMappingURL=Schedule.css.map */

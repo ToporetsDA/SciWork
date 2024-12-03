@@ -1,25 +1,25 @@
-import React, { useState}  from 'react';
+import React, { useState, useMemo }  from 'react';
 import '../../../css/pages/dialogs/AddEditItem.css';
 
 import { v4 as uuidv4 } from 'uuid';
 
-const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructure, defaultStructure, isCompany, setOpenAddEditItemDialog }) => {
+const ControlPanel = ({ data, setData, currentItem, state, setState, rights, itemStructure, defaultStructure, isCompany, setOpenAddEditItemDialog }) => {
 
     const [selectedType, setSelectedType] = useState(state.currentProject ? "Activity" : "Project"); // Default to "Project"
 
     // Initialize form values based on default type
 
-    const initializeFormValues = (defaultValues, itemStructure) => {
+    const initializeFormValues = (defaultValues, structure) => {
         if (currentItem === true) {
             // If currentItem is 'true', return default values for a new item
             return Object.keys(defaultValues).reduce((acc, key) => {
-                acc[key] = defaultValues[key] || (itemStructure[key] === 'checkbox' ? false : ''); // Fallback to empty string if no default
+                acc[key] = defaultValues[key] || (structure[key] === 'checkbox' ? false : ''); // Fallback to empty string if no default
                 return acc;
             }, {});
-        } else if (currentItem) {
+        } else if (currentItem !== undefined) {
             // If currentItem is an object, fill with its values
             return Object.keys(defaultValues).reduce((acc, key) => {
-                acc[key] = currentItem[key] !== undefined ? currentItem[key] : defaultValues[key] || (itemStructure[key] === 'checkbox' ? false : ''); // Fallback to default if missing
+                acc[key] = currentItem[key] !== undefined ? currentItem[key] : defaultValues[key] || (structure[key] === 'checkbox' ? false : ''); // Fallback to default if missing
                 return acc;
             }, {});
         }
@@ -30,14 +30,20 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructu
         return initializeFormValues(defaultStructure[selectedType.toLowerCase()], itemStructure[selectedType.toLowerCase()]);
     });
 
-     // Reset form values for the new type  -   -   -   -   -   -   -   -   -   -   I'll need it while making schedule
+    // Reset form values for the new type
 
-    // const handleTypeChange = (e) => {
-    //     const type = e.target.value;
-    //     setSelectedType(type);
-    //     setFormValues(initializeFormValues(defaultStructure[type.toLowerCase()]));
-    //     setErrors({});
-    // };
+    const handleTypeChange = (e) => {
+        const type = e.target.value;
+        setSelectedType(type);
+        setFormValues(initializeFormValues(defaultStructure[type.toLowerCase()], itemStructure[selectedType.toLowerCase()]));
+        setErrors({});
+        if (type === "Project") {
+            setState((prevState) => ({
+                ...prevState,
+                currentProject: undefined,
+            }));
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, type, checked, value } = e.target;
@@ -46,6 +52,13 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructu
             [name]: type === 'checkbox' ? checked : value
         }));
     };
+
+    //show item-fields
+    const showItemFields = useMemo(() => {
+        return (state.currentPage !== 'Schedule' || selectedType === 'Project' ||
+        (selectedType === 'Activity' && state.currentProject !== undefined)) &&
+        ((state.currentProject !== undefined) ? rights.edit.includes(state.currentProject.access) : true);
+    }, [state, selectedType, rights.edit]);
 
     // Close the dialog
 
@@ -90,15 +103,15 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructu
                 newErrors.endDate = 'Trying to create expired project';
             }
 
-            // if (selectedType === 'Activity') {
-            //     if (startDate < state.currentProject.startDate || startDate >= state.currentProject.endDate) {
-            //         newErrors.startDate = "Start date must be within project's lifetime.";
-            //     }
+            if (selectedType === 'Activity') {
+                if (startDate < state.currentProject.startDate || startDate >= state.currentProject.endDate) {
+                    newErrors.startDate = "Start date must be within project's lifetime.";
+                }
 
-            //     if (endDate < state.currentProject.startDate || endDate > state.currentProject.endDate) {
-            //         newErrors.startDate = "End date must be within project's lifetime.";
-            //     }
-            // }
+                if (endDate < state.currentProject.startDate || endDate > state.currentProject.endDate) {
+                    newErrors.startDate = "End date must be within project's lifetime.";
+                }
+            }
         }
 
         // If there are any errors, update the state and stop submission
@@ -178,26 +191,54 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructu
 
                 </h2>
                 <form onSubmit={handleSubmit}>
-                    {/* {currentItem === true && state.currentProject &&
+                    {currentItem === true && state.currentPage === 'Schedule' &&
+                    <>
                         <select id="itemType" value={selectedType} onChange={handleTypeChange}>
                             <option value="Project">{isCompany ? 'Project' : 'Subject'}</option>
                             <option value="Activity">Activity</option>
                         </select>
-                    } */}
-                    {Object.keys(currentStructure).map((key) => (
-                        <div key={key} className="formGroup">
-                            <label htmlFor={key}>{formatLabel(key)}</label>
-                            <input
-                                id={key}
-                                name={key}
-                                type={currentStructure[key]}
-                                value={formValues[key] || ''}
-                                checked={itemStructure[selectedType.toLowerCase()][key] === 'checkbox' ? formValues[key] : false}
-                                onChange={handleInputChange}
-                            />
-                            {errors[key] && <span className="errorMessage">{errors[key]}</span>}
-                        </div>
-                    ))}
+                        {selectedType === 'Activity' &&
+                            <select
+                                id="projectList"
+                                value={state.currentProject?.id || ""}
+                                onChange={(e) => {
+                                    const selectedProject = data.find((project) => String(project.id) === e.target.value);
+                                    if (selectedProject) {
+                                        setState((prevState) => ({
+                                            ...prevState,
+                                            currentProject: selectedProject,
+                                        }));
+                                    }
+                                }}
+                            >
+                                <option value="" disabled>
+                                    Select a Project
+                                </option>
+                                {data.map((project) => (
+                                    <option key={project.id} value={project.id}>
+                                        {project.name}
+                                    </option>
+                                ))}
+                            </select>
+                        }
+                    </>
+                    }
+                    {(showItemFields) &&
+                        Object.keys(currentStructure).map((key) => (
+                            <div key={key} className="formGroup">
+                                <label htmlFor={key}>{formatLabel(key)}</label>
+                                <input
+                                    id={key}
+                                    name={key}
+                                    type={currentStructure[key]}
+                                    value={formValues[key] || ''}
+                                    checked={itemStructure[selectedType.toLowerCase()][key] === 'checkbox' ? formValues[key] : false}
+                                    onChange={handleInputChange}
+                                />
+                                {errors[key] && <span className="errorMessage">{errors[key]}</span>}
+                            </div>
+                        ))
+                    }
                     <button type="submit" className="submitButton">Save</button>
                 </form>
             </div>
@@ -207,4 +248,4 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, itemStructu
 
 export default ControlPanel
 
-//fix Activity add\edit and restriction logic for item add/edit
+//enhance restriction logic for item add/edit

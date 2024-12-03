@@ -1,8 +1,8 @@
-import React, { useState, Suspense }  from 'react';
+import React, { Suspense }  from 'react';
 import '../../css/pages/Projects.css';
 import ControlPanel from './shared/ControlPanel';
 
-const Projects = ({ userData, setUserData, state, setState, data, setData, rights, setOpenAddEditItemDialog }) => {
+const Projects = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, setOpenAddEditItemDialog }) => {
 
     //open project
 
@@ -16,10 +16,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, right
 
     //data to display
 
-    const [itemsToDisplay, setItemsToDisplay] = useState({
-        projects: data,
-        activities: state.currentProject?.activities ? state.currentProject.activities : []
-    }, [state.currentProject, data]);
+    
 
     // Delete item
     const handleDelete = (itemToDelete) => {

@@ -1,3 +1,13 @@
-
+.controlPanel {
+  display: flex;
+  height: 4vh;
+}
+.controlPanel .sortAndFilter {
+  display: flex;
+  z-index: 10;
+}
+.controlPanel .sortAndFilter div {
+  display: block;
+}
 
 /*# sourceMappingURL=ControlPanel.css.map */

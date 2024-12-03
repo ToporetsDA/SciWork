@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback }  from 'react';
 import '../../../css/pages/shared/ControlPanel.css';
 
-const ControlPanel = ({ userData, setUserData, state, data, rights, setItemsToDisplay, setOpenAddEditItemDialog }) => {
+const ControlPanel = ({ userData, setUserData, state, data, rights, setItemsToDisplay, setOpenAddEditItemDialog, currentScale, setCurrentScale, editIntervalAnchor }) => {
 
     const filterOptions = {
         sort: ["A-Z", "Z-A", "start date", "end date"],
@@ -141,42 +141,74 @@ const ControlPanel = ({ userData, setUserData, state, data, rights, setItemsToDi
                 placeholder="Search"
                 className="searchInput"
             />
-            <button
-                className="filterButton"
-                onClick={() => {setIsSortDropdownOpen(!isSortDropdownOpen)}}
-                ref={sortDropdownRef}
-            >
-                {currentSortOption}
-            </button>
-            {isSortDropdownOpen && (
-                <ul className="dropdown">
-                    {filterOptions.sort.map((option, index) => (
-                        <li key={index} onClick={() => { handleSortOptionSelect(option)}}>
-                            {option}
-                        </li>
-                    ))}
-                </ul>
-            )}
-
-            <button
-                className="filterButton"
-                onClick={() => setIsStateDropdownOpen(!isStateDropdownOpen)}
-                ref={stateDropdownRef}
-            >
-                {currentStateOption}
-            </button>
-            {isStateDropdownOpen && (
-                <ul className="dropdown">
-                    {filterOptions.state.map((option, index) => (
-                        <li key={index} onClick={() => handleStateOptionSelect(option)}>
-                            {option}
-                        </li>
-                    ))}
-                </ul>
-            )}
-            {rights.edit.includes(userData.genStatus) && (
+            {state.currentPage === "Schedule" &&
+                <div className='scale'>
+                    <select
+                        id="scale"
+                        value={currentScale}
+                        onChange={(e) => setCurrentScale(e.target.value)}
+                    >
+                        <option value="week">Week</option>
+                        <option value="month">Month</option>
+                        <option value="year">Year</option>
+                    </select>
+                    <button className='moveSchedulePage' onClick={() => editIntervalAnchor(-1)}>
+                        Prev.
+                    </button>
+                    <button className='moveSchedulePage' onClick={() => editIntervalAnchor(0)}>
+                        To now
+                    </button>
+                    <button className='moveSchedulePage' onClick={() => editIntervalAnchor(1)}>
+                        Next
+                    </button>
+                </div>
+            }
+            {(state.currentPage === "Projects" || state.currentPage === "Project") &&
+                <div className='sortAndFilter'>
+                    <div>
+                        <button
+                            className="filterButton"
+                            onClick={() => {setIsSortDropdownOpen(!isSortDropdownOpen)}}
+                            ref={sortDropdownRef}
+                        >
+                            {currentSortOption}
+                        </button>
+                        {isSortDropdownOpen && (
+                            <ul className="dropdown">
+                                {filterOptions.sort.map((option, index) => (
+                                    <li key={index} onClick={() => { handleSortOptionSelect(option)}}>
+                                        {option}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                    <div>
+                        <button
+                            className="filterButton"
+                            onClick={() => setIsStateDropdownOpen(!isStateDropdownOpen)}
+                            ref={stateDropdownRef}
+                        >
+                            {currentStateOption}
+                        </button>
+                        {isStateDropdownOpen && (
+                            <ul className="dropdown">
+                                {filterOptions.state.map((option, index) => (
+                                    <li key={index} onClick={() => handleStateOptionSelect(option)}>
+                                        {option}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                </div>
+            }
+            {(((rights.edit.includes(userData.genStatus)
+            && (state.currentProject) ? rights.edit.includes(state.currentProject.access) : true))
+            || state.currentPage === 'Schedule')
+            && (
                 <button className="addItem" onClick={() => setOpenAddEditItemDialog(true)}>
-                    Add
+                    Add item
                 </button>
             )}
         </div>

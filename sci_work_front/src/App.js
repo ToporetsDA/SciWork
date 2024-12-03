@@ -67,6 +67,8 @@ function App() {
           name: "Team Meeting",
           startDate: "2024-03-04",
           endDate: "2024-10-04",
+          startTime: "02:30 PM",
+          endTime: "03:45 PM",
           page: false,
           repeat: true,
           interval: 7,
@@ -91,7 +93,7 @@ function App() {
     {
       name: "Project 2",
       startDate: "2024-05-07",
-      endDate: "2024-11-27",
+      endDate: "2025-11-27",
       access: 1,
       activities: [
         {
@@ -137,7 +139,7 @@ function App() {
           id: 31
         },
         {
-          name: "Review",
+          name: "Review3",
           startDate: "2024-09-16",
           endDate: "2024-12-12",
           page: false,
@@ -168,7 +170,7 @@ function App() {
           id: 41
         },
         {
-          name: "Review",
+          name: "Review2",
           startDate: "2024-09-16",
           endDate: "2024-09-20",
           page: false,
@@ -182,6 +184,10 @@ function App() {
       id: 4
     }
   ])
+
+  const localeData = {
+    
+  }
 
   //general
   //this is for the whole app

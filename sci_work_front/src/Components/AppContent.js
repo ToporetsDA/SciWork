@@ -12,6 +12,11 @@ const AppContent = ({userData, setUserData, state, setState, data, setData, righ
 
     const PageComponent = state.currentPage ? loadPageComponent(state.currentPage) : undefined;
 
+    const [itemsToDisplay, setItemsToDisplay] = useState({
+        projects: data,
+        activities: state.currentProject?.activities ? state.currentProject.activities : []
+    }, [state.currentProject, data]);
+
     const [openAddEditItemDialog, setOpenAddEditItemDialog] = useState(undefined);
 
     return (
@@ -22,6 +27,7 @@ const AppContent = ({userData, setUserData, state, setState, data, setData, righ
                     setData={setData}
                     state={state}
                     setState={setState}
+                    rights={rights}
                     currentItem={openAddEditItemDialog}
                     itemStructure={itemStructure}
                     defaultStructure={defaultStructure}
@@ -38,6 +44,8 @@ const AppContent = ({userData, setUserData, state, setState, data, setData, righ
                         setState={setState}
                         data={data}
                         setData={setData}
+                        itemsToDisplay={itemsToDisplay}
+                        setItemsToDisplay={setItemsToDisplay}
                         rights={rights}
                         setOpenAddEditItemDialog={setOpenAddEditItemDialog}
                     />
