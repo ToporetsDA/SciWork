@@ -4,8 +4,8 @@ import ControlPanel from './shared/ControlPanel';
 
 const Schedule = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, setOpenAddEditItemDialog }) => {
     
-    const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const months = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'];
+    const daysOfWeek = useMemo(() => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], []);
+    const months = useMemo(() => ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'], []);
 
     //date data
     const now = useMemo(() => new Date(), []);
@@ -46,11 +46,11 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
         return new Date(year, month, 0).getDate();
     }, []);
 
-    const [firstTmp, setFirstTmp] = useState(
+    const [firstDay, setFirstDay] = useState(
         new Date(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear() - 1, 1).getDay()
     );
     const firstDayOfMonth = useMemo(() => {
-        return (firstTmp === 0) ? 7 : firstTmp }, [firstTmp]
+        return (firstDay === 0) ? 7 : firstDay }, [firstDay]
     );
     const [lastDayOfMonth, setLastDayOfMonth] = useState(
         new Date(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear(), 0).getDay()
@@ -60,7 +60,7 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
     );
 
     const getWeeksInMonth = useCallback((month, year) => {
-        setFirstTmp(new Date(year, month - 1, 1).getDay());
+        setFirstDay(new Date(year, month - 1, 1).getDay());
         setLastDayOfMonth(new Date(year, month, 0).getDay());
         setTotalDaysInMonth(getDaysInMonth(month, year));
         const fullWeeks = Math.floor((totalDaysInMonth + firstDayOfMonth) / 7);
@@ -96,9 +96,11 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
         }
     }, [currentScale, getWeeksInMonth, intervalAnchor, setCurrentScale]);
 
-    const scheduleBoardSize = {
+    const scheduleBoard = {
+        display: 'grid',
         gridTemplateRows: `repeat(${gridValues.rows}, 1fr)`,
         gridTemplateColumns: `repeat(${gridValues.columns}, 1fr)`,
+        position: 'relative'
     };
 
     const rangeToDisplay = useMemo(() => ({
@@ -123,6 +125,44 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
         const activities = data.flatMap(project => project.activities || []);
         const { start, end } = rangeToDisplay[currentScale];
 
+        // if (!repeat && startDate !== endDate) {
+        //     // Create two items for activities spanning multiple days
+        //     const startDayIndex = activityStart.getDay(); // 0-6 (Sunday-Saturday)
+        //     const endDayIndex = activityEnd.getDay();
+
+        //     const startItem = (
+        //         <div
+        //             key={`${activity.id}-start`}
+        //             className="scheduleEvent"
+        //             style={{
+        //                 zIndex: 10,
+        //                 gridColumn: startDayIndex === 0 ? 7 : startDayIndex, // Sunday to Saturday
+        //                 gridRowStart: activityStart.getHours() + 1,
+        //                 gridRowEnd: activityStart.getHours() + 2,
+        //             }}
+        //         >
+        //             {`${name} (Start)`}
+        //         </div>
+        //     );
+
+        //     const endItem = (
+        //         <div
+        //             key={`${activity.id}-end`}
+        //             className="scheduleEvent"
+        //             style={{
+        //                 zIndex: 10,
+        //                 gridColumn: endDayIndex === 0 ? 7 : endDayIndex, // Sunday to Saturday
+        //                 gridRowStart: 1, // Midnight to 1 AM
+        //                 gridRowEnd: 2,
+        //             }}
+        //         >
+        //             {`${name} (End)`}
+        //         </div>
+        //     );
+
+        //     return [startItem, endItem];
+        // }
+
         return activities.filter(activity => {
             const activityStart = new Date(activity.startDate);
             const activityEnd = new Date(activity.endDate);
@@ -130,7 +170,7 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
         });
     }, [data, rangeToDisplay, currentScale]);
 
-    //fill schedule BG like a simple calendar
+    //schedule BG like a simple calendar
     const scheduleCells = Array.from({ length: gridValues.rows * gridValues.columns }).map((_, index) => (
         <>
             {(currentScale==='week') ? (
@@ -138,7 +178,7 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
             ) : (
                 (currentScale==='month') ? (
                     <div
-                        key={index}
+                        key={'cell-' + index}
                         className="scheduleCell"
                         style={{
                             backgroundColor: (index+1 - (firstDayOfMonth-1) <= 0 || index+1 - (firstDayOfMonth-1) > totalDaysInMonth)
@@ -152,7 +192,7 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
                     </div>
                 ) : (
                     <div
-                        key={index}
+                        key={'cell-' + index}
                         className="scheduleCell"
                         style={{
                             backgroundColor: (Math.floor(index/12)+1 > getDaysInMonth(index % 12 + 1, intervalAnchor.getFullYear()))
@@ -167,8 +207,9 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
         </>
     ));
 
-    //schedule map
+    //schedule maps
     const scheduleVMap = useMemo(() => {
+
         if (currentScale === 'week' || currentScale === 'month') {
             
             // Get the start of the week based on the intervalAnchor
@@ -184,14 +225,14 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
                 const formattedDate = `${String(dayDate.getDate()).padStart(2, '0')}.${String(dayDate.getMonth() + 1).padStart(2, '0')}`;
                 
                 return (
-                    <p key={index} className="topLabel">
+                    <div key={'v-' + index} className="topLabel">
                         {day} {(currentScale === 'week') && formattedDate}
-                    </p>
+                    </div>
                 );
             });
         }
         if (currentScale === 'year') {
-            return months.map((month, index) => <p key={index} className="topLabel">{month}</p>);
+            return months.map((month, index) => <div key={'v-' + index} className="topLabel">{month}</div>);
         }
         return [];
     }, [currentScale, intervalAnchor, daysOfWeek, months]);
@@ -199,17 +240,17 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
     const scheduleHMap = useMemo(() => {
         if (currentScale === 'week') {
             return Array.from({ length: 24 }).map((_, index) => (
-                <p key={index} className="leftLabel">{`${index}:00`}</p>
+                <div key={'h-' + index} className="leftLabel">{`${index}:00`}</div>
             ));
         }
         if (currentScale === 'month') {
             return Array.from({ length: gridValues.rows }).map((_, index) => (
-                <p key={index} className="leftLabel">{`Week ${index + getWeekOfYear(intervalAnchor)}`}</p>
+                <div key={'h-' + index} className="leftLabel">{`Week ${index + getWeekOfYear(intervalAnchor)}`}</div>
             ));
         }
         if (currentScale === 'year') {
             return Array.from({ length: 31 }).map((_, index) => (
-                <p key={index} className="leftLabel">{index + 1}</p>
+                <div key={'h-' + index} className="leftLabel">{index + 1}</div>
             ));
         }
         return [];
@@ -220,96 +261,67 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
         if (!scaledData.length) return [];
     
         return scaledData.flatMap((activity) => {
-            const { startDate, endDate, startTime, endTime, name, repeat } = activity;
-            const activityStart = new Date(`${startDate}T${startTime || "05:00"}`);
-            const activityEnd = new Date(`${endDate}T${endTime || "06:00"}`);
-    
-            if (!repeat && startDate !== endDate) {
-                // Create two items for activities spanning multiple days
-                const startDayIndex = activityStart.getDay(); // 0-6 (Sunday-Saturday)
-                const endDayIndex = activityEnd.getDay();
-    
-                const startItem = (
-                    <div
-                        key={`${activity.id}-start`}
-                        className="scheduleEvent"
-                        style={{
-                            zIndex: 10,
-                            gridColumn: startDayIndex === 0 ? 7 : startDayIndex, // Sunday to Saturday
-                            gridRowStart: activityStart.getHours() + 1,
-                            gridRowEnd: activityStart.getHours() + 2,
-                        }}
-                    >
-                        {`${name} (Start)`}
-                    </div>
-                );
-    
-                const endItem = (
-                    <div
-                        key={`${activity.id}-end`}
-                        className="scheduleEvent"
-                        style={{
-                            zIndex: 10,
-                            gridColumn: endDayIndex === 0 ? 7 : endDayIndex, // Sunday to Saturday
-                            gridRowStart: 1, // Midnight to 1 AM
-                            gridRowEnd: 2,
-                        }}
-                    >
-                        {`${name} (End)`}
-                    </div>
-                );
-    
-                return [startItem, endItem];
-            }
+            const { startDate, endDate, startTime, endTime, name } = activity;
+            const activityStart = new Date(`${startDate}T${startTime || "01:00"}`);
+            const activityEnd = new Date(`${endDate}T${endTime || "02:45"}`);
     
             // Normal activities
-            if (currentScale === "week") {
-                const dayIndex = activityStart.getDay(); // 0-6 (Sunday-Saturday)
-                const startHour = activityStart.getHours();
-                const endHour = activityEnd.getHours();
-    
-                return [
-                    <div
-                        key={activity.id}
-                        className="scheduleEvent"
-                        style={{
-                            zIndex: 10,
-                            gridColumn: dayIndex === 0 ? 7 : dayIndex, // Sunday to Saturday
-                            gridRowStart: startHour + 1,
-                            gridRowEnd: endHour + 1,
-                        }}
-                    >
-                        {name}
-                    </div>,
-                ];
+            switch(currentScale) {
+                case "week": {
+                    const dayIndex = ((activityStart.getDay() === 0) ? 7 : activityStart.getDay()) - 1; // 0-6 (Monday - Sunday)
+                    
+                    const startHour = activityStart.getHours();
+                    const startMinutes = activityStart.getMinutes();
+                    const endHour = activityEnd.getHours();
+                    const endMinutes = activityEnd.getMinutes();
+
+                    const top = 100 / 24 * (startHour + (startMinutes / 60));
+                    const left = 100 / 7 * dayIndex;
+                    const bottom = 100 / 24 * (endHour + (endMinutes / 60))
+
+                    return [
+                        <div
+                            key={'event-' + activity.id}
+                            className="scheduleEvent"
+                            style={{
+                                zIndex: 10,
+                                position: 'absolute',
+                                top: `${top}%`,
+                                left: `${left}%`,
+                                height: `${bottom - top}%`
+                            }}
+                        >
+                            {name}
+                        </div>,
+                    ];
+                }
+                case "month":
+                case "year": {
+                    const dayOfMonth = activityStart.getDate(); // 1 - 28-31
+                    const dayOfWeek = activityStart.getDay() || 7;
+
+                    return [
+                        <div
+                            key={'event-' + activity.id}
+                            className="activityBlock"
+                            style={{
+                                zIndex: 10,
+                                gridColumn: (currentScale === 'month')
+                                    ? (dayOfWeek)
+                                    : (activityStart.getMonth() + 1),
+                                gridRow: (currentScale === 'month')
+                                    ? Math.ceil((dayOfMonth + firstDayOfMonth) / 7)
+                                    : dayOfMonth
+                            }}
+                        >
+                            {name}
+                        </div>,
+                    ];
+                }
+                default: return [];
             }
-    
-            if (currentScale === "month" || currentScale === "year") {
-                const dayOfMonth = activityStart.getDate(); // 1-31
-                return [
-                    <div
-                        key={activity.id}
-                        className="activityBlock"
-                        style={{
-                            zIndex: 10,
-                            gridColumn:
-                                currentScale === "month"
-                                    ? activityStart.getDay() || 7
-                                    : activityStart.getMonth() + 1,
-                            gridRow:
-                                currentScale === "month"
-                                    ? Math.ceil(dayOfMonth / 7)
-                                    : dayOfMonth,
-                        }}
-                    >
-                        {name}
-                    </div>,
-                ];
-            }
-    
-            return [];
         });
-    }, [scaledData, currentScale]);
+    }, [scaledData, currentScale, firstDayOfMonth]);
 
     return (
         <>
@@ -333,7 +345,7 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
                     className="scheduleVMap"
                     style={{
                         display: 'grid',
-                        gridTemplateColumns: scheduleBoardSize.gridTemplateColumns
+                        gridTemplateColumns: scheduleBoard.gridTemplateColumns
                     }}>
                     {scheduleVMap}
                 </div>
@@ -341,17 +353,17 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
                     className="scheduleHMap"
                     style={{
                         display: 'grid',
-                        gridTemplateRows: scheduleBoardSize.gridTemplateRows
+                        gridTemplateRows: scheduleBoard.gridTemplateRows
                     }}
                 >
                     {scheduleHMap}
                 </div>
                 <div
                     className="schedule"
-                    style={scheduleBoardSize}
+                    style={scheduleBoard}
                 >
                     {scheduleCells}
-                    {/* {scheduleEvents} */}
+                    {scheduleEvents}
                 </div>
             </div>
         </>

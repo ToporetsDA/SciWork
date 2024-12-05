@@ -98,8 +98,10 @@ function App() {
       activities: [
         {
           name: "Sprint Planning",
-          startDate: "2024-05-07",
-          endDate: "2024-09-18",
+          startDate: "2024-12-07",
+          endDate: "2024-12-07",
+          startTime: "08:15",
+          endTime: "17:40",
           page: false,
           repeat: true,
           interval: 7,
