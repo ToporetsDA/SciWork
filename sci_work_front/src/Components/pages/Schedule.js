@@ -49,12 +49,15 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
     const [firstDay, setFirstDay] = useState(
         new Date(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear() - 1, 1).getDay()
     );
+
     const firstDayOfMonth = useMemo(() => {
-        return (firstDay === 0) ? 7 : firstDay }, [firstDay]
-    );
+        return (firstDay === 0) ? 7 : firstDay
+    }, [firstDay]);
+
     const [lastDayOfMonth, setLastDayOfMonth] = useState(
         new Date(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear(), 0).getDay()
     );
+    
     const [totalDaysInMonth, setTotalDaysInMonth] = useState(
         getDaysInMonth(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear())
     );
@@ -121,54 +124,79 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
     // Determine data to display based on the scale
     const scaledData = useMemo(() => {
         if (!data) return [];
-
-        const activities = data.flatMap(project => project.activities || []);
+    
         const { start, end } = rangeToDisplay[currentScale];
-
-        // if (!repeat && startDate !== endDate) {
-        //     // Create two items for activities spanning multiple days
-        //     const startDayIndex = activityStart.getDay(); // 0-6 (Sunday-Saturday)
-        //     const endDayIndex = activityEnd.getDay();
-
-        //     const startItem = (
-        //         <div
-        //             key={`${activity.id}-start`}
-        //             className="scheduleEvent"
-        //             style={{
-        //                 zIndex: 10,
-        //                 gridColumn: startDayIndex === 0 ? 7 : startDayIndex, // Sunday to Saturday
-        //                 gridRowStart: activityStart.getHours() + 1,
-        //                 gridRowEnd: activityStart.getHours() + 2,
-        //             }}
-        //         >
-        //             {`${name} (Start)`}
-        //         </div>
-        //     );
-
-        //     const endItem = (
-        //         <div
-        //             key={`${activity.id}-end`}
-        //             className="scheduleEvent"
-        //             style={{
-        //                 zIndex: 10,
-        //                 gridColumn: endDayIndex === 0 ? 7 : endDayIndex, // Sunday to Saturday
-        //                 gridRowStart: 1, // Midnight to 1 AM
-        //                 gridRowEnd: 2,
-        //             }}
-        //         >
-        //             {`${name} (End)`}
-        //         </div>
-        //     );
-
-        //     return [startItem, endItem];
-        // }
-
-        return activities.filter(activity => {
-            const activityStart = new Date(activity.startDate);
-            const activityEnd = new Date(activity.endDate);
-            return activityEnd >= start && activityStart <= end;
-        });
+    
+        // Filter and process activities
+        const filteredActivities = data
+            .flatMap(project => project.activities || [])
+            .filter(activity => {
+                const activityStart = new Date(activity.startDate);
+                const activityEnd = new Date(activity.endDate);
+                return activityEnd >= start && activityStart <= end;
+            })
+            .flatMap(activity => {
+    
+                if (activity.startDate === activity.endDate) {
+                    // Single-day activity
+                    return [activity];
+                }
+    
+                // Multi-day activity
+                const startItem = {
+                    ...activity,
+                    name: `${activity.name} - Start`,
+                    startDate: activity.startDate,
+                    endDate: activity.startDate,
+                    type: 'activity',
+                    id: activity.id + '.0'
+                };
+                const endItem = {
+                    ...activity,
+                    name: `${activity.name} - End`,
+                    startDate: activity.endDate,
+                    endDate: activity.endDate,
+                    type: 'activity',
+                    id: activity.id + '.1'
+                };
+    
+                return [startItem, endItem];
+            });
+    
+        // Filter and process projects for 'year' scale
+        const filteredProjects = currentScale === 'year'
+            ? data
+                .filter(project => {
+                    const projectStart = new Date(project.startDate);
+                    const projectEnd = new Date(project.endDate);
+                    return projectEnd >= start && projectStart <= end;
+                })
+                .flatMap(project => {
+    
+                    const startItem = {
+                        ...project,
+                        name: `${project.name} - Start`,
+                        startDate: project.startDate,
+                        endDate: project.startDate,
+                        type: 'project',
+                        id: project.id + '.0'
+                    };
+                    const endItem = {
+                        ...project,
+                        name: `${project.name} - End`,
+                        startDate: project.endDate,
+                        endDate: project.endDate,
+                        type: 'project',
+                        id: project.id + '.1'
+                    };
+    
+                    return [startItem, endItem];
+                })
+            : [];
+    
+        return [...filteredActivities, ...filteredProjects];
     }, [data, rangeToDisplay, currentScale]);
+    
 
     //schedule BG like a simple calendar
     const scheduleCells = Array.from({ length: gridValues.rows * gridValues.columns }).map((_, index) => (
@@ -238,22 +266,50 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
     }, [currentScale, intervalAnchor, daysOfWeek, months]);
 
     const scheduleHMap = useMemo(() => {
-        if (currentScale === 'week') {
-            return Array.from({ length: 24 }).map((_, index) => (
-                <div key={'h-' + index} className="leftLabel">{`${index}:00`}</div>
-            ));
+
+        let length;
+        switch(currentScale) {
+            case 'week': {
+                length = 24;
+                break;
+            }
+            case 'month': {
+                length = gridValues.rows;
+                break;
+            }
+            case 'year': {
+                length = 31;
+                break;
+            }
+            default: {
+                length = 0;
+            }
         }
-        if (currentScale === 'month') {
-            return Array.from({ length: gridValues.rows }).map((_, index) => (
-                <div key={'h-' + index} className="leftLabel">{`Week ${index + getWeekOfYear(intervalAnchor)}`}</div>
-            ));
-        }
-        if (currentScale === 'year') {
-            return Array.from({ length: 31 }).map((_, index) => (
-                <div key={'h-' + index} className="leftLabel">{index + 1}</div>
-            ));
-        }
-        return [];
+        
+        return Array.from({ length: length }).map((_, index) => {
+
+            let itemInfo = '';
+            switch (currentScale) {
+                case 'week':
+                    itemInfo = `${index}:00`;
+                    break;
+                case 'month':
+                    itemInfo = `Week ${index + getWeekOfYear(intervalAnchor)}`;
+                    break;
+                case 'year':
+                    itemInfo = `${index + 1}`;
+                    break;
+                default:
+                    itemInfo = '';
+            }
+
+            return (
+                <div key={`h-${index}`} className="leftLabel">
+                    {itemInfo}
+                </div>
+            );
+        });
+        
     }, [currentScale, gridValues, intervalAnchor]);
 
     //schedule events

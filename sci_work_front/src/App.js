@@ -29,8 +29,10 @@ function App() {
       name: 'text',
       startDate: 'date',
       endDate: 'date',
+      startTime: 'time',
+      endTime: 'time',
       repeat: 'checkbox',
-      interval: 'number',
+      days: 'days',
       thirdParty: 'checkbox',
       serviceName: 'text'
     }
@@ -48,9 +50,11 @@ function App() {
       name: '',
       startDate: '',
       endDate: '',
+      startTime: '',
+      endTime: '',
       page: false,
       repeat: false,
-      interval: -1,
+      days: [],
       thirdParty: false,
       serviceName: ''
     }
@@ -71,7 +75,7 @@ function App() {
           endTime: "03:45 PM",
           page: false,
           repeat: true,
-          interval: 7,
+          days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
           thirdParty: true,
           serviceName: "Zoom",
           id: 11
@@ -80,9 +84,11 @@ function App() {
           name: "Code review",
           startDate: "2024-03-04",
           endDate: "2024-11-06",
+          startTime: "03:10 PM",
+          endTime: "04:45 PM",
           page: false,
           repeat: false,
-          interval: null,
+          days: [],
           thirdParty: false,
           serviceName: null,
           id: 12
@@ -104,7 +110,7 @@ function App() {
           endTime: "17:40",
           page: false,
           repeat: true,
-          interval: 7,
+          days: ['Mon', 'Tue', 'Thu', 'Fri'],
           thirdParty: true,
           serviceName: "Zoom",
           id: 21
@@ -113,9 +119,11 @@ function App() {
           name: "Review",
           startDate: "2024-09-16",
           endDate: "2024-09-20",
+          startTime: "02:30 PM",
+          endTime: "03:45 PM",
           page: false,
           repeat: true,
-          interval: 2,
+          days: ['Mon', 'Fri'],
           thirdParty: true,
           serviceName: "Google Meet",
           id: 22
@@ -133,9 +141,11 @@ function App() {
           name: "Sprint Planning",
           startDate: "2023-03-04",
           endDate: "2024-09-18",
+          startTime: "02:30 PM",
+          endTime: "03:45 PM",
           page: false,
           repeat: true,
-          interval: 7,
+          days: ['Wed', 'Thu', 'Fri'],
           thirdParty: true,
           serviceName: "Zoom",
           id: 31
@@ -144,9 +154,11 @@ function App() {
           name: "Review3",
           startDate: "2024-09-16",
           endDate: "2024-12-12",
+          startTime: "02:30 PM",
+          endTime: "03:45 PM",
           page: false,
           repeat: true,
-          interval: 2,
+          days: ['Mon', 'Thu'],
           thirdParty: true,
           serviceName: "Google Meet",
           id: 32
@@ -164,9 +176,11 @@ function App() {
           name: "Sprint Planning",
           startDate: "2024-03-04",
           endDate: "2024-09-18",
+          startTime: "02:30 PM",
+          endTime: "03:45 PM",
           page: false,
           repeat: true,
-          interval: 7,
+          days: ['Tue', 'Wed', 'Thu'],
           thirdParty: true,
           serviceName: "Zoom",
           id: 41
@@ -175,9 +189,11 @@ function App() {
           name: "Review2",
           startDate: "2024-09-16",
           endDate: "2024-09-20",
+          startTime: "02:30 PM",
+          endTime: "03:45 PM",
           page: false,
           repeat: true,
-          interval: 2,
+          days: ['Fri'],
           thirdParty: true,
           serviceName: "Google Meet",
           id: 42
@@ -187,9 +203,7 @@ function App() {
     }
   ])
 
-  const localeData = {
-    
-  }
+  // const localeData = {}
 
   //general
   //this is for the whole app

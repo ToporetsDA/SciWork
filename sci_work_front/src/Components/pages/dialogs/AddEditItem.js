@@ -3,7 +3,7 @@ import '../../../css/pages/dialogs/AddEditItem.css';
 
 import { v4 as uuidv4 } from 'uuid';
 
-const ControlPanel = ({ data, setData, currentItem, state, setState, rights, itemStructure, defaultStructure, isCompany, setOpenAddEditItemDialog }) => {
+const AddEditItem = ({ data, setData, currentItem, state, setState, rights, itemStructure, defaultStructure, isCompany, setOpenAddEditItemDialog }) => {
 
     const [selectedType, setSelectedType] = useState(state.currentProject ? "Activity" : "Project"); // Default to "Project"
 
@@ -53,12 +53,31 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, rights, ite
         }));
     };
 
+    // Update set of selected days
+    const toggleDaySelection = (day) => {
+        setFormValues((prev) => {
+            const currentDays = prev.days || [];
+            const updatedDays = currentDays.includes(day)
+                ? currentDays.filter((d) => d !== day) // Remove the day if already selected
+                : [...currentDays, day]; // Add the day if not selected
+            return { ...prev, days: updatedDays };
+        });
+    };
+
     //show item-fields
     const showItemFields = useMemo(() => {
         return (state.currentPage !== 'Schedule' || selectedType === 'Project' ||
         (selectedType === 'Activity' && state.currentProject !== undefined)) &&
         ((state.currentProject !== undefined) ? rights.edit.includes(state.currentProject.access) : true);
     }, [state, selectedType, rights.edit]);
+
+    //conditions for fields that should appear based on other fields values
+    const fieldsChecks = useMemo(() => {
+        return {
+            days: (formValues?.repeat === true) || false,
+            serviceName: (formValues?.thirdParty === true) || false
+        }
+    }, [formValues]);
 
     // Close the dialog
 
@@ -77,7 +96,7 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, rights, ite
 
         //empty check
         Object.keys(formValues).forEach((key) => {
-            if (formValues[key] === '' && itemStructure[key] !== 'checkbox') {
+            if (formValues[key] === '' && itemStructure[key] !== 'checkbox' && fieldsChecks[key] === true) {
                 newErrors[key] = 'This field is required.';
             }
         });
@@ -112,6 +131,31 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, rights, ite
                     newErrors.startDate = "End date must be within project's lifetime.";
                 }
             }
+        }
+
+        //time check
+        if (formValues.startDate && formValues.endDate && formValues.startTime && formValues.endTime) {
+            const startDate = new Date(formValues.startDate);
+            const endDate = new Date(formValues.endDate);
+
+            const [startHour, startMinute] = formValues.startTime.split(':').map(Number);
+            const [endHour, endMinute] = formValues.endTime.split(':').map(Number);
+        
+            const startInMinutes = startHour * 60 + startMinute;
+            const endInMinutes = endHour * 60 + endMinute;
+
+            if(startDate === endDate && startInMinutes > endInMinutes) {
+                newErrors.startTime = "Activity can not start after it has ended";
+            }
+        
+            if (startDate === endDate && startInMinutes + 15 >= endInMinutes) {
+                newErrors.endTime = "Activity must exist at least 15 minutes.";
+            }
+        }
+
+        //repeat check
+        if (formValues.repeat === true && formValues.days.length === 0) {
+            newErrors.repeat = "Select at least 1 day to repeat the activity.";
         }
 
         // If there are any errors, update the state and stop submission
@@ -223,22 +267,50 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, rights, ite
                         }
                     </>
                     }
-                    {(showItemFields) &&
+                    {(showItemFields) && (
                         Object.keys(currentStructure).map((key) => (
                             <div key={key} className="formGroup">
-                                <label htmlFor={key}>{formatLabel(key)}</label>
-                                <input
-                                    id={key}
-                                    name={key}
-                                    type={currentStructure[key]}
-                                    value={formValues[key] || ''}
-                                    checked={itemStructure[selectedType.toLowerCase()][key] === 'checkbox' ? formValues[key] : false}
-                                    onChange={handleInputChange}
-                                />
+                                {(key === 'days') ? (
+                                <>
+                                    {fieldsChecks.days &&
+                                    <>
+                                        <label htmlFor={key}>{formatLabel(key)}</label>
+                                        <div className="daysButtons">
+                                            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+                                                <button
+                                                    key={day}
+                                                    type="button"
+                                                    className={formValues.days?.includes(day) ? 'selected' : ''}
+                                                    onClick={() => toggleDaySelection(day)}
+                                                >
+                                                    {day}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </>
+                                    }
+                                </>
+                                ) : (
+                                <>
+                                    {((key === 'serviceName' && fieldsChecks.serviceName) || key !== 'serviceName') &&
+                                    <>
+                                        <label htmlFor={key}>{formatLabel(key)}</label>
+                                        <input
+                                        id={key}
+                                        name={key}
+                                        type={currentStructure[key]}
+                                        value={formValues[key] || ''}
+                                        checked={currentStructure[key] === 'checkbox' ? formValues[key] : undefined}
+                                        onChange={handleInputChange}
+                                        />
+                                    </>
+                                    }
+                                </>
+                                )}
                                 {errors[key] && <span className="errorMessage">{errors[key]}</span>}
                             </div>
                         ))
-                    }
+                    )}
                     <button type="submit" className="submitButton">Save</button>
                 </form>
             </div>
@@ -246,6 +318,4 @@ const ControlPanel = ({ data, setData, currentItem, state, setState, rights, ite
     );
 }
 
-export default ControlPanel
-
-//enhance restriction logic for item add/edit
+export default AddEditItem

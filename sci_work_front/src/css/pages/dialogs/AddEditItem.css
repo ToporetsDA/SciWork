@@ -25,10 +25,33 @@
   display: flex;
   flex-direction: column;
 }
-.addEditItemDialog .dialogContent label {
+.addEditItemDialog .dialogContent .formGroup label {
   font-size: 14px;
   font-weight: bold;
   margin-bottom: 4px;
+}
+.addEditItemDialog .dialogContent .formGroup .daysButtons {
+  display: flex;
+  gap: 8px;
+}
+.addEditItemDialog .dialogContent .formGroup .daysButtons button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+.addEditItemDialog .dialogContent .formGroup .daysButtons button:hover {
+  background-color: #e0e0e0;
+}
+.addEditItemDialog .dialogContent .formGroup .daysButtons button.selected {
+  background-color: #007bff;
+  color: white;
+  border-color: #0056b3;
+}
+.addEditItemDialog .dialogContent .formGroup .daysButtons button:hover {
+  background-color: #45a049;
 }
 .addEditItemDialog .dialogContent .submitButton {
   background-color: #007bff;
