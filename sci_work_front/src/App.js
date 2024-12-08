@@ -68,11 +68,11 @@ function App() {
       access: 3,
       activities: [
         {
-          name: "Team Meeting",
-          startDate: "2024-03-04",
-          endDate: "2024-10-04",
-          startTime: "02:30 PM",
-          endTime: "03:45 PM",
+          name: "Team Meeting 1",
+          startDate: "2024-10-04",
+          endDate: "2024-10-12",
+          startTime: "14:30",
+          endTime: "15:45",
           page: false,
           repeat: true,
           days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
@@ -81,11 +81,11 @@ function App() {
           id: 11
         },
         {
-          name: "Code review",
-          startDate: "2024-03-04",
+          name: "Code review 1",
+          startDate: "2024-10-28",
           endDate: "2024-11-06",
-          startTime: "03:10 PM",
-          endTime: "04:45 PM",
+          startTime: "15:10",
+          endTime: "16:45",
           page: false,
           repeat: false,
           days: [],
@@ -98,29 +98,29 @@ function App() {
     },
     {
       name: "Project 2",
-      startDate: "2024-05-07",
-      endDate: "2025-11-27",
+      startDate: "2024-10-07",
+      endDate: "2025-01-27",
       access: 1,
       activities: [
         {
-          name: "Sprint Planning",
+          name: "Sprint Planning 2",
           startDate: "2024-12-07",
-          endDate: "2024-12-07",
-          startTime: "08:15",
+          endDate: "2024-12-20",
+          startTime: "12:15",
           endTime: "17:40",
           page: false,
           repeat: true,
-          days: ['Mon', 'Tue', 'Thu', 'Fri'],
+          days: ['Mon', 'Fri'],
           thirdParty: true,
           serviceName: "Zoom",
           id: 21
         },
         {
-          name: "Review",
+          name: "Review 2",
           startDate: "2024-09-16",
           endDate: "2024-09-20",
-          startTime: "02:30 PM",
-          endTime: "03:45 PM",
+          startTime: "08:30",
+          endTime: "09:45",
           page: false,
           repeat: true,
           days: ['Mon', 'Fri'],
@@ -138,27 +138,27 @@ function App() {
       access: 1,
       activities: [
         {
-          name: "Sprint Planning",
-          startDate: "2023-03-04",
-          endDate: "2024-09-18",
-          startTime: "02:30 PM",
-          endTime: "03:45 PM",
+          name: "Sprint Planning 4",
+          startDate: "2024-11-04",
+          endDate: "2024-12-18",
+          startTime: "16:30",
+          endTime: "18:45",
           page: false,
           repeat: true,
-          days: ['Wed', 'Thu', 'Fri'],
+          days: ['Wed', 'Fri'],
           thirdParty: true,
           serviceName: "Zoom",
           id: 31
         },
         {
-          name: "Review3",
-          startDate: "2024-09-16",
+          name: "Review 4",
+          startDate: "2024-11-16",
           endDate: "2024-12-12",
-          startTime: "02:30 PM",
-          endTime: "03:45 PM",
+          startTime: "16:30",
+          endTime: "17:45",
           page: false,
           repeat: true,
-          days: ['Mon', 'Thu'],
+          days: ['Tue'],
           thirdParty: true,
           serviceName: "Google Meet",
           id: 32
@@ -173,11 +173,11 @@ function App() {
       access: 2,
       activities: [
         {
-          name: "Sprint Planning",
-          startDate: "2024-03-04",
+          name: "Sprint Planning 3",
+          startDate: "2024-09-04",
           endDate: "2024-09-18",
-          startTime: "02:30 PM",
-          endTime: "03:45 PM",
+          startTime: "04:30",
+          endTime: "05:45",
           page: false,
           repeat: true,
           days: ['Tue', 'Wed', 'Thu'],
@@ -186,11 +186,11 @@ function App() {
           id: 41
         },
         {
-          name: "Review2",
+          name: "Review 3",
           startDate: "2024-09-16",
           endDate: "2024-09-20",
-          startTime: "02:30 PM",
-          endTime: "03:45 PM",
+          startTime: "12:30",
+          endTime: "13:45",
           page: false,
           repeat: true,
           days: ['Fri'],
@@ -226,15 +226,6 @@ function App() {
   useEffect(() => {
     if (state.currentPage === 'Notifications') {
       setNotificationsCount(0);
-    }
-  }, [state.currentPage])
-
-  useEffect(() => {
-    if (state.currentPage) {
-      setState(prevState => ({
-        ...prevState,
-        currentProject: undefined
-      }));
     }
   }, [state.currentPage])
   

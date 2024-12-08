@@ -6,7 +6,7 @@ import AddEditItem from './pages/dialogs/AddEditItem';
 const AppContent = ({userData, setUserData, state, setState, data, setData, rights, itemStructure, defaultStructure, isCompany}) => {
 
     const loadPageComponent = (pageName) => {
-        const formattedPageName = (pageName === 'Subjects' || pageName === 'Project') ? 'Projects' : pageName;
+        const formattedPageName = (pageName === 'Subjects' || pageName === 'Project' || pageName === 'Activity') ? 'Projects' : pageName;
         return Pages[formattedPageName.replace(/\s+/g, '')];
     }
 

@@ -11,7 +11,8 @@ const AppHeader = ({ state, setState, handleLoggedIn, notifications, organisatio
     const handleClick = (page) => {
         setState(prevState => ({
             ...prevState,
-            currentPage: page
+            currentPage: page,
+            currentProject: undefined
         }));
         setDropdownOpen(false);
     }

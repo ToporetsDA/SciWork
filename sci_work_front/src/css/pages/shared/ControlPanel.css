@@ -4,7 +4,7 @@
 }
 .controlPanel .sortAndFilter {
   display: flex;
-  z-index: 10;
+  z-index: 2;
 }
 .controlPanel .sortAndFilter div {
   display: block;

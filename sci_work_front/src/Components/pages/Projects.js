@@ -6,17 +6,22 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
 
     //open project
 
-    const goToPage = (project) => {
-        setState({
-            currentPage: 'Project',
-            currentProject: data.find(p => p.name === project),
-            currentActivity: undefined
-          });
+    const goToPage = (type, goto, isPage) => {
+        if (type === 'Project') {
+            setState({
+                currentPage: 'Project',
+                currentProject: data.find(p => p.id === goto),
+                currentActivity: undefined
+            });
+        }
+        else if (isPage === true) {
+            setState((prevState) => ({
+                ...prevState,
+                currentPage: 'Activity',
+                currentActivity:  data.find(p => p.id === state.currentProject).find(a => a.id === goto),
+            }));
+        }
     }
-
-    //data to display
-
-    
 
     // Delete item
     const handleDelete = (itemToDelete) => {
@@ -69,7 +74,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                     ${(new Date(project.endDate) - new Date()) / (24 * 60 * 60 * 1000) < 30 ? 'expiring' : ''}
                                     ${(new Date(project.endDate) < new Date()) ? 'expired' : ''}
                                 `}
-                                onClick={() => goToPage(project.name)}
+                                onClick={() => goToPage('Project', project.id, true)}
                             >
                                 <h3 className='name'>
                                     {project.name}
@@ -113,6 +118,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                         ${(new Date(activity.endDate) - new Date()) / (24 * 60 * 60 * 1000) < 30 ? 'expiring' : ''}
                                         ${(new Date(activity.endDate) < new Date()) ? 'expired' : ''}
                                     `}
+                                    onClick={() => goToPage('Activity', activity.id, activity.page)}
                                 >
                                     <h3 className='name'>{activity.name}</h3>
                                     <p className='timeLimit'>
