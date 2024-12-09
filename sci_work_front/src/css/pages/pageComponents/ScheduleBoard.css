@@ -35,4 +35,31 @@
   font-size: 0.9em;
 }
 
+.event {
+  position: absolute;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.overlapEvent {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  z-index: 1000;
+}
+
 /*# sourceMappingURL=ScheduleBoard.css.map */
