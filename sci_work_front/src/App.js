@@ -106,11 +106,11 @@ function App() {
           name: "Sprint Planning 2",
           startDate: "2024-12-07",
           endDate: "2024-12-20",
-          startTime: "12:15",
-          endTime: "17:40",
+          startTime: "16:15",
+          endTime: "18:40",
           page: false,
           repeat: true,
-          days: ['Mon', 'Fri'],
+          days: ['Mon', 'Tue', 'Fri'],
           thirdParty: true,
           serviceName: "Zoom",
           id: 21
@@ -145,7 +145,7 @@ function App() {
           endTime: "18:45",
           page: false,
           repeat: true,
-          days: ['Wed', 'Fri'],
+          days: ['Tue', 'Wed', 'Fri'],
           thirdParty: true,
           serviceName: "Zoom",
           id: 31
@@ -208,9 +208,13 @@ function App() {
   //general
   //this is for the whole app
   const [state, setState] = useState({
-    currentPage: 'Home Page',
-    currentProject: undefined,
-    currentActivity: undefined
+    currentPage: 'Home Page',   //string
+    currentProject: undefined,  //object
+    currentActivity: undefined, //object
+    currentDialog: {
+      name: undefined,  //string
+      params: []        //[any]
+    }
   });
 
   //header

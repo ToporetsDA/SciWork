@@ -1,10 +1,20 @@
 import React, { useState, Suspense } from 'react';
 import '../css/AppContent.css';
 import * as Pages from './pages';
-import AddEditItem from './pages/dialogs/AddEditItem';
+import * as Dialogs from './pages/dialogs';
 
 const AppContent = ({userData, setUserData, state, setState, data, setData, rights, itemStructure, defaultStructure, isCompany}) => {
 
+    // dialogs
+
+    const loadDialogComponent = (dialogName) => {
+        return Dialogs[dialogName.replace(/\s+/g, '')];
+    }
+
+    const DialogComponent = (state.currentDialog.name !== undefined) ? loadDialogComponent(state.currentDialog.name) : undefined;
+
+    // pages
+    
     const loadPageComponent = (pageName) => {
         const formattedPageName = (pageName === 'Subjects' || pageName === 'Project' || pageName === 'Activity') ? 'Projects' : pageName;
         return Pages[formattedPageName.replace(/\s+/g, '')];
@@ -12,29 +22,28 @@ const AppContent = ({userData, setUserData, state, setState, data, setData, righ
 
     const PageComponent = state.currentPage ? loadPageComponent(state.currentPage) : undefined;
 
+    // more for pages
+
     const [itemsToDisplay, setItemsToDisplay] = useState({
         projects: data,
         activities: state.currentProject?.activities ? state.currentProject.activities : []
     }, [state.currentProject, data]);
 
-    const [openAddEditItemDialog, setOpenAddEditItemDialog] = useState(undefined);
-
     return (
         <main className="content">
-            {openAddEditItemDialog && (
-                <AddEditItem
+            {DialogComponent &&
+                <DialogComponent
                     data={data}
                     setData={setData}
                     state={state}
                     setState={setState}
                     rights={rights}
-                    currentItem={openAddEditItemDialog}
                     itemStructure={itemStructure}
                     defaultStructure={defaultStructure}
                     isCompany={isCompany}
-                    setOpenAddEditItemDialog={setOpenAddEditItemDialog}
                 />
-            )}
+                //
+            }
             {PageComponent ? (
                 <Suspense fallback={<div>Loading...</div>}>
                     <PageComponent
@@ -47,7 +56,6 @@ const AppContent = ({userData, setUserData, state, setState, data, setData, righ
                         itemsToDisplay={itemsToDisplay}
                         setItemsToDisplay={setItemsToDisplay}
                         rights={rights}
-                        setOpenAddEditItemDialog={setOpenAddEditItemDialog}
                     />
                 </Suspense>
             ) : (

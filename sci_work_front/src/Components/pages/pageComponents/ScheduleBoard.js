@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import '../../../css/pages/pageComponents/ScheduleBoard.css';
-import ScheduleBoardOverlaps from './ScheduleBoardOverlaps'
 
 const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, gridValues, setGridValues, intervalAnchor, scheduleBoard }) => {
 
@@ -12,7 +11,6 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     currentPage: 'Project',
                     currentProject: data.find(p => p.id === event.id)
                 };
-                console.log("Updated State:", updatedState);
                 return updatedState;
             });
         }
@@ -84,6 +82,46 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
         }
     }, [currentScale, weeksInMonth, intervalAnchor, setCurrentScale, setGridValues]);
 
+    //schedule BG like a simple calendar
+    const scheduleCells = Array.from({ length: gridValues.rows * gridValues.columns }).map((_, index) => (
+        <div
+            key={'cell-' + index}
+            className="scheduleCell"
+            style={{
+                backgroundColor: (currentScale === 'week')
+                ? ''
+                : (
+                    (currentScale === 'month') ? (
+                        (index+1 - (firstDayOfMonth-1) <= 0 || index+1 - (firstDayOfMonth-1) > totalDaysInMonth)
+                        ? 'lightgray'
+                        : ''
+                    ) : (//currentScale === 'year'
+                        (Math.floor(index/12)+1 > getDaysInMonth(index % 12 + 1, intervalAnchor.getFullYear()))
+                        ? 'lightgray'
+                        : ''
+                    )
+                )
+            }}
+        >
+            {currentScale === 'month' && index+1 - (firstDayOfMonth-1) > 0 && index+1 - (firstDayOfMonth-1) <= totalDaysInMonth &&
+                `${index+1 - (firstDayOfMonth-1)}`
+            }
+            {currentScale === 'year' && (Math.floor(index/12)+1 <= getDaysInMonth(index % 12 + 1, intervalAnchor.getFullYear())) &&
+                `${Math.floor(index/12)+1}`
+            }
+        </div>
+    ));
+
+    // Determine data to display based on the scale
+    //I need to modify data first! I mean creating start-end activities before filtering by rangeToDisplay
+
+    const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');  // Add leading zero if needed
+        const day = date.getDate().toString().padStart(2, '0');  // Add leading zero if needed
+        return `${year}-${month}-${day}`;
+    };
+
     const rangeToDisplay = useMemo(() => ({
         week: {
             start: new Date(intervalAnchor.getFullYear(), intervalAnchor.getMonth(), intervalAnchor.getDate() - intervalAnchor.getDay()),
@@ -98,53 +136,6 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
             end: new Date(intervalAnchor.getFullYear(), 11, 31),
         },
     }), [intervalAnchor]);
-
-    //schedule BG like a simple calendar
-    const scheduleCells = Array.from({ length: gridValues.rows * gridValues.columns }).map((_, index) => (
-        <>
-            {(currentScale==='week') ? (
-                <div key={index} className="scheduleCell"></div>
-            ) : (
-                (currentScale==='month') ? (
-                    <div
-                        key={'cell-' + index}
-                        className="scheduleCell"
-                        style={{
-                            backgroundColor: (index+1 - (firstDayOfMonth-1) <= 0 || index+1 - (firstDayOfMonth-1) > totalDaysInMonth)
-                            ? 'lightgray'
-                            : ''
-                        }}
-                    >
-                        {index+1 - (firstDayOfMonth-1) > 0 && index+1 - (firstDayOfMonth-1) <= totalDaysInMonth &&
-                            `${index+1 - (firstDayOfMonth-1)}`
-                        }
-                    </div>
-                ) : (
-                    <div
-                        key={'cell-' + index}
-                        className="scheduleCell"
-                        style={{
-                            backgroundColor: (Math.floor(index/12)+1 > getDaysInMonth(index % 12 + 1, intervalAnchor.getFullYear()))
-                            ? 'lightgray'
-                            : ''
-                        }}
-                    >
-                        {(Math.floor(index/12)+1 <= getDaysInMonth(index % 12 + 1, intervalAnchor.getFullYear())) && `${Math.floor(index/12)+1}`}
-                    </div>
-                )
-            )}
-        </>
-    ));
-
-    // Determine data to display based on the scale
-    //I need to modify data first! I mean creating start-end activities before filtering by rangeToDisplay
-
-    const formatDate = (date) => {
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');  // Add leading zero if needed
-        const day = date.getDate().toString().padStart(2, '0');  // Add leading zero if needed
-        return `${year}-${month}-${day}`;
-    };
 
     // ranged data for current scale
     const scaledData = useMemo(() => {
@@ -202,7 +193,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     });
             
                     // Loop through the days between startDate and endDate
-                    for (let d = new Date(start + 1); d < end; d.setDate(d.getDate() + 1)) {
+                    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
                         // Check if the day is one of the repeating days
                         if (daysOfWeek.includes(d.getDay())) {
 
@@ -263,9 +254,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
         return rangedData;
     }, [data, currentScale, rangeToDisplay]);
 
-    //---Overlaps---//
-
-    // ranged data for current scale, with grouped overlaps
+    // scaledData with grouped overlaps
     const scaledDataWithOverlaps = useMemo(() => {
 
         const overlaps = [];
@@ -281,47 +270,60 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
 
                 const nextEvent = scaledData[j];
 
-                if (
-                    (currentScale === "week" && nextEvent.startTime < event.endTime) ||
-                    (currentScale !== "week" && nextEvent.startDate === event.startDate)//on month and year scales all events last 1 day
+                if (// all events last 1 day
+                    (currentScale === "week" && nextEvent.startTime < event.endTime && nextEvent.startDate === event.startDate) ||
+                    (currentScale !== "week" && nextEvent.startDate === event.startDate)
                 ) {
                     overlapGroup.push(nextEvent);
                 }
             }
-            overlaps.push(overlapGroup);
+
+            // Check if any existing group contains any of the events in overlapGroup
+            const isContained = overlaps.some(existingGroup => 
+                overlapGroup.every(newEvent => 
+                    existingGroup.some(existingEvent => existingEvent.eventId === newEvent.eventId) // assuming _id is the unique identifier
+                )
+            );
+
+            if (!isContained) {
+                overlaps.push(overlapGroup);
+            }
         });
       
         return overlaps;
     }, [currentScale, scaledData]);
 
-    // scaledDataWithOverlaps rendered as list of <div></div>s
-    const renderEvents = useCallback((group, i, content) => {
+    // events rendered as <div></div>s
+    const renderEvents = useCallback((group, i, content, isJoint, zIndex) => {
 
-        const eventStart = new Date(`${group[0].startDate}T${group[0].startTime || "01:00"}`);
+        const eventStart = new Date(`${group[i].startDate}T${group[i].startTime || "01:00"}`);
         const tmp = group;
-        if (currentScale === "week" && group.length > 4) {
+        if (currentScale === "week" && group.length > 3) {
             tmp.sort((a, b) => (b.endTime - a.endTime));
         }
-        const eventEnd = new Date(`${tmp[0].endDate}T${tmp[0].endTime || "02:45"}`);
+        const eventEnd = new Date(`${tmp[i].endDate}T${tmp[i].endTime || "02:45"}`);
         
         const dayOfWeek = ((eventStart.getDay() === 0) ? 7 : eventStart.getDay()) - 1; // 0-6 (Monday - Sunday)
         const dayOfMonth = eventStart.getDate(); // 1 - 28-31
-                
+        
         const startHour = eventStart.getHours();
         const startMinutes = eventStart.getMinutes();
         const endHour = eventEnd.getHours();
         const endMinutes = eventEnd.getMinutes();
 
-        let part = group.length; //size of group element
+        let part = (isJoint) ? 1 : group.length; //size of group element
 
-        let top = 0;
-        let left = 0;
-        let bottom = 0;
-        let right = 0;
+        let top;
+        let left;
+        let bottom;
+        let right;
+
+        let space;
 
         switch(currentScale) {
             case "week": {
                 part = 100 / 7 / part;
+                space = part / 100;
 
                 top = 100 / 24 * (startHour + (startMinutes / 60));
                 left = (100 / 7 * dayOfWeek) + (part * i);
@@ -330,19 +332,23 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 break;
             }
             case "month": {
-                part = 100 / weeksInMonth / part;
+                const weeks = weeksInMonth(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear());
+                part = 100 / weeks / part;
+                space = part / 100;
 
-                top = (100 / weeksInMonth * Math.floor((dayOfMonth + firstDayOfMonth - 1) / 7)) + (part * i);
+                top = (100 / weeks * Math.floor((dayOfMonth + firstDayOfMonth - 1) / 7)) + (part * i);
                 left = 100 / 7 * dayOfWeek;
                 bottom = top + (part);
                 right = left + (100 / 7);
+
                 break;
             }
             case "year": {
                 part = 100 / 31 / part;
-
+                space = part / 100;
+                
                 top = (100 / 31 * (dayOfMonth - 1)) + (part * i);
-                left = 100 / 12 * new Date(group[0].startDate).getMonth;
+                left = 100 / 12 * eventStart.getMonth();
                 bottom = top + (part);
                 right = left + (100 / 12);
                 break;
@@ -352,28 +358,42 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
 
         return (
             <div
-                key={'event-' + group[0].eventId}
-                className="scheduleEvent"
+                key={'event-' + group[i].eventId}
+                className="event"
                 style={{
-                    zIndex: 10,
-                    width: `${right - left}%`,
-                    height: `${bottom - top}%`,
+                    zIndex: `${zIndex}`,
+                    width: `${right - left - space}%`,
+                    height: `${bottom - top -  space}%`,
                     position: 'absolute',
                     top: `${top}%`,
-                    left: `${left}%`
+                    left: `${left}%`,
+                    backgroundColor: (isJoint) ? `#ff8800` : `#00ff88`
                 }}
-                onClick={() => goToPage(group[0])}
+                onClick={() => {
+                    (isJoint) ? (
+                        setState((prevState) => ({
+                            ...prevState,
+                            currentDialog: {
+                                name: 'JointEventOverlap',
+                                params: [group]
+                            }
+                        }))
+                    ) : (
+                        goToPage(group[i])
+                    )
+                }}//create this dialog
             >
                 {content}
             </div>
         );
-    }, [currentScale, firstDayOfMonth, goToPage, weeksInMonth]);
+    }, [currentScale, firstDayOfMonth, setState, goToPage, weeksInMonth, intervalAnchor]);
 
-    const dataToDisplay = useMemo(() => {
+    //schedule events as <div></div>s to display
+    const eventsToDisplay = useMemo(() => {
 
         const eventDivs = scaledDataWithOverlaps.flatMap((group, i) => {
 
-            if (group.length > 1 && group.length <= 4) { // overlaps (all events are visible)
+            if (group.length === 2) { // overlaps both events are visible
 
                 const groupDivs = group.flatMap((event, i) => {
                     // event data to display
@@ -381,23 +401,36 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     if (group[i].type === 'activity') {
                         content += `${data.find(p => p.id === group[i].project).name}: `
                     }
-                    content += `${group[i].name}\nStart at ${group[i].eventStart}\nEnd at${group[i].eventEnd}`
-                
-                    return renderEvents(group, i, content);
+
+                    if (currentScale === 'week') {
+                        content += `${group[i].name}\nStart at ${group[i].startTime}\nEnd at${group[i].endTime}`
+                    }
+                    else {
+                        content += `${group[i].name}\nStart at ${group[i].startDate}\nEnd at${group[i].endDate}`
+                    }
+                    
+                    return renderEvents(group, i, content, false, 2);
                 });
+                
                 return groupDivs;
             }
-            else if (group.length === 1 || group.length > 4) { // Normal activity or Joint block
+            else if (group.length === 1 || group.length > 2) { // Normal activity or Joint block
 
                 // event data to display
                 let content = ``;
-                if (group.length === 1) {
+                if (group.length === 1) {//event
                     if (group[0].type === 'activity') {
                         content += `${data.find(p => p.id === group[0].project).name}: `
                     }
-                    content += `${group[0].name}\nStart at ${group[0].eventStart}\nEnd at${group[0].eventEnd}`
+                   
+                    if (currentScale === 'week') {
+                        content += `${group[0].name}\nStart at ${group[0].startTime}\nEnd at${group[0].endTime}`
+                    }
+                    else {
+                        content += `${group[0].name}\nStart at ${group[0].startDate}\nEnd at${group[0].endDate}`
+                    }
                 }
-                else {
+                else {//joint block
                     group.forEach((event, i) => {
                         if (event.type === 'activity') {
                             content += `${data.find(p => p.id === event.project).name}: `
@@ -406,33 +439,15 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     });
                 }
 
-                return [renderEvents(group, 0, content)];
+                return [renderEvents(group, 0, content, (group.length === 1) ? false : true, (group.length === 1) ? 1 : 3)];
             }
             else {
                 return [];
             }
         });
 
-        return eventDivs;
-        
-    }, [data, renderEvents, scaledDataWithOverlaps]);
-
-    function openOverlapDialog(events) {
-        // Open a modal displaying the full list of events
-        setModalContent(
-            <div>
-                {events.map((event) => (
-                    <div key={event.id}>
-                        {event.projectName}: {event.activityName}
-                    </div>
-                ))}
-            </div>
-        );
-        setModalVisible(true);
-    }
-    
-    function adjustTextVisibility(events) {
-        events.forEach((event) => {
+        //move text to visible part of event if any
+        eventDivs.forEach((event) => {
             const overlapEvent = document.querySelector(`.overlapEvent[data-id="${event.id}"]`);
             if (overlapEvent) {
                 const eventText = document.querySelector(`.event[data-id="${event.id}"] .text`);
@@ -441,79 +456,10 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 }
             }
         });
-    }
 
-    //---Overlaps---//
-
-    //schedule events
-    const scheduleEvents = useMemo(() => {
-        if (!scaledData.length) return [];
-    
-        return scaledData
-            .flatMap((event) => {
-                const { startDate, endDate, startTime, endTime, name } = event;
-                const eventStart = new Date(`${startDate}T${startTime || "01:00"}`);
-                const eventEnd = new Date(`${endDate}T${endTime || "02:45"}`);
+        return eventDivs;
         
-                // Normal activities
-                switch(currentScale) {
-                    case "week": {
-                        const dayIndex = ((eventStart.getDay() === 0) ? 7 : eventStart.getDay()) - 1; // 0-6 (Monday - Sunday)
-                        
-                        const startHour = eventStart.getHours();
-                        const startMinutes = eventStart.getMinutes();
-                        const endHour = eventEnd.getHours();
-                        const endMinutes = eventEnd.getMinutes();
-
-                        const top = 100 / 24 * (startHour + (startMinutes / 60));
-                        const left = 100 / 7 * dayIndex;
-                        const bottom = 100 / 24 * (endHour + (endMinutes / 60))
-
-                        return [
-                            <div
-                                key={'event-' + event.eventId}
-                                className="scheduleEvent"
-                                style={{
-                                    zIndex: 10,
-                                    position: 'absolute',
-                                    top: `${top}%`,
-                                    left: `${left}%`,
-                                    height: `${bottom - top}%`
-                                }}
-                                onClick={() => goToPage(event)}
-                            >
-                                {name}
-                            </div>,
-                        ];
-                    }
-                    case "month":
-                    case "year": {
-                        const dayOfMonth = eventStart.getDate(); // 1 - 28-31
-                        const dayOfWeek = eventStart.getDay() || 7;
-
-                        return [
-                            <div
-                                key={'event-' + event.eventId}
-                                className="eventBlock"
-                                style={{
-                                    zIndex: 10,
-                                    gridColumn: (currentScale === 'month')
-                                        ? (dayOfWeek)
-                                        : (eventStart.getMonth() + 1),
-                                    gridRow: (currentScale === 'month')
-                                        ? Math.ceil((dayOfMonth + firstDayOfMonth) / 7)
-                                        : dayOfMonth
-                                }}
-                                onClick={() => goToPage(event)}
-                            >
-                                {name}
-                            </div>,
-                        ];
-                    }
-                    default: return [];
-                }
-            });
-    }, [scaledData, currentScale, firstDayOfMonth, goToPage]);
+    }, [data, currentScale, renderEvents, scaledDataWithOverlaps]);
 
     return (
         <div
@@ -521,8 +467,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
             style={scheduleBoard}
         >
             {scheduleCells}
-            {scheduleEvents}
-            {ScheduleBoardOverlaps}
+            {eventsToDisplay}
         </div>
     )}
 

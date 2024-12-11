@@ -1,8 +1,8 @@
 import React, { Suspense }  from 'react';
 import '../../css/pages/Projects.css';
-import ControlPanel from './shared/ControlPanel';
+import ControlPanel from './sharedComponents/ControlPanel';
 
-const Projects = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, setOpenAddEditItemDialog }) => {
+const Projects = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights }) => {
 
     //open project
 
@@ -58,10 +58,10 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                 userData={userData}
                 setUserData={setUserData}
                 state={state}
+                setState={setState}
                 data={data}
                 rights={rights}
                 setItemsToDisplay={setItemsToDisplay}
-                setOpenAddEditItemDialog={setOpenAddEditItemDialog}
             />
             <div className='itemList'>
                 {(!state.currentProject) ? (
@@ -88,7 +88,12 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                             className='gearButton'
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                setOpenAddEditItemDialog(project)
+                                                setState((prevState) => ({
+                                                    ...prevState,
+                                                    currentDialog: {
+                                                        name: 'AddEditItem',
+                                                        params: [project]},
+                                                }));
                                             }}
                                         >
                                             ⚙️
@@ -133,7 +138,12 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                             className='gearButton'
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                setOpenAddEditItemDialog(activity);
+                                                setState((prevState) => ({
+                                                    ...prevState,
+                                                    currentDialog: {
+                                                        name: 'AddEditItem',
+                                                        params: [activity]},
+                                                }));
                                             }}
                                         >
                                             ⚙️

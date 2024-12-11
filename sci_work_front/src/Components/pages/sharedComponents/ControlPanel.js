@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback }  from 'react';
 import '../../../css/pages/shared/ControlPanel.css';
 
-const ControlPanel = ({ userData, setUserData, state, data, rights, setItemsToDisplay, setOpenAddEditItemDialog, currentScale, setCurrentScale, editIntervalAnchor }) => {
+const ControlPanel = ({ userData, setUserData, state, setState, data, rights, setItemsToDisplay, currentScale, setCurrentScale, editIntervalAnchor }) => {
 
     const filterOptions = {
         sort: ["A-Z", "Z-A", "start date", "end date"],
@@ -207,7 +207,14 @@ const ControlPanel = ({ userData, setUserData, state, data, rights, setItemsToDi
             && (state.currentProject) ? rights.edit.includes(state.currentProject.access) : true))
             || state.currentPage === 'Schedule')
             && (
-                <button className="addItem" onClick={() => setOpenAddEditItemDialog(true)}>
+                <button className="addItem" onClick={() => {
+                    setState((prevState) => ({
+                        ...prevState,
+                        currentDialog: {
+                            name: 'AddEditItem',
+                            params: [true]},
+                    }));
+                }}>
                     Add item
                 </button>
             )}

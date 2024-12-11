@@ -1,10 +1,12 @@
 import React, { useState, useMemo }  from 'react';
 import '../../../css/pages/dialogs/AddEditItem.css';
+import '../../../css/pages/dialogs/dialog.css'
 
 import { v4 as uuidv4 } from 'uuid';
 
-const AddEditItem = ({ data, setData, currentItem, state, setState, rights, itemStructure, defaultStructure, isCompany, setOpenAddEditItemDialog }) => {
+const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, defaultStructure, isCompany }) => {
 
+    const currentItem = state.currentDialog.params[0];
     const [selectedType, setSelectedType] = useState(state.currentProject ? "Activity" : "Project"); // Default to "Project"
 
     // Initialize form values based on default type
@@ -213,12 +215,24 @@ const AddEditItem = ({ data, setData, currentItem, state, setState, rights, item
             });
         }
 
-        setOpenAddEditItemDialog(undefined);
+        setState((prevState) => ({
+            ...prevState,
+            currentDialog: {
+                name: undefined,
+                params: []
+            }
+        }));
     };
 
     const handleOutsideClick = (e) => {
-        if (e.target.className === "addEditItemDialog") {
-            setOpenAddEditItemDialog(undefined);
+        if (e.target === e.currentTarget) {
+            setState((prevState) => ({
+                ...prevState,
+                currentDialog: {
+                    name: undefined,
+                    params: []
+                }
+            }));
         }
     };
 
@@ -227,7 +241,7 @@ const AddEditItem = ({ data, setData, currentItem, state, setState, rights, item
     const currentStructure = itemStructure[selectedType.toLowerCase()];
 
     return (
-        <div className="addEditItemDialog" onClick={handleOutsideClick}>
+        <div className="addEditItemDialog dialogContainer" onClick={handleOutsideClick}>
             <div className="dialogContent">
                 <h2>{currentItem === true 
                     ? (state.currentProject ? 'Add new Activity' : 'Add New Project')
