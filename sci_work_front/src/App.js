@@ -7,17 +7,62 @@ import AppContent from './Components/AppContent'
 
 function App() {
 
+  const [state, setState] = useState({
+    currentPage: 'Home Page',   //string
+    currentProject: undefined,  //object
+    currentActivity: undefined, //object
+    currentDialog: {
+      name: undefined,  //string
+      params: []        //[any]
+    }
+  });
+  
+  //user
+  
+  const [userData, setUserData] = useState({
+    name: 'Dmytro',
+    middleName: '',
+    surName: 'Toporets',
+    patronimic: '',
+    photo: undefined,
+    statusName: 'owner',
+    genStatus: 0,//0 - item creator/organisation owner, 1 - manager (add/edit items), 2 - supervisor, 3 - user
+    mail: 'dmytro.toporets@nure.ua',
+    safetyMail: '',
+    phone: '',
+    safetyPhone: '',
+
+    currentSettings: {
+      sortFilter: "A-Z",
+      statusFilter: "all",
+    }
+  })
+
   const rights = {
     fullView: [0, 2],
     interact: [0, 1, 3],
     edit: [0, 1]
   }
 
-  const [userData, setUserData] = useState({
-    genStatus: 1,//0 - item creator/organisation owner, 1 - manager (add/edit items), 2 - supervisor, 3 - user
-    currentSortFilter: "A-Z",
-    currentStatusFilter: "all",
-  })
+  const profileData = {// [optional, type]
+    basic: {
+      name:         [true, 'string'],
+      middleName:   [false, 'string'],
+      surName:      [true, 'string'],
+      patronimic:   [false, 'string'],
+      statusName:   [true, 'string'],
+      mail:         [true, 'mail'],
+      safetyMail:   [false, 'mail'],
+      phone:        [false, 'phone'],
+      safetyPhone:  [false, 'phone']
+    },
+    fixed: ['statusName'],//fields that can not be edited
+    additional: {
+      //will be added in beta-version
+    }
+  }
+
+  //items
 
   const itemStructure = {
     project: {
@@ -203,20 +248,6 @@ function App() {
     }
   ])
 
-  // const localeData = {}
-
-  //general
-  //this is for the whole app
-  const [state, setState] = useState({
-    currentPage: 'Home Page',   //string
-    currentProject: undefined,  //object
-    currentActivity: undefined, //object
-    currentDialog: {
-      name: undefined,  //string
-      params: []        //[any]
-    }
-  });
-
   //header
   const isCompany = true;
   const [isLoggedIn, setLoggedIn] = useState(true);
@@ -232,8 +263,6 @@ function App() {
       setNotificationsCount(0);
     }
   }, [state.currentPage])
-  
-  //main
   
   //Html
   return (
@@ -259,6 +288,7 @@ function App() {
               <AppContent
                 userData={userData}
                 setUserData={setUserData}
+                profileData={profileData}
                 state={state}
                 setState={setState}
                 data={projects}

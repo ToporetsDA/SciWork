@@ -10,8 +10,8 @@ const ControlPanel = ({ userData, setUserData, state, setState, data, rights, se
 
     const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
     const [isStateDropdownOpen, setIsStateDropdownOpen] = useState(false);
-    const [currentSortOption, setCurrentSortOption] = useState(userData.currentSortFilter);
-    const [currentStateOption, setCurrentStateOption] = useState(userData.currentStateFilter);
+    const [currentSortOption, setCurrentSortOption] = useState(userData.currentSettings.sortFilter);
+    const [currentStateOption, setCurrentStateOption] = useState(userData.currentSettings.stateFilter);
     const [searchQuery, setSearchQuery] = useState("");
 
     const sortDropdownRef = useRef(null);
@@ -25,29 +25,31 @@ const ControlPanel = ({ userData, setUserData, state, setState, data, rights, se
 
     useEffect(() => {
         if (userData) {
-            setCurrentSortOption(userData.currentSortFilter);
-            setCurrentStateOption(userData.currentStatusFilter);
+            setCurrentSortOption(userData.currentSettings.sortFilter);
+            setCurrentStateOption(userData.currentSettings.statusFilter);
         }
     }, [userData])
 
     const handleSortOptionSelect = (option) => {
-        setUserData(prevData => ({ ...prevData, currentSortFilter: option }));
+        setUserData(prevData => ({ ...prevData, currentSettings: {...prevData.currentSettings, sortFilter: option} }));
         setIsSortDropdownOpen(false);
     }
 
     const handleStateOptionSelect = (option) => {
-        setUserData(prevData => ({ ...prevData, currentStatusFilter: option }));
+        setUserData(prevData => ({ ...prevData, currentSettings: {...prevData.currentSettings, statusFilter: option} }));
         setIsStateDropdownOpen(false);
     }
 
     //close filter option lists on click outside
 
     const handleClickOutside = useCallback((event) => {
-        if (isSortDropdownOpen && sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
-            setIsSortDropdownOpen(false);
-        }
-        if (isStateDropdownOpen && stateDropdownRef.current && !stateDropdownRef.current.contains(event.target)) {
-            setIsStateDropdownOpen(false);
+        if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
+            if (isSortDropdownOpen) {
+                setIsSortDropdownOpen(false);
+            }
+            if (isStateDropdownOpen) {
+                setIsStateDropdownOpen(false);
+            }
         }
     }, [isSortDropdownOpen, isStateDropdownOpen]);
 

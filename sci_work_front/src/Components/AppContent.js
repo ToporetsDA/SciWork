@@ -3,7 +3,7 @@ import '../css/AppContent.css';
 import * as Pages from './pages';
 import * as Dialogs from './pages/dialogs';
 
-const AppContent = ({userData, setUserData, state, setState, data, setData, rights, itemStructure, defaultStructure, isCompany}) => {
+const AppContent = ({userData, setUserData, profileData, state, setState, data, setData, rights, itemStructure, defaultStructure, isCompany}) => {
 
     // dialogs
 
@@ -49,6 +49,7 @@ const AppContent = ({userData, setUserData, state, setState, data, setData, righ
                     <PageComponent
                         userData={userData}
                         setUserData={setUserData}
+                        profileData={profileData}
                         state={state}
                         setState={setState}
                         data={data}
@@ -62,6 +63,7 @@ const AppContent = ({userData, setUserData, state, setState, data, setData, righ
                 <div>No page to display</div>
             )}
         </main>
-    )}
+    )
+}
 
 export default AppContent
