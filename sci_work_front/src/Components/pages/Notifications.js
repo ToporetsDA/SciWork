@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../css/pages/Notifications.css';
 
-const Notifications = () => {
+const Notifications = (state, setState, notifications) => {
 
     return (
         <>

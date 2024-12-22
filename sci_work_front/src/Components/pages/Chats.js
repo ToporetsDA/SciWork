@@ -5,7 +5,7 @@ const Chats = () => {
 
     return (
         <>
-            
+            Coming soon
         </>
     )}
 

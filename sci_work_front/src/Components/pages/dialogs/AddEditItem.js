@@ -2,8 +2,6 @@ import React, { useState, useMemo }  from 'react';
 import '../../../css/pages/dialogs/AddEditItem.css';
 import '../../../css/pages/dialogs/dialog.css'
 
-import { v4 as uuidv4 } from 'uuid';
-
 const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, defaultStructure, isCompany }) => {
 
     const currentItem = state.currentDialog.params[0];
@@ -88,10 +86,14 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const newItem = {
+        let newItem = {
             ...formValues,
-            id: currentItem?.id || (state.currentProject ? `${state.currentProject.id}-${state.currentProject.length}` : uuidv4()), // Retain existing ID if editing, otherwise generate a new one
+            id: currentItem?.id || (state.currentProject ? data.length : (state.currentProject.id * 1000000000) + state.currentProject.activities.length),
         };
+
+        if (selectedType === "Project") {
+            newItem.activities = [];
+        }
 
         //validation
         const newErrors = {};
@@ -169,7 +171,7 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
         
         // submit
         
-        if (selectedType === "Activity" && state.currentProject) {
+        if (selectedType === "Activity" && state.currentProject !== undefined) {
             setData((prev) => {
                 const updatedData = prev.map((project) => {
                     if (project.id === state.currentProject.id) {
@@ -201,7 +203,7 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
             });
         } else {
             setData((prev) => {
-                const existingIndex = prev.findIndex((item) => item.name === currentItem.name);
+                const existingIndex = prev.findIndex((item) => item.id === currentItem.id);
         
                 if (existingIndex !== -1) {
                     // Update project

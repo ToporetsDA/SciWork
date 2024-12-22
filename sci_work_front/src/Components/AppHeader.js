@@ -2,10 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import '../css/AppHeader.css';
 import logo from "../logo.svg";
 
-const AppHeader = ({ state, setState, handleLoggedIn, notifications, organisationType}) => {
+const AppHeader = ({ state, setState, userData, handleLoggedIn, notifications, organisationType}) => {
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     
+    const pages = ['Home Page', 'Schedule', (organisationType) ? 'Projects' : 'Subjects'];
+    const morePages = (userData.genStatus === 0) ? (
+        ['Profile', 'userList', 'Notifications', 'Chats', 'Settings']
+    ) : (
+        ['Profile', 'Notifications', 'Chats', 'Settings']
+    );
 
     //go to page
     const handleClick = (page) => {
@@ -46,7 +52,7 @@ const AppHeader = ({ state, setState, handleLoggedIn, notifications, organisatio
         <header>
             <img className="logo" src={logo} alt="SciWork" />
             <ul className="menu">
-                {['Home Page', 'Schedule', (organisationType) ? 'Projects' : 'Subjects'].map((page) => (
+                {pages.map((page) => (
                 <li
                     key={page}
                     onClick={() => handleClick(page)}
@@ -79,7 +85,7 @@ const AppHeader = ({ state, setState, handleLoggedIn, notifications, organisatio
                     )}
                     {isDropdownOpen && (
                         <ul className="more">
-                            {['Profile', 'Notifications', 'Chats', 'Settings'].map((page) => (
+                            {morePages.map((page) => (
                             <li
                                 key={page}
                                 onClick={() => handleClick(page)}

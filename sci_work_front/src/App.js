@@ -7,6 +7,8 @@ import AppContent from './Components/AppContent'
 
 function App() {
 
+  //app
+
   const [state, setState] = useState({
     currentPage: 'Home Page',   //string
     currentProject: undefined,  //object
@@ -123,7 +125,7 @@ function App() {
           days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
           thirdParty: true,
           serviceName: "Zoom",
-          id: 11
+          id: 1000000001
         },
         {
           name: "Code review 1",
@@ -136,7 +138,7 @@ function App() {
           days: [],
           thirdParty: false,
           serviceName: null,
-          id: 12
+          id: 1000000002
         }
       ],
       id: 1
@@ -149,29 +151,29 @@ function App() {
       activities: [
         {
           name: "Sprint Planning 2",
-          startDate: "2024-12-07",
-          endDate: "2024-12-20",
-          startTime: "16:15",
-          endTime: "18:40",
+          startDate: "2024-12-16",
+          endDate: "2024-12-22",
+          startTime: "11:15",
+          endTime: "13:10",
           page: false,
           repeat: true,
-          days: ['Mon', 'Tue', 'Fri'],
+          days: ['Mon', 'Tue', 'Fri', 'sun'],
           thirdParty: true,
           serviceName: "Zoom",
-          id: 21
+          id: 2000000001
         },
         {
           name: "Review 2",
-          startDate: "2024-09-16",
-          endDate: "2024-09-20",
+          startDate: "2024-12-16",
+          endDate: "2024-12-27",
           startTime: "08:30",
           endTime: "09:45",
           page: false,
           repeat: true,
-          days: ['Mon', 'Fri'],
+          days: ['Mon', 'Fri', 'sun'],
           thirdParty: true,
           serviceName: "Google Meet",
-          id: 22
+          id: 2000000002
         }
       ],
       id: 2
@@ -184,8 +186,8 @@ function App() {
       activities: [
         {
           name: "Sprint Planning 4",
-          startDate: "2024-11-04",
-          endDate: "2024-12-18",
+          startDate: "2023-12-04",
+          endDate: "2024-01-18",
           startTime: "16:30",
           endTime: "18:45",
           page: false,
@@ -193,12 +195,12 @@ function App() {
           days: ['Tue', 'Wed', 'Fri'],
           thirdParty: true,
           serviceName: "Zoom",
-          id: 31
+          id: 3000000001
         },
         {
           name: "Review 4",
-          startDate: "2024-11-16",
-          endDate: "2024-12-12",
+          startDate: "2023-12-16",
+          endDate: "2024-01-12",
           startTime: "16:30",
           endTime: "17:45",
           page: false,
@@ -206,7 +208,7 @@ function App() {
           days: ['Tue'],
           thirdParty: true,
           serviceName: "Google Meet",
-          id: 32
+          id: 3000000002
         }
       ],
       id: 3
@@ -228,7 +230,7 @@ function App() {
           days: ['Tue', 'Wed', 'Thu'],
           thirdParty: true,
           serviceName: "Zoom",
-          id: 41
+          id: 4000000001
         },
         {
           name: "Review 3",
@@ -241,14 +243,69 @@ function App() {
           days: ['Fri'],
           thirdParty: true,
           serviceName: "Google Meet",
-          id: 42
+          id: 4000000002
         }
       ],
       id: 4
     }
   ])
 
+  //notifications
+
+  const [notifications, setNotifications] = useState([
+    {
+      sourceProject: 2,
+      sourceActivity: 2000002,
+      content: "Starts in 10 minutes",
+      generationDate: "2024-12-16",
+      generationTime: "08:20"
+    },
+    {
+      sourceProject: 2,
+      sourceActivity: 2000001,
+      content: "Starts in 10 minutes",
+      generationDate: "2024-12-16",
+      generationTime: "08:20"
+    },
+    {
+      sourceProject: 2,
+      sourceActivity: 2000001,
+      content: "Starts in 10 minutes",
+      generationDate: "2024-12-17",
+      generationTime: "08:20"
+    },
+    {
+      sourceProject: 2,
+      sourceActivity: 2000002,
+      content: "Starts in 10 minutes",
+      generationDate: "2024-12-20",
+      generationTime: "08:20"
+    },
+    {
+      sourceProject: 2,
+      sourceActivity: 2000001,
+      content: "Starts in 10 minutes",
+      generationDate: "2024-12-20",
+      generationTime: "08:20"
+    },
+    {
+      sourceProject: 2,
+      sourceActivity: 2000002,
+      content: "Starts in 10 minutes",
+      generationDate: "2024-12-22",
+      generationTime: "08:20"
+    },
+    {
+      sourceProject: 2,
+      sourceActivity: 2000001,
+      content: "Starts in 10 minutes",
+      generationDate: "2024-12-22",
+      generationTime: "08:20"
+    },
+  ])
+
   //header
+
   const isCompany = true;
   const [isLoggedIn, setLoggedIn] = useState(true);
   const [notificationsCount, setNotificationsCount] = useState(5);
@@ -274,6 +331,7 @@ function App() {
             <AppHeader
               state={state}
               setState={setState}
+              userData={userData}
               handleLoggedIn={handleLoggedIn}
               notifications={notificationsCount}
               organisationType={isCompany}

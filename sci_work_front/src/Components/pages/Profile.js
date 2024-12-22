@@ -85,6 +85,8 @@ export default Profile;
 
 /*!!! for beta-version !!!
 
+permission list
+
 profile image
 
 locale related settings

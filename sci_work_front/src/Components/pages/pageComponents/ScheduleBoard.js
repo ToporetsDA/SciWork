@@ -3,6 +3,10 @@ import '../../../css/pages/pageComponents/ScheduleBoard.css';
 
 const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, gridValues, setGridValues, intervalAnchor, scheduleBoard }) => {
 
+    const projectId = (id) => {
+        return Math.floor(id / 1000000000);
+    }
+
     const goToPage = useCallback((event) => {
         if (event.type === 'project') {
             setState((prevState) => {
@@ -18,8 +22,8 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
             setState((prevState) => ({
                 ...prevState,
                 currentPage: 'Activity',
-                currentProject:  data.find(p => p.id === event.project),
-                currentActivity:  data.find(p => p.id === event.project).find(a => a.id === event.id),
+                currentProject:  data.find(p => p.id === projectId(event.id)),
+                currentActivity:  data.find(p => p.id === projectId(event.id)).find(a => a.id === event.id),
             }));
             // console.log(state);
         }
@@ -27,7 +31,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
             setState((prevState) => ({
                 ...prevState,
                 currentPage: 'Project',
-                currentProject:  data.find(p => p.id === event.project)
+                currentProject:  data.find(p => p.id === projectId(event.id))
             }));
         }
     }, [data, setState]);
@@ -124,8 +128,8 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
 
     const rangeToDisplay = useMemo(() => ({
         week: {
-            start: new Date(intervalAnchor.getFullYear(), intervalAnchor.getMonth(), intervalAnchor.getDate() - intervalAnchor.getDay()),
-            end: new Date(intervalAnchor.getFullYear(), intervalAnchor.getMonth(), intervalAnchor.getDate() - intervalAnchor.getDay() + 6),
+            start: new Date(intervalAnchor.getFullYear(), intervalAnchor.getMonth(), intervalAnchor.getDate() - ((intervalAnchor.getDay() === 0) ? 6 : intervalAnchor.getDay() - 1)),
+            end: new Date(intervalAnchor.getFullYear(), intervalAnchor.getMonth(), intervalAnchor.getDate() - ((intervalAnchor.getDay() === 0) ? 6 : intervalAnchor.getDay() - 1) + 6),
         },
         month: {
             start: new Date(intervalAnchor.getFullYear(), intervalAnchor.getMonth(), 1),
@@ -143,9 +147,9 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
 
         const { start, end } = rangeToDisplay[currentScale];
     
-        // Filter and process activities
+        // Filter and process activities Math.floor(event.id / 1000000000)
         const filteredActivities = data
-            .flatMap(project => project.activities?.map(activity => ({ ...activity, project: project.id })) || [])
+            .flatMap(project => project.activities)
             .flatMap(activity => {
     
                 if (activity.startDate === activity.endDate) {
@@ -399,7 +403,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     // event data to display
                     let content = ``;
                     if (group[i].type === 'activity') {
-                        content += `${data.find(p => p.id === group[i].project).name}: `
+                        content += `${data.find(p => p.id === projectId(group[0].id)).name}: `
                     }
 
                     if (currentScale === 'week') {
@@ -420,7 +424,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 let content = ``;
                 if (group.length === 1) {//event
                     if (group[0].type === 'activity') {
-                        content += `${data.find(p => p.id === group[0].project).name}: `
+                        content += `${data.find(p => p.id === projectId(group[0].id)).name}: `
                     }
                    
                     if (currentScale === 'week') {
@@ -433,7 +437,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 else {//joint block
                     group.forEach((event, i) => {
                         if (event.type === 'activity') {
-                            content += `${data.find(p => p.id === event.project).name}: `
+                            content += `${data.find(p => p.id === projectId(event.id)).name}: `
                         }
                         content += `${event.name}\n`
                     });
