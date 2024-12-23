@@ -1,40 +1,13 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import '../../../css/pages/pageComponents/ScheduleBoard.css';
 
+import * as Shared from '../sharedComponents'
+
 const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, gridValues, setGridValues, intervalAnchor, scheduleBoard }) => {
 
     const projectId = (id) => {
         return Math.floor(id / 1000000000);
     }
-
-    const goToPage = useCallback((event) => {
-        if (event.type === 'project') {
-            setState((prevState) => {
-                const updatedState = {
-                    ...prevState,
-                    currentPage: 'Project',
-                    currentProject: data.find(p => p.id === event.id)
-                };
-                return updatedState;
-            });
-        }
-        else if (event.page === true) {
-            setState((prevState) => ({
-                ...prevState,
-                currentPage: 'Activity',
-                currentProject:  data.find(p => p.id === projectId(event.id)),
-                currentActivity:  data.find(p => p.id === projectId(event.id)).find(a => a.id === event.id),
-            }));
-            // console.log(state);
-        }
-        else {
-            setState((prevState) => ({
-                ...prevState,
-                currentPage: 'Project',
-                currentProject:  data.find(p => p.id === projectId(event.id))
-            }));
-        }
-    }, [data, setState]);
 
     //calculate scale values
     const getDaysInMonth = useCallback((month, year) => {
@@ -129,7 +102,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
     const rangeToDisplay = useMemo(() => ({
         week: {
             start: new Date(intervalAnchor.getFullYear(), intervalAnchor.getMonth(), intervalAnchor.getDate() - ((intervalAnchor.getDay() === 0) ? 6 : intervalAnchor.getDay() - 1)),
-            end: new Date(intervalAnchor.getFullYear(), intervalAnchor.getMonth(), intervalAnchor.getDate() - ((intervalAnchor.getDay() === 0) ? 6 : intervalAnchor.getDay() - 1) + 6),
+            end: new Date(intervalAnchor.getFullYear(), intervalAnchor.getMonth(), intervalAnchor.getDate() - ((intervalAnchor.getDay() === 0) ? 6 : intervalAnchor.getDay() - 1) + 7),
         },
         month: {
             start: new Date(intervalAnchor.getFullYear(), intervalAnchor.getMonth(), 1),
@@ -181,7 +154,8 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 let repeatItems = [startItem];
 
                 if (activity.repeat === true) {
-                    const start = new Date(activity.startDate);
+                    let start = new Date(activity.startDate);
+                    start.setDate(start.getDate() + 1)
                     const end = new Date(activity.endDate);
                     const daysOfWeek = activity.days.map(day => {
                         switch(day) {
@@ -275,7 +249,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 const nextEvent = scaledData[j];
 
                 if (// all events last 1 day
-                    (currentScale === "week" && nextEvent.startTime < event.endTime && nextEvent.startDate === event.startDate) ||
+                    (currentScale === "week" && nextEvent.startDate === event.startDate && ((nextEvent.startTime < event.endTime && nextEvent.endTime > event.startTime) || (event.startTime < nextEvent.endTime && event.endTime > nextEvent.startTime))) ||
                     (currentScale !== "week" && nextEvent.startDate === event.startDate)
                 ) {
                     overlapGroup.push(nextEvent);
@@ -296,6 +270,8 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
       
         return overlaps;
     }, [currentScale, scaledData]);
+
+    const goTo = Shared.GoTo;
 
     // events rendered as <div></div>s
     const renderEvents = useCallback((group, i, content, isJoint, zIndex) => {
@@ -383,14 +359,17 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                             }
                         }))
                     ) : (
-                        goToPage(group[i])
+                        setState((prevState) => ({
+                            ...prevState,
+                            ...goTo(group[i], data)
+                        }))
                     )
-                }}//create this dialog
+                }}
             >
                 {content}
             </div>
         );
-    }, [currentScale, firstDayOfMonth, setState, goToPage, weeksInMonth, intervalAnchor]);
+    }, [currentScale, firstDayOfMonth, data, setState, weeksInMonth, intervalAnchor, goTo]);
 
     //schedule events as <div></div>s to display
     const eventsToDisplay = useMemo(() => {
@@ -405,7 +384,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     if (group[i].type === 'activity') {
                         content += `${data.find(p => p.id === projectId(group[0].id)).name}: `
                     }
-
+                    
                     if (currentScale === 'week') {
                         content += `${group[i].name}\nStart at ${group[i].startTime}\nEnd at${group[i].endTime}`
                     }
@@ -426,7 +405,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     if (group[0].type === 'activity') {
                         content += `${data.find(p => p.id === projectId(group[0].id)).name}: `
                     }
-                   
+                    
                     if (currentScale === 'week') {
                         content += `${group[0].name}\nStart at ${group[0].startTime}\nEnd at${group[0].endTime}`
                     }

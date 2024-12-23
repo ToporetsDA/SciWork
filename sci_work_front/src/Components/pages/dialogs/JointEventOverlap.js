@@ -1,49 +1,10 @@
-import React, { useMemo, useCallback }  from 'react';
+import React from 'react';
 import '../../../css/pages/dialogs/JointEventOverlap.css';
 import '../../../css/pages/dialogs/dialog.css'
 
-const JointEventOverlapDialog = ({ data, setData, state, setState }) => {
+import * as Shared from '../sharedComponents'
 
-    const goToPage = useCallback((event) => {
-        if (event.type === 'project') {
-            setState((prevState) => {
-                const updatedState = {
-                    ...prevState,
-                    currentPage: 'Project',
-                    currentProject: data.find(p => p.id === event.id),
-                    currentDialog: {
-                        name: undefined,
-                        params: []
-                    }
-                };
-                return updatedState;
-            });
-        }
-        else if (event.page === true) {
-            setState((prevState) => ({
-                ...prevState,
-                currentPage: 'Activity',
-                currentProject:  data.find(p => p.id === event.project),
-                currentActivity:  data.find(p => p.id === event.project).find(a => a.id === event.id),
-                currentDialog: {
-                    name: undefined,
-                    params: []
-                }
-            }));
-            // console.log(state);
-        }
-        else {
-            setState((prevState) => ({
-                ...prevState,
-                currentPage: 'Project',
-                currentProject:  data.find(p => p.id === event.project),
-                currentDialog: {
-                    name: undefined,
-                    params: []
-                }
-            }));
-        }
-    }, [data, setState]);
+const JointEventOverlapDialog = ({ data, setData, state, setState }) => {
 
     // Close the dialog
 
@@ -59,22 +20,7 @@ const JointEventOverlapDialog = ({ data, setData, state, setState }) => {
         }
     };
 
-    const events = useMemo(() => {
-        return state.currentDialog.params[0].flatMap((event, i) => {
-
-            const start = new Date(`${event.startDate}T${event.startTime || "01:00"}`).toLocaleString();
-            const end = new Date(`${event.endDate}T${event.endTime || "02:45"}`).toLocaleString();
-
-            return (
-                <div key={i} className='jointEvent' onClick={() => {goToPage(event)}}>
-                    <p>{`${event.name}`}</p>
-                    <p>{`Start at ${start}`}</p>
-                    <p>{`\nEnd at${end}`}</p>
-                </div>
-            );
-            
-        });
-    }, [state.currentDialog.params, goToPage]);
+    const ItemList = Shared.LinkList;
 
     return (
         <div
@@ -82,7 +28,12 @@ const JointEventOverlapDialog = ({ data, setData, state, setState }) => {
             onClick={handleOutsideClick}
         >
             <div className="dialogContent">
-                {events}
+                <ItemList
+                    data={data}
+                    state={state}
+                    setState={setState}
+                    list={state.currentDialog.params[0]}
+                />
                 <button
                     className='backButton'
                     onClick={handleOutsideClick}

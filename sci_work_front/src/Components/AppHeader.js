@@ -8,7 +8,7 @@ const AppHeader = ({ state, setState, userData, handleLoggedIn, notifications, o
     
     const pages = ['Home Page', 'Schedule', (organisationType) ? 'Projects' : 'Subjects'];
     const morePages = (userData.genStatus === 0) ? (
-        ['Profile', 'userList', 'Notifications', 'Chats', 'Settings']
+        ['Profile', 'User List', 'Notifications', 'Chats', 'Settings']
     ) : (
         ['Profile', 'Notifications', 'Chats', 'Settings']
     );

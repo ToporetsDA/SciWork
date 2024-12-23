@@ -247,6 +247,14 @@ function App() {
         }
       ],
       id: 4
+    },
+    {
+      name: "Notification Test",
+      startDate: "2024-12-18",
+      endDate: "2025-12-27",
+      access: 2,
+      activities: [],
+      id: 5
     }
   ])
 
@@ -254,54 +262,68 @@ function App() {
 
   const [notifications, setNotifications] = useState([
     {
-      sourceProject: 2,
-      sourceActivity: 2000002,
+      sourceId: 2000000002,
+      page: false,
       content: "Starts in 10 minutes",
       generationDate: "2024-12-16",
-      generationTime: "08:20"
+      generationTime: "08:20",
+      id: 1
     },
     {
-      sourceProject: 2,
-      sourceActivity: 2000001,
+      id:  2000000001,
+      page: false,
       content: "Starts in 10 minutes",
       generationDate: "2024-12-16",
-      generationTime: "08:20"
+      generationTime: "08:20",
+      notificationId: 2
     },
     {
-      sourceProject: 2,
-      sourceActivity: 2000001,
+      id: 2000000001,
+      page: false,
       content: "Starts in 10 minutes",
       generationDate: "2024-12-17",
-      generationTime: "08:20"
+      generationTime: "08:20",
+      notificationId: 3
     },
     {
-      sourceProject: 2,
-      sourceActivity: 2000002,
+      id: 5,
+      content: "Starts today",
+      generationDate: "2024-12-18",
+      generationTime: "00:00",
+      notificationId: 4
+    },
+    {
+      id: 2000000002,
+      page: false,
       content: "Starts in 10 minutes",
       generationDate: "2024-12-20",
-      generationTime: "08:20"
+      generationTime: "08:20",
+      notificationId: 5
     },
     {
-      sourceProject: 2,
-      sourceActivity: 2000001,
+      id: 2000000001,
+      page: false,
       content: "Starts in 10 minutes",
       generationDate: "2024-12-20",
-      generationTime: "08:20"
+      generationTime: "08:20",
+      notificationId: 6
     },
     {
-      sourceProject: 2,
-      sourceActivity: 2000002,
+      id: 2000000002,
+      page: false,
       content: "Starts in 10 minutes",
       generationDate: "2024-12-22",
-      generationTime: "08:20"
+      generationTime: "08:20",
+      notificationId: 7
     },
     {
-      sourceProject: 2,
-      sourceActivity: 2000001,
+      id: 2000000001,
+      page: false,
       content: "Starts in 10 minutes",
       generationDate: "2024-12-22",
-      generationTime: "08:20"
-    },
+      generationTime: "08:20",
+      notificationId: 8
+    }
   ])
 
   //header
@@ -355,6 +377,8 @@ function App() {
                 itemStructure={itemStructure}
                 defaultStructure={defaultStructure}
                 isCompany={isCompany}
+                notifications={notifications}
+                setNotifications={setNotifications}
               />
             </div>
           </div>

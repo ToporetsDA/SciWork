@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import '../css/AppNav.css';
 
+import * as Shared from '../Components/pages/sharedComponents'
+
 const AppNav = ({ data, state, setState, organisationType }) => {
   
   //project.name and activity.name pairs
@@ -26,6 +28,9 @@ const AppNav = ({ data, state, setState, organisationType }) => {
 
   //project and activity are objects
   //recent.project and recent.activity are strings
+
+  const goTo = Shared.GoTo;
+
   const handleClick = (project, activity) => {
     const activityExists = recentActivities.some(recent =>
       recent.activity === activity.name && recent.project === project.name);
@@ -68,7 +73,12 @@ const AppNav = ({ data, state, setState, organisationType }) => {
                 {project.activities.map((activity) => (
                 <li
                   key={activity.name}
-                  onClick={() => handleClick(project, activity)}
+                  onClick={() => {
+                    setState((prevState) => ({
+                      ...prevState,
+                      ...goTo(activity, data)
+                    }))
+                  }}
                   className={state.currentPage === activity.name ? 'active' : ''}
                   style={{
                   fontWeight: state.currentPage === activity.name ? 'bold' : 'normal',
@@ -98,7 +108,12 @@ const AppNav = ({ data, state, setState, organisationType }) => {
                     {projectRecentActivities.map((recent) => (
                       <li
                         key={recent.activity}
-                        onClick={() => handleClick(recent.project, recent.activity)}
+                        onClick={() => {
+                          setState((prevState) => ({
+                            ...prevState,
+                            ...goTo(recent.activity, data)
+                          }))
+                        }}
                         className={state.currentPage === recent.activity ? 'active' : ''}
                         style={{
                           fontWeight: state.currentPage === recent.activity ? 'bold' : 'normal',

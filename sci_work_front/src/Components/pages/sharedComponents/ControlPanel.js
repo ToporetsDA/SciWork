@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback }  from 'react';
-import '../../../css/pages/shared/ControlPanel.css';
+import '../../../css/pages/sharedComponents/ControlPanel.css';
 
 const ControlPanel = ({ userData, setUserData, state, setState, data, rights, setItemsToDisplay, currentScale, setCurrentScale, editIntervalAnchor }) => {
 
