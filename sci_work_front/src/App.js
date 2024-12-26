@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import AppLogIn from './Components/AppLogIn'
 import AppHeader from './Components/AppHeader'
@@ -262,17 +262,19 @@ function App() {
 
   const [notifications, setNotifications] = useState([
     {
-      sourceId: 2000000002,
+      id: 2000000002,
       page: false,
-      content: "Starts in 10 minutes",
+      state: "read",
+      content: "Starts soon",
       generationDate: "2024-12-16",
       generationTime: "08:20",
-      id: 1
+      notificationId: 1
     },
     {
       id:  2000000001,
       page: false,
-      content: "Starts in 10 minutes",
+      state: "read",
+      content: "Starts soon",
       generationDate: "2024-12-16",
       generationTime: "08:20",
       notificationId: 2
@@ -280,13 +282,16 @@ function App() {
     {
       id: 2000000001,
       page: false,
-      content: "Starts in 10 minutes",
+      state: "read",
+      content: "Starts soon",
       generationDate: "2024-12-17",
       generationTime: "08:20",
       notificationId: 3
     },
     {
       id: 5,
+      page: true,
+      state: "read",
       content: "Starts today",
       generationDate: "2024-12-18",
       generationTime: "00:00",
@@ -295,7 +300,8 @@ function App() {
     {
       id: 2000000002,
       page: false,
-      content: "Starts in 10 minutes",
+      state: "seen",
+      content: "Starts soon",
       generationDate: "2024-12-20",
       generationTime: "08:20",
       notificationId: 5
@@ -303,7 +309,8 @@ function App() {
     {
       id: 2000000001,
       page: false,
-      content: "Starts in 10 minutes",
+      state: "unseen",
+      content: "Starts soon",
       generationDate: "2024-12-20",
       generationTime: "08:20",
       notificationId: 6
@@ -311,7 +318,8 @@ function App() {
     {
       id: 2000000002,
       page: false,
-      content: "Starts in 10 minutes",
+      state: "unseen",
+      content: "Starts soon",
       generationDate: "2024-12-22",
       generationTime: "08:20",
       notificationId: 7
@@ -319,29 +327,29 @@ function App() {
     {
       id: 2000000001,
       page: false,
-      content: "Starts in 10 minutes",
+      state: "unseen",
+      content: "Starts soon",
       generationDate: "2024-12-22",
       generationTime: "08:20",
       notificationId: 8
-    }
+    },
   ])
 
   //header
 
   const isCompany = true;
   const [isLoggedIn, setLoggedIn] = useState(true);
-  const [notificationsCount, setNotificationsCount] = useState(5);
+
+  //nav
+
+  const [recentActivities, setRecentActivities] = useState([]);
+
+  //login
 
   const handleLoggedIn = (val) => {
     setLoggedIn(val);
     console.log(`Logged in: ${isLoggedIn}`);
   }
-
-  useEffect(() => {
-    if (state.currentPage === 'Notifications') {
-      setNotificationsCount(0);
-    }
-  }, [state.currentPage])
   
   //Html
   return (
@@ -355,7 +363,8 @@ function App() {
               setState={setState}
               userData={userData}
               handleLoggedIn={handleLoggedIn}
-              notifications={notificationsCount}
+              notifications={notifications}
+              setNotifications={setNotifications}
               organisationType={isCompany}
             />
             <div>
@@ -364,6 +373,8 @@ function App() {
                 state={state}
                 setState={setState}
                 organisationType={isCompany}
+                recentActivities={recentActivities}
+                setRecentActivities={setRecentActivities}
               />
               <AppContent
                 userData={userData}

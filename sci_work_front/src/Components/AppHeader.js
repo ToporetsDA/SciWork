@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import '../css/AppHeader.css';
 import logo from "../logo.svg";
 
-const AppHeader = ({ state, setState, userData, handleLoggedIn, notifications, organisationType}) => {
+const AppHeader = ({ state, setState, userData, handleLoggedIn, notifications, setNotifications, organisationType}) => {
+
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     
@@ -13,14 +14,41 @@ const AppHeader = ({ state, setState, userData, handleLoggedIn, notifications, o
         ['Profile', 'Notifications', 'Chats', 'Settings']
     );
 
+    const notificationsMark = useMemo(() => {
+        return notifications.filter(notification => notification.state === "unseen").length
+    }, [notifications]);
+
+    const setAllSeen = () => {
+        setNotifications(
+            notifications.map(n => {
+                if (n.state === "unseen") {
+                    return { ...n, state: "unread" }; // Change "unseen" to "unread"
+                }
+                if (n.state === "unread") {
+                    return { ...n, state: "seen" }; // Change "unread" to "seen"
+                }
+                return n; // Leave other states as is
+            })
+        );
+    }
+
     //go to page
     const handleClick = (page) => {
         setState(prevState => ({
             ...prevState,
             currentPage: page,
-            currentProject: undefined
+            currentProject: undefined,
+            currentActivity: undefined,
+            currentDialog: {
+                name: undefined,
+                params: []
+            }
         }));
         setDropdownOpen(false);
+
+        if (page === "Notifications") {
+            setAllSeen();
+        }
     }
 
     //open dropdown menu with more pages
@@ -80,8 +108,8 @@ const AppHeader = ({ state, setState, userData, handleLoggedIn, notifications, o
                     >
                         More
                     </p>
-                    {!isDropdownOpen && notifications > 0 && (
-                            <span className="notification-circle">{(notifications > 99) ? "99+" : notifications}</span>
+                    {!isDropdownOpen && notificationsMark > 0 && (
+                            <span className="notification-circle">{(notificationsMark > 99) ? "99+" : notificationsMark}</span>
                     )}
                     {isDropdownOpen && (
                         <ul className="more">
@@ -97,8 +125,8 @@ const AppHeader = ({ state, setState, userData, handleLoggedIn, notifications, o
                                 }}
                             >
                                 <p>{page}</p>
-                                {page === 'Notifications' && notifications > 0 && (
-                                        <span className="notification-circle">{(notifications > 99) ? "99+" : notifications}</span>
+                                {page === 'Notifications' && notificationsMark > 0 && (
+                                        <span className="notification-circle">{(notificationsMark > 99) ? "99+" : notificationsMark}</span>
                                 )}
                             </li>
                             ))}

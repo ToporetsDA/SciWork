@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import '../css/AppNav.css';
 
 import * as Shared from '../Components/pages/sharedComponents'
 
-const AppNav = ({ data, state, setState, organisationType }) => {
+const AppNav = ({ data, state, setState, organisationType, recentActivities, setRecentActivities }) => {
   
   //project.name and activity.name pairs
-  const [recentActivities, setRecentActivities] = useState([{project: state.currentProject, activity: state.currentActivity}]);
 
   const clearRecent = () => {
-    setRecentActivities([{project: state.currentProject, activity: state.currentActivity}]);
+    setRecentActivities([{project: state.currentProject, activity: state.currentActivity}])
   }
 
   useEffect(() => {
-    if (state.currentProject && state.currentActivity) {
+    console.log(state)
+    if (state.currentProject !== undefined && state.currentActivity !== undefined) {
       setRecentActivities((prevActivities) => {
         // Check if the current project/activity is already in the recentActivities
         const activityExists = prevActivities.some(recent => 
@@ -24,31 +24,28 @@ const AppNav = ({ data, state, setState, organisationType }) => {
         return prevActivities;
       });
     }
-  }, [state.currentProject, state.currentActivity, recentActivities])
+  }, [state, recentActivities, setRecentActivities])
 
   //project and activity are objects
   //recent.project and recent.activity are strings
 
-  const goTo = Shared.GoTo;
+  const goTo = Shared.GoTo
 
   const handleClick = (project, activity) => {
     const activityExists = recentActivities.some(recent =>
       recent.activity === activity.name && recent.project === project.name);
 
     if (!activityExists) {
-      console.log(`before ${recentActivities}`);
-        setRecentActivities((prevActivities) => [
-          ...prevActivities,
-          { project: project.name, activity: activity.name }
-        ]);
-      }
-      setState({
-        currentPage: (activity.page) ? 'Activity' : 'Projects',
-        currentProject: project,
-        currentActivity: activity
-      });
-
-    console.log(`after ${recentActivities}`);
+      setRecentActivities((prevActivities) => [
+        ...prevActivities,
+        { project: project.id, activity: activity.id }
+      ])
+    }
+    console.log(project)
+    setState((prevState) => ({
+      ...prevState,
+      ...goTo(activity, data)
+    }))
   }
 
   return (
@@ -73,12 +70,7 @@ const AppNav = ({ data, state, setState, organisationType }) => {
                 {project.activities.map((activity) => (
                 <li
                   key={activity.name}
-                  onClick={() => {
-                    setState((prevState) => ({
-                      ...prevState,
-                      ...goTo(activity, data)
-                    }))
-                  }}
+                  onClick={() => {handleClick(project, activity)}}
                   className={state.currentPage === activity.name ? 'active' : ''}
                   style={{
                   fontWeight: state.currentPage === activity.name ? 'bold' : 'normal',
@@ -97,7 +89,7 @@ const AppNav = ({ data, state, setState, organisationType }) => {
         <h4>Recent</h4>
         {data.map((project) => {
 
-          const projectRecentActivities = recentActivities.filter(recent => recent.project === project.name);
+          const projectRecentActivities = recentActivities.filter(recent => recent.project === project.id)
           if (projectRecentActivities.length > 0) {
 
             return (
@@ -105,25 +97,26 @@ const AppNav = ({ data, state, setState, organisationType }) => {
                 <details>
                   <summary>{project.name}</summary>
                   <ul>
-                    {projectRecentActivities.map((recent) => (
-                      <li
-                        key={recent.activity}
-                        onClick={() => {
-                          setState((prevState) => ({
-                            ...prevState,
-                            ...goTo(recent.activity, data)
-                          }))
-                        }}
-                        className={state.currentPage === recent.activity ? 'active' : ''}
-                        style={{
-                          fontWeight: state.currentPage === recent.activity ? 'bold' : 'normal',
-                          pointerEvents: state.currentPage === recent.activity ? 'none' : 'auto',
-                          opacity: state.currentPage === recent.activity ? 0.5 : 1,
-                        }}
-                      >
-                        {recent.activity}
-                      </li>
-                    ))}
+                    {project.activities.map((activity) => {
+                      const recentActivity = recentActivities.filter(recent => recent.activity === activity.id)
+                      if (recentActivity.length > 0) {
+                        return (
+                          <li
+                            key={activity.id}
+                            onClick={() => {handleClick(project, activity)}}
+                            className={state.currentActivity === undefined ? 'active' : ''}
+                            style={{
+                              fontWeight: state.currentPage === undefined ? 'bold' : 'normal',
+                              pointerEvents: state.currentPage === undefined ? 'none' : 'auto',
+                              opacity: state.currentPage === undefined ? 0.5 : 1,
+                            }}
+                          >
+                            {activity.activity}
+                          </li>
+                        )
+                      }
+                      return null
+                  })}
                   </ul>
                 </details>
               </li>

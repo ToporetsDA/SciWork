@@ -2,14 +2,22 @@ import React, { useMemo }  from 'react';
 
 import '../../../css/pages/sharedComponents/LinkList.css'
 
+//list-specific properties imports
+import '../../../css/pages/Notifications.css';
+
 import * as Shared from './index'
 
-const DataList = ({ data, state, setState, list }) => {
+const LinkList = ({ data, state, setState, list, setList }) => {
 
     const goTo = Shared.GoTo;
 
     const projectId = (id) => {
+        if (id > 1000000000) {
         return Math.floor(id / 1000000000);
+        }
+        else {
+            return id;
+        }
     }
 
     const items = useMemo(() => {
@@ -26,23 +34,50 @@ const DataList = ({ data, state, setState, list }) => {
                             ...goTo(item, data)
                         }))
                     }}>
-                        <p>{`${item.name}`}</p>
-                        <p>{`Start at ${start}`}</p>
-                        <p>{`\nEnd at${end}`}</p>
+                        <div className='content'>
+                            <p>{`${item.name}`}</p>
+                            <p>{`Start at ${start}`}</p>
+                            <p>{`\nEnd at${end}`}</p>
+                        </div>
                     </div>
                 );
             }
             case "Notifications": {
-                const tmpItem = (item.id < 1000000000) ? data.find(p => p.id === item.id) : data.find(p => p.id === projectId(item.id)).find(a => a.id === item.id);
-                const projectName = data.find(p => p.id === item.id).name;
-                const activityName = (item.id > 1000000000) ? data.find(p => p.id === projectId(item.id)).find(a => a.id === item.id).name : '';
+                const tmpItem = (item.id < 1000000000) ? data.find(p => p.id === item.id) : data.find(p => p.id === projectId(item.id)).activities.find(a => a.id === item.id);
+                
+                const projectName = data.find(p => p.id === projectId(item.id)).name;
+                const activityName = (item.id > 1000000000) ? data.find(p => p.id === projectId(item.id)).activities.find(a => a.id === item.id).name : undefined;
+                
                 return (
-                    <div key={item.id} className='item' onClick={() => {goTo(state, setState, data, tmpItem)}}>
-                        <p>{projectName}</p>
-                        {(item.id < 1000000000) &&
-                            <p>{activityName}</p>
+                    <div
+                        key={item.notificationId}
+                        className={`item ${item.state}`}
+                        onClick={
+                            () => {
+                                setState((prevState) => ({
+                                    ...prevState,
+                                    ...goTo(tmpItem, data)
+                                }))
+                                const updatedItem = { ...item, state: 'read' }
+            
+                                setList((prevList) => {
+                                    return prevList.map((notification) => 
+                                        (notification.notificationId === item.notificationId) ? updatedItem : notification
+                                    );
+                                });
+                            }
+                        }>
+                        <div className='content'>
+                            <p>{projectName}</p>
+                            {(item.id > 1000000000) &&
+                                <p>{activityName}</p>
+                            }
+                            <p>{item.content}</p>
+                            <h6>{`${item.generationTime} ${item.generationDate}`}</h6>
+                        </div>
+                        {item.state === "unread" &&
+                            <span className="notification-circle"></span>
                         }
-                        <p>{`${item.content}`}</p>
                     </div>
                 );
             }
@@ -50,13 +85,13 @@ const DataList = ({ data, state, setState, list }) => {
             }
             
         });
-    }, [data, state, setState, list, goTo]);
+    }, [data, state, setState, list, setList, goTo]);
 
     return (
-        <>
+        <div className='list'>
             {items}
-        </>
+        </div>
     );
 }
 
-export default DataList
+export default LinkList
