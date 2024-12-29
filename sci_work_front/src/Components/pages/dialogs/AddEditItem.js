@@ -88,7 +88,8 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
 
         let newItem = {
             ...formValues,
-            id: currentItem?.id || (state.currentProject ? data.length : (state.currentProject.id * 1000000000) + state.currentProject.activities.length),
+            access: 0,
+            id: currentItem?.id || (state.currentProject === undefined ? data.length + 1 : (state.currentProject.id * 1000000000) + state.currentProject.activities.length + 1),
         };
 
         if (selectedType === "Project") {
@@ -116,7 +117,7 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
             const startDate = new Date(formValues.startDate);
             const endDate = new Date(formValues.endDate);
 
-            if (startDate >= endDate) {
+            if (startDate > endDate) {
                 if ((startDate === endDate && selectedType === 'Project') || selectedType === 'Activity') {
                     newErrors.startDate = 'Start date must be before end date.';
                 }
@@ -177,7 +178,6 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
                     if (project.id === state.currentProject.id) {
                         // Check if the activity already exists in the project
                         const existingIndex = project.activities?.findIndex((item) => item.id === newItem.id);
-                        console.log(existingIndex);
                         
                         const updatedActivities = existingIndex !== -1
                         ? project.activities.map((item, idx) => idx === existingIndex ? newItem : item) // Update activity
@@ -212,7 +212,7 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
                     return updatedData;
                 } else {
                     // Add project
-                    return [...prev, formValues];
+                    return [...prev, newItem];
                 }
             });
         }

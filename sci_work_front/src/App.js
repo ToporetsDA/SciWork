@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import './App.css';
 import AppLogIn from './Components/AppLogIn'
 import AppHeader from './Components/AppHeader'
@@ -343,21 +343,6 @@ function App() {
   //nav
 
   const [recentActivities, setRecentActivities] = useState([]);
-
-  // useEffect(() => {
-  //     if (state.currentProject !== undefined && state.currentActivity !== undefined) {
-  //       console.log("new recent coming!")
-  //       setRecentActivities((prevActivities) => {
-  //         // Check if the current project/activity is already in the recentActivities
-  //         const activityExists = prevActivities.some(recent => 
-  //           recent.activity === state.currentActivity && recent.project === state.currentProject.name);
-  //         if (!activityExists) {
-  //           return [...prevActivities, { project: state.currentProject.name, activity: state.currentActivity }];
-  //         }
-  //         return prevActivities;
-  //       });
-  //     }
-  //   }, [state.currentProject, state.currentActivity, recentActivities, setRecentActivities])
 
   //login
 
