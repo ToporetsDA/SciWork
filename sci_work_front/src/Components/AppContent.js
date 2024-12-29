@@ -3,7 +3,7 @@ import '../css/AppContent.css';
 import * as Pages from './pages';
 import * as Dialogs from './pages/dialogs';
 
-const AppContent = ({userData, setUserData, profileData, state, setState, data, setData, rights, itemStructure, defaultStructure, isCompany, notifications, setNotifications}) => {
+const AppContent = ({userData, setUserData, profileData, state, setState, data, setData, rights, itemStructure, defaultStructure, isCompany, notifications, setNotifications, recentActivities, setRecentActivities }) => {
 
     // dialogs
 
@@ -59,6 +59,8 @@ const AppContent = ({userData, setUserData, profileData, state, setState, data, 
                         rights={rights}
                         notifications={notifications}
                         setNotifications={setNotifications}
+                        recentActivities={recentActivities}
+                        setRecentActivities={setRecentActivities}
                     />
                 </Suspense>
             ) : (

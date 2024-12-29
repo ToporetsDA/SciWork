@@ -3,7 +3,7 @@ import '../../../css/pages/pageComponents/ScheduleBoard.css';
 
 import * as Shared from '../sharedComponents'
 
-const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, gridValues, setGridValues, intervalAnchor, scheduleBoard }) => {
+const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, gridValues, setGridValues, intervalAnchor, scheduleBoard, recentActivities, setRecentActivities }) => {
 
     const projectId = (id) => {
         return Math.floor(id / 1000000000);
@@ -361,7 +361,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     ) : (
                         setState((prevState) => ({
                             ...prevState,
-                            ...goTo(group[i], data)
+                            ...goTo(group[i], data, setRecentActivities)
                         }))
                     )
                 }}
@@ -369,7 +369,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 {content}
             </div>
         );
-    }, [currentScale, firstDayOfMonth, data, setState, weeksInMonth, intervalAnchor, goTo]);
+    }, [currentScale, firstDayOfMonth, data, setState, weeksInMonth, intervalAnchor, goTo, setRecentActivities]);
 
     //schedule events as <div></div>s to display
     const eventsToDisplay = useMemo(() => {

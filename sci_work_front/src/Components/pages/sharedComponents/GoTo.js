@@ -2,10 +2,17 @@ import '../../../css/pages/sharedComponents/GoTo.css';
 
 //item here is either Activity or Project Object
 
-const GoTo = (destination, data) => {
+const GoTo = (destination, data, setRecentActivities) => {
 
     const projectId = (id) => {
         return Math.floor(id / 1000000000)
+    }
+
+    if (destination.id > 1000000000) {
+        setRecentActivities((prevActivities) => [
+            ...prevActivities,
+            destination
+        ])
     }
 
     if (destination.id < 1000000000) {

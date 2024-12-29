@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import './App.css';
 import AppLogIn from './Components/AppLogIn'
 import AppHeader from './Components/AppHeader'
@@ -40,11 +40,11 @@ function App() {
     }
   })
 
-  const rights = {
+  const rights = useMemo(() => ({
     fullView: [0, 2],
     interact: [0, 1, 3],
     edit: [0, 1]
-  }
+  }), [])
 
   const profileData = {// [optional, type]
     basic: {
@@ -344,12 +344,26 @@ function App() {
 
   const [recentActivities, setRecentActivities] = useState([]);
 
+  // useEffect(() => {
+  //     if (state.currentProject !== undefined && state.currentActivity !== undefined) {
+  //       console.log("new recent coming!")
+  //       setRecentActivities((prevActivities) => {
+  //         // Check if the current project/activity is already in the recentActivities
+  //         const activityExists = prevActivities.some(recent => 
+  //           recent.activity === state.currentActivity && recent.project === state.currentProject.name);
+  //         if (!activityExists) {
+  //           return [...prevActivities, { project: state.currentProject.name, activity: state.currentActivity }];
+  //         }
+  //         return prevActivities;
+  //       });
+  //     }
+  //   }, [state.currentProject, state.currentActivity, recentActivities, setRecentActivities])
+
   //login
 
-  const handleLoggedIn = (val) => {
+  const handleLoggedIn = useCallback((val) => {
     setLoggedIn(val);
-    console.log(`Logged in: ${isLoggedIn}`);
-  }
+  }, [])
   
   //Html
   return (
@@ -390,6 +404,8 @@ function App() {
                 isCompany={isCompany}
                 notifications={notifications}
                 setNotifications={setNotifications}
+                recentActivities={recentActivities}
+                setRecentActivities={setRecentActivities}
               />
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import '../css/AppNav.css';
 
 import * as Shared from '../Components/pages/sharedComponents'
@@ -8,46 +8,29 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
   //project.name and activity.name pairs
 
   const clearRecent = () => {
-    setRecentActivities([{project: state.currentProject, activity: state.currentActivity}])
+    setRecentActivities([])
   }
-
-  useEffect(() => {
-    console.log(state)
-    if (state.currentProject !== undefined && state.currentActivity !== undefined) {
-      setRecentActivities((prevActivities) => {
-        // Check if the current project/activity is already in the recentActivities
-        const activityExists = prevActivities.some(recent => 
-          recent.activity === state.currentActivity && recent.project === state.currentProject.name);
-        if (!activityExists) {
-          return [...prevActivities, { project: state.currentProject.name, activity: state.currentActivity }];
-        }
-        return prevActivities;
-      });
-    }
-  }, [state, recentActivities, setRecentActivities])
 
   //project and activity are objects
   //recent.project and recent.activity are strings
 
   const goTo = Shared.GoTo
 
-  const handleClick = (project, activity) => {
-    const activityExists = recentActivities.some(recent =>
-      recent.activity === activity.name && recent.project === project.name);
+  const handleClick = (activity) => {
+    const activityExists = recentActivities.some(recent => recent.id === activity.id);
 
-    if (!activityExists) {
+    if (activityExists === false) {
       setRecentActivities((prevActivities) => [
         ...prevActivities,
-        { project: project.id, activity: activity.id }
+        activity
       ])
     }
-    console.log(project)
     setState((prevState) => ({
       ...prevState,
       ...goTo(activity, data)
     }))
   }
-
+  
   return (
     <nav>
       <ul className="projects">
@@ -70,7 +53,7 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
                 {project.activities.map((activity) => (
                 <li
                   key={activity.name}
-                  onClick={() => {handleClick(project, activity)}}
+                  onClick={() => {handleClick(activity)}}
                   className={state.currentPage === activity.name ? 'active' : ''}
                   style={{
                   fontWeight: state.currentPage === activity.name ? 'bold' : 'normal',
@@ -89,7 +72,8 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
         <h4>Recent</h4>
         {data.map((project) => {
 
-          const projectRecentActivities = recentActivities.filter(recent => recent.project === project.id)
+          const projectRecentActivities = recentActivities.filter(recent => Math.floor(recent.id / 1000000000) === project.id)
+
           if (projectRecentActivities.length > 0) {
 
             return (
@@ -98,12 +82,12 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
                   <summary>{project.name}</summary>
                   <ul>
                     {project.activities.map((activity) => {
-                      const recentActivity = recentActivities.filter(recent => recent.activity === activity.id)
+                      const recentActivity = recentActivities.filter(recent => recent.id === activity.id)
                       if (recentActivity.length > 0) {
                         return (
                           <li
                             key={activity.id}
-                            onClick={() => {handleClick(project, activity)}}
+                            onClick={() => {handleClick(activity)}}
                             className={state.currentActivity === undefined ? 'active' : ''}
                             style={{
                               fontWeight: state.currentPage === undefined ? 'bold' : 'normal',
@@ -111,7 +95,7 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
                               opacity: state.currentPage === undefined ? 0.5 : 1,
                             }}
                           >
-                            {activity.activity}
+                            {activity.name}
                           </li>
                         )
                       }
@@ -128,7 +112,7 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
         })}
 
         <button
-          style={{ display: recentActivities.length === 1 ? 'none' : 'block' }}
+          style={{ display: recentActivities.length === 0 ? 'none' : 'block' }}
           onClick={clearRecent}
         >
           Close all

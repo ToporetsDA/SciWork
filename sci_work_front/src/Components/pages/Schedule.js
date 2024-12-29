@@ -3,7 +3,7 @@ import '../../css/pages/Schedule.css';
 import ControlPanel from './sharedComponents/ControlPanel';
 import ScheduleBoard from './pageComponents/ScheduleBoard'
 
-const Schedule = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights }) => {
+const Schedule = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, recentActivities, setRecentActivities }) => {
     
     const daysOfWeek = useMemo(() => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], []);
     const months = useMemo(() => ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'], []);
@@ -180,6 +180,8 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
                     setGridValues={setGridValues}
                     intervalAnchor={intervalAnchor}
                     scheduleBoard={scheduleBoard}
+                    recentActivities={recentActivities}
+                    setRecentActivities={setRecentActivities}
                 />
             </div>
         </>
