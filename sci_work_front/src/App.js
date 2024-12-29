@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import './App.css';
 import AppLogIn from './Components/AppLogIn'
 import AppHeader from './Components/AppHeader'
@@ -257,10 +257,6 @@ function App() {
       id: 5
     }
   ])
-
-  useEffect(() => {
-    console.log(projects);
-  }, [projects]);
 
   //notifications
 
