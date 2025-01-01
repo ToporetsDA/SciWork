@@ -3,7 +3,7 @@ import '../../../css/pages/dialogs/LogIn.css'
 import '../../../css/pages/dialogs/dialog.css'
 
 
-const LogIn = ({ setState, servers, loginToServer }) => {
+const LogIn = ({ setState, isLoggedIn, servers, loginToServer }) => {
 
     const [formValues, setFormValues] = useState(() => {
         return {
@@ -43,72 +43,76 @@ const LogIn = ({ setState, servers, loginToServer }) => {
     };
 
     return (
-        <div className="AuthDialog dialogContainer"  onClick={handleOutsideClick}>
-            <div className="dialogContent">
-                <form onSubmit={handleSubmit}>
-                    {/* Server Selection */}
-                    <label htmlFor="server">Server</label>
-                    <select
-                        id="server"
-                        name="server"
-                        value={formValues.server}
-                        onChange={handleInputChange}
-                        disabled={servers.length === 0} // Disable if no servers
-                    >
-                        <option value="" disabled>
-                            {servers.length === 0 ? "No servers available" : "Select a server"}
-                        </option>
-                        {servers.map((server) => (
-                            <option key={server.id} value={server.id}>
-                                {server.name}
+        <>
+            {!isLoggedIn &&
+            <div className="AuthDialog dialogContainer"  onClick={handleOutsideClick}>
+                <div className="dialogContent">
+                    <form onSubmit={handleSubmit}>
+                        {/* Server Selection */}
+                        <label htmlFor="server">Server</label>
+                        <select
+                            id="server"
+                            name="server"
+                            value={formValues.server}
+                            onChange={handleInputChange}
+                            disabled={servers.length === 0} // Disable if no servers
+                        >
+                            <option value="" disabled>
+                                {servers.length === 0 ? "No servers available" : "Select a server"}
                             </option>
-                        ))}
-                    </select>
-                    <datalist id="serverList">
-                        {servers.length > 0 ? (
-                            servers.map((server) => (
+                            {servers.map((server) => (
                                 <option key={server.id} value={server.id}>
                                     {server.name}
                                 </option>
-                            ))
-                        ) : (
-                            <option value="No servers available" disabled />
-                        )}
-                    </datalist>
+                            ))}
+                        </select>
+                        <datalist id="serverList">
+                            {servers.length > 0 ? (
+                                servers.map((server) => (
+                                    <option key={server.id} value={server.id}>
+                                        {server.name}
+                                    </option>
+                                ))
+                            ) : (
+                                <option value="No servers available" disabled />
+                            )}
+                        </datalist>
 
-                    {/* Login Input */}
-                    <label htmlFor="login">Login</label>
-                    <input
-                        id="login"
-                        name="login"
-                        type="text"
-                        value={formValues.login}
-                        onChange={handleInputChange}
-                    />
+                        {/* Login Input */}
+                        <label htmlFor="login">Login</label>
+                        <input
+                            id="login"
+                            name="login"
+                            type="text"
+                            value={formValues.login}
+                            onChange={handleInputChange}
+                        />
 
-                    {/* Password Input */}
-                    <label htmlFor="password">Password</label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        value={formValues.password}
-                        onChange={handleInputChange}
-                    />
+                        {/* Password Input */}
+                        <label htmlFor="password">Password</label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            value={formValues.password}
+                            onChange={handleInputChange}
+                        />
 
-                    {/* Submit Button */}
-                    <button type="submit" className="submitButton">
-                        Log In
-                    </button>
-                    <button
-                        className='backButton'
-                        onClick={handleOutsideClick}
-                    >
-                        Back
-                    </button>
-                </form>
+                        {/* Submit Button */}
+                        <button type="submit" className="submitButton">
+                            Log In
+                        </button>
+                        <button
+                            className='backButton'
+                            onClick={handleOutsideClick}
+                        >
+                            Back
+                        </button>
+                    </form>
+                </div>
             </div>
-        </div>
+            }
+        </>
     );
 }
 

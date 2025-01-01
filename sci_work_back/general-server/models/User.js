@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const Joi = require("joi"); // Validation schema
+const mongoose = require("mongoose")
+const Joi = require("joi") // Validation schema
 
 // Full user schema to match your expected structure
 const userSchema = new mongoose.Schema({
@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
   login: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   _id: { type: mongoose.Schema.Types.ObjectId, auto: true } // Ensures proper ObjectId creation
-});
+})
 
 // Validation schema with Joi
 /*const userValidationSchema = Joi.object({
@@ -61,11 +61,11 @@ const userSchema = new mongoose.Schema({
 });*/
 
 // Export the user model
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema)
 
 // Validation function
 /*const validateUser = (userData) => {
   return userValidationSchema.validate(userData);
 };*/
 
-module.exports = User;
+module.exports = User
