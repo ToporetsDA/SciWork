@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState } from 'react';
 import './App.css';
-import AppLogIn from './Components/AppLogIn'
+import AppConnection from './Components/AppConnection'
 import AppHeader from './Components/AppHeader'
 import AppNav from './Components/AppNav'
 import AppContent from './Components/AppContent'
@@ -21,6 +21,7 @@ function App() {
   
   //user
   
+  //genStatus: 0 - item creator/organisation owner, 1 - manager (add/edit items), 2 - supervisor, 3 - user
   const [userData, setUserData] = useState({
     name: 'Dmytro',
     middleName: '',
@@ -28,7 +29,7 @@ function App() {
     patronimic: '',
     photo: undefined,
     statusName: 'owner',
-    genStatus: 0,//0 - item creator/organisation owner, 1 - manager (add/edit items), 2 - supervisor, 3 - user
+    genStatus: 0,
     mail: 'dmytro.toporets@nure.ua',
     safetyMail: '',
     phone: '',
@@ -37,28 +38,30 @@ function App() {
     currentSettings: {
       sortFilter: "A-Z",
       statusFilter: "all",
-    }
+    },
+
+    id: 1
   })
 
-  const rights = useMemo(() => ({
+  const [rights, setRights] = useState(() => ({
     fullView: [0, 2],
     interact: [0, 1, 3],
     edit: [0, 1]
-  }), [])
+  }))
 
-  const profileData = {// [optional, type]
+  const defaultProfileData = {// [isOptional, type]
     basic: {
-      name:         [true, 'string'],
+      name:         [true,  'string'],
       middleName:   [false, 'string'],
-      surName:      [true, 'string'],
+      surName:      [true,  'string'],
       patronimic:   [false, 'string'],
-      statusName:   [true, 'string'],
-      mail:         [true, 'mail'],
+      statusName:   [true,  'string'],
+      mail:         [true,  'mail'],
       safetyMail:   [false, 'mail'],
       phone:        [false, 'phone'],
-      safetyPhone:  [false, 'phone']
+      safetyPhone:  [false, 'phone'],
     },
-    fixed: ['statusName'],//fields that can not be edited
+    fixed: ['genStatus', 'statusName', 'id'],//fields that can not be edited
     additional: {
       //will be added in beta-version
     }
@@ -66,7 +69,7 @@ function App() {
 
   //items
 
-  const itemStructure = {
+  const defaultItemStructure = {
     project: {
       name: 'text',
       startDate: 'date',
@@ -141,6 +144,10 @@ function App() {
           id: 1000000002
         }
       ],
+      userList: [
+        { id: 1, access: 3 },
+        { id: 2, access: 0 },
+      ],
       id: 1
     },
     {
@@ -176,13 +183,17 @@ function App() {
           id: 2000000002
         }
       ],
+      userList: [
+        { id: 1, access: 1 },
+        { id: 2, access: 0 },
+      ],
       id: 2
     },
     {
       name: "Project 4",
       startDate: "2023-03-04",
       endDate: "2024-12-27",
-      access: 1,
+      access: 0,
       activities: [
         {
           name: "Sprint Planning 4",
@@ -210,6 +221,10 @@ function App() {
           serviceName: "Google Meet",
           id: 3000000002
         }
+      ],
+      userList: [
+        { id: 1, access: 0 },
+        { id: 2, access: 2 },
       ],
       id: 3
     },
@@ -246,6 +261,10 @@ function App() {
           id: 4000000002
         }
       ],
+      userList: [
+        { id: 1, access: 2 },
+        { id: 2, access: 0 },
+      ],
       id: 4
     },
     {
@@ -254,6 +273,10 @@ function App() {
       endDate: "2025-12-27",
       access: 2,
       activities: [],
+      userList: [
+        { id: 1, access: 2 },
+        { id: 2, access: 0 },
+      ],
       id: 5
     }
   ])
@@ -332,73 +355,72 @@ function App() {
       generationDate: "2024-12-22",
       generationTime: "08:20",
       notificationId: 8
-    },
+    }
   ])
 
   //header
 
   const isCompany = true;
-  const [isLoggedIn, setLoggedIn] = useState(true);
 
   //nav
 
   const [recentActivities, setRecentActivities] = useState([]);
 
   //login
-
-  const handleLoggedIn = useCallback((val) => {
-    setLoggedIn(val);
-  }, [])
+  const [isLoggedIn, setLoggedIn] = useState(false);
   
   //Html
   return (
     <div>
-    {(() => {
-      if (isLoggedIn) {
-        return (
-          <div className="App">
-            <AppHeader
-              state={state}
-              setState={setState}
-              userData={userData}
-              handleLoggedIn={handleLoggedIn}
-              notifications={notifications}
-              setNotifications={setNotifications}
-              organisationType={isCompany}
-            />
-            <div>
-              <AppNav
-                data={projects}
-                state={state}
-                setState={setState}
-                organisationType={isCompany}
-                recentActivities={recentActivities}
-                setRecentActivities={setRecentActivities}
-              />
-              <AppContent
-                userData={userData}
-                setUserData={setUserData}
-                profileData={profileData}
-                state={state}
-                setState={setState}
-                data={projects}
-                setData={setProjects}
-                rights={rights}
-                itemStructure={itemStructure}
-                defaultStructure={defaultStructure}
-                isCompany={isCompany}
-                notifications={notifications}
-                setNotifications={setNotifications}
-                recentActivities={recentActivities}
-                setRecentActivities={setRecentActivities}
-              />
-            </div>
-          </div>
-        );
-      } else {
-        return <AppLogIn onLogIn={handleLoggedIn} />
-      }
-    })()}
+    {isLoggedIn === true && (
+      <div className="App">
+        <AppHeader
+          state={state}
+          setState={setState}
+          userData={userData}
+          setLoggedIn={setLoggedIn}
+          notifications={notifications}
+          setNotifications={setNotifications}
+          organisationType={isCompany}
+        />
+        <div>
+          <AppNav
+            data={projects}
+            state={state}
+            setState={setState}
+            organisationType={isCompany}
+            recentActivities={recentActivities}
+            setRecentActivities={setRecentActivities}
+          />
+          <AppContent
+            userData={userData}
+            setUserData={setUserData}
+            profileData={defaultProfileData}
+            state={state}
+            setState={setState}
+            data={projects}
+            setData={setProjects}
+            rights={rights}
+            itemStructure={defaultItemStructure}
+            defaultStructure={defaultStructure}
+            isCompany={isCompany}
+            notifications={notifications}
+            setNotifications={setNotifications}
+            recentActivities={recentActivities}
+            setRecentActivities={setRecentActivities}
+          />
+        </div>
+      </div>
+    )}
+    <AppConnection
+    setState={setState}
+      userData={userData}
+      setUserData={setUserData}
+      data={projects}
+      setData={setProjects}
+      setLoggedIn={setLoggedIn}
+      setRights={setRights}
+    />
   </div>
   );
 }

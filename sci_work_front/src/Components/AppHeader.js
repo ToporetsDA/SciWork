@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import '../css/AppHeader.css';
 import logo from "../logo.svg";
 
-const AppHeader = ({ state, setState, userData, handleLoggedIn, notifications, setNotifications, organisationType}) => {
+const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setNotifications, organisationType}) => {
 
     const [isDropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -59,7 +59,7 @@ const AppHeader = ({ state, setState, userData, handleLoggedIn, notifications, s
     //log out
     const handleLogOut = () => {
         handleClick(null);
-        handleLoggedIn(false);
+        setLoggedIn(false);
     }
 
     //close dropdown menu if clicked outside
