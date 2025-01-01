@@ -22,7 +22,6 @@ const LogIn = ({ setState, servers, loginToServer }) => {
     };
     
     const handleSubmit = (e) => {
-        console.log(formValues)
         e.preventDefault();
         if (servers.length === 0) {
             alert("No servers available. Unable to log in.");

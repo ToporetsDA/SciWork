@@ -1,100 +1,84 @@
 const express = require("express");
 const router = express.Router();
-const { User, validateUser } = require("../models/User"); // Import User model and validation
+const User = require("../models/User");
+const { getWebSocketByLogin } = require("../websockets");
+
+const loggedInUsers = new Set();
 
 // GET all users
-router.get("/", async function (req, res) {
+/*router.get("/", async (req, res) => {
   try {
-    const users = await User.find(); // Retrieve all users
-    res.json(users);
+    const users = await User.find(); // Fetch all users
+    res.status(200).json(users);
   } catch (error) {
     console.error("Error fetching users:", error.message);
-    res.status(500).json({ message: "Error fetching users" });
+    res.status(500).json({ message: "Internal server error" });
   }
-});
+});*/
 
-// GET user by id
-router.get("/:id", async function (req, res) {
+// POST: Add a new user
+/*router.post("/", async (req, res) => {
+  const { name, surName, login, password, mail } = req.body;
+
+  if (!name || !surName || !login || !password || !mail) {
+    return res.status(400).json({ message: "All required fields must be provided" });
+  }
+
   try {
-    const user = await User.findById(req.params.id); // Find user by _id
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.json(user);
+    const newUser = new User({ name, surName, login, password, mail });
+    await newUser.save(); // Save the user in the database
+    res.status(201).json({ message: "User created successfully", user: newUser });
   } catch (error) {
-    console.error("Error fetching user:", error.message);
-    res.status(500).json({ message: "Error fetching user" });
+    console.error("Error creating user:", error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
-});
+});*/
 
-// GET user by login
-router.get("/login/:login", async function (req, res) {
+// PUT: Update a user's details
+/*router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body; // Assume all updates are sent in the body
+
   try {
-    const user = await User.findOne({ login: req.params.login }); // Find user by login
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    res.json(user);
-  } catch (error) {
-    console.error("Error fetching user:", error.message);
-    res.status(500).json({ message: "Error fetching user" });
-  }
-});
-
-// POST a new user
-router.post("/", async function (req, res) {
-  try {
-    // Validate incoming user data
-    const { error } = validateUser(req.body);
-    if (error) {
-      return res.status(400).json({ message: "Validation error", details: error.details });
-    }
-
-    const validatedData = req.body; // You can use Joi to validate and then save the data
-    const newUser = new User(validatedData);
-    await newUser.save();
-    res.status(201).json(newUser);
-  } catch (error) {
-    console.error("Error saving user:", error.message);
-    res.status(500).json({ message: "Error saving user" });
-  }
-});
-
-// PUT (update) user by ID
-router.put("/:id", async function (req, res) {
-  try {
-    // Validate incoming user data
-    const { error } = validateUser(req.body);
-    if (error) {
-      return res.status(400).json({ message: "Validation error", details: error.details });
-    }
-
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: req.params.id },
-      req.body,
-      { new: true } // Return the updated document
-    );
+    const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true });
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.json(updatedUser);
+
+    res.status(200).json({ message: "User updated successfully", user: updatedUser });
   } catch (error) {
     console.error("Error updating user:", error.message);
-    res.status(500).json({ message: "Error updating user" });
+    res.status(500).json({ message: "Internal server error" });
   }
-});
+});*/
 
-// DELETE user by ID
-router.delete("/:id", async function (req, res) {
+// POST: LogIn
+router.post("/login", async (req, res) => {
+  const { login, password } = req.body; // Use login and password from the client
   try {
-    const deletedUser = await User.findOneAndDelete({ _id: req.params.id });
-    if (!deletedUser) {
-      return res.status(404).json({ message: "User not found" });
+    // Find user by login and password
+    const user = await User.findOne({ login: login, password: password });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
-    res.json({ message: "User deleted successfully" });
+
+    // Check if already logged in
+    if (loggedInUsers.has(login)) {
+      return res.status(401).json({ message: "User is already logged in" });
+    }
+
+    // Get WebSocket connection for logged-in user
+    const ws = getWebSocketByLogin(login); // Fetch the specific WebSocket by user login
+    if (ws) {
+      ws.send(JSON.stringify({ message: "Login successful", login }));
+    } else {
+      console.error("WebSocket client not found for user:", login);
+    }
+
+    return res.status(200).json({ message: "Login successful", login });
   } catch (error) {
-    console.error("Error deleting user:", error.message);
-    res.status(500).json({ message: "Error deleting user" });
+    console.error("Login error:", error.message);
+    return res.status(500).json({ message: "Internal server error", error: error.message });
   }
 });
 

@@ -75,6 +75,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                 </p>
                                 {!project.deleted && rights.edit.includes(project.access) &&
                                     <div className='actions'>
+                                        {!project.deleted && rights.edit.includes(project.access) &&
                                         <button
                                             className='gearButton'
                                             onClick={(e) => {
@@ -89,6 +90,8 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                         >
                                             ⚙️
                                         </button>
+                                        }
+                                        {!project.deleted && rights.edit.includes(project.access) &&
                                         <button
                                             className='deleteButton'
                                             onClick={(e) => {
@@ -98,6 +101,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                         >
                                             🗑️
                                         </button>
+                                        }
                                     </div>
                                 }
                             </div>

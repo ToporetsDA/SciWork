@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // Validation schema with Joi
-const userValidationSchema = Joi.object({
+/*const userValidationSchema = Joi.object({
   name:             Joi.string().required(),
   middleName:       Joi.string().allow(""),
   surName:          Joi.string().required(),
@@ -58,14 +58,14 @@ const userValidationSchema = Joi.object({
   })).default([]),
   login:            Joi.string().required(),
   password:         Joi.string().required(),
-});
+});*/
 
 // Export the user model
 const User = mongoose.model("User", userSchema);
 
 // Validation function
-const validateUser = (userData) => {
+/*const validateUser = (userData) => {
   return userValidationSchema.validate(userData);
-};
+};*/
 
 module.exports = User;

@@ -19,7 +19,6 @@ const Connection = ({ setState, userData, setUserData, data, setData, setLoggedI
                 }
                 
                 const data = await response.json();
-                console.log("fetched servers: ", data)
                 setServers(data);
                 setLoading(false);
             } catch (error) {
@@ -31,9 +30,27 @@ const Connection = ({ setState, userData, setUserData, data, setData, setLoggedI
         fetchServers();
     }, []);
 
+    const serverAddress = (address) => {
+        // Get the address without the scheme (http:// or https://)
+        let serverAddress = address.split('://')[1];
+        
+        // Remove trailing slash if present
+        if (serverAddress.endsWith('/')) {
+            serverAddress = serverAddress.slice(0, -1);
+        }
+        
+        // Extract the domain and port
+        const [domain, port] = serverAddress.split(':');
+        
+        // Increment the port by 1
+        const newPort = parseInt(port, 10) + 1;
+        
+        // Reassemble the address with the new port
+        return `${domain}:${newPort}`;
+    }
+
     const loginToServer = async (formValues) => {
         const selectedServer = servers.find((server) => server.id === formValues.server);
-        console.log(selectedServer)
     
         if (!selectedServer) {
             alert("Invalid server selected.");
@@ -41,23 +58,39 @@ const Connection = ({ setState, userData, setUserData, data, setData, setLoggedI
         }
     
         try {
-            const response = await fetch(`${selectedServer.address}/auth/login`, {
+            const response = await fetch(`${selectedServer.address}/users/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ login: formValues.login, password: formValues.password })
             });
-    
-            const data = await response.json();
-    
-            if (data.success) {
+
+            if (response.status === 200) {
                 alert('Login successful');
-                const socket = new WebSocket(`ws://${selectedServer.address}`);
-                setWs(socket);
+                
+                // Create the WebSocket connection
+                const socket = new WebSocket(`ws://${serverAddress(selectedServer.address)}`);
+                
+                // Set up WebSocket event handlers immediately
+                socket.onopen = () => {
+                    console.log('WebSocket connection established.');
+                };
     
                 socket.onmessage = (event) => {
                     setMessage(event.data);
                 };
-            } else {
+    
+                socket.onclose = (event) => {
+                    console.log('WebSocket connection closed.', event);
+                };
+    
+                socket.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                };
+    
+                // Now set the state with the WebSocket object
+                setWs(socket);  // Update the state with the WebSocket object
+            }
+            else {
                 alert('Login failed');
             }
         } catch (error) {

@@ -10,8 +10,7 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const axios = require("axios");
 
-const indexRouter = require("./routes/index");
-const authRouter = require("./routes/auth");
+const usersRouter = require("./routes/users");
 const { startWebSocketServer } = require('./websockets');
 
 const app = express();
@@ -50,13 +49,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/auth", authRouter);
+app.use("/users", usersRouter);
 
 if (fs.existsSync(idFilePath)) {
   serverId = fs.readFileSync(idFilePath, 'utf-8');
   console.log(`Loaded existing server ID: ${serverId}`);
-} else {
+}
+else {
   serverId = uuidv4();
   fs.writeFileSync(idFilePath, serverId);
   console.log(`Generated new server ID: ${serverId}`);
