@@ -27,7 +27,7 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
     }
     setState((prevState) => ({
       ...prevState,
-      ...goTo(activity, data)
+      ...goTo(activity, data, setRecentActivities)
     }))
   }
   
