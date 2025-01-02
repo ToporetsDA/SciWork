@@ -91,14 +91,6 @@ function App() {
 
   const [projects, setProjects] = useState()
 
-  //notifications
-  const setNotifications = (notifications) => {
-    setUserData((prevData) => ({
-      ...prevData,
-      notifications
-    }))
-  }
-
   //header
 
   const isCompany = true;
@@ -109,6 +101,30 @@ function App() {
 
   //login
   const [isLoggedIn, setLoggedIn] = useState(false);
+
+  //connection
+
+  const [isUserUpdatingData, setIsUserUpdatingData] = useState(false)
+  const [isUserUpdatingUserData, setIsUserUpdatingUserData] = useState(false)
+
+  const updateProjects = (data) => {
+    setIsUserUpdatingData(true)
+    setProjects(data)
+  }
+
+  const updateUser = (userData) => {
+    setIsUserUpdatingUserData(true)
+    setUserData(userData)
+  }
+
+  //notifications
+  const setNotifications = (notifications) => {
+    setIsUserUpdatingUserData(true)
+    setUserData((prevData) => ({
+      ...prevData,
+      notifications
+    }))
+  }
   
   //Html
   return (
@@ -135,12 +151,12 @@ function App() {
           />
           <AppContent
             userData={userData}
-            setUserData={setUserData}
+            setUserData={updateUser}
             profileData={defaultProfileData}
             state={state}
             setState={setState}
             data={projects}
-            setData={setProjects}
+            setData={updateProjects}
             rights={rights}
             itemStructure={defaultItemStructure}
             defaultStructure={defaultStructure}
@@ -162,6 +178,10 @@ function App() {
       isLoggedIn={isLoggedIn}
       setLoggedIn={setLoggedIn}
       setRights={setRights}
+      isUserUpdatingData={isUserUpdatingData}
+      setIsUserUpdatingData={setIsUserUpdatingData}
+      isUserUpdatingUserData={isUserUpdatingUserData}
+      setIsUserUpdatingUserData={setIsUserUpdatingUserData}
     />
   </div>
   );

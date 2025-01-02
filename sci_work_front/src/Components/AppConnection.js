@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react'
 
 import LogIn from './pages/dialogs/LogIn'
 
-const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn, setLoggedIn, setRights }) => {
+const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn, setLoggedIn, setRights, isUserUpdatingData, setIsUserUpdatingData, isUserUpdatingUserData, setIsUserUpdatingUserData }) => {
 
     const [servers, setServers] = useState([])
     const [loading, setLoading] = useState(true)
+    const [wss, setWss] = useState()
 
     //get list of organisations whos servers are on
     useEffect(() => {
@@ -26,7 +27,7 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
         };
 
         fetchServers()
-    }, []);
+    }, [])
 
     const serverAddress = (address) => {
         // Get the address without the scheme (http:// or https://)
@@ -47,10 +48,10 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
         return `${domain}:${newPort}`
     }
 
-    const sendMessage = (type, token, data, ws) => {
+    const sendMessage = (ws, sessionToken, type, data) => {
         const message = {
             type: type,         // e.g., "login", "statusUpdate"
-            sessionToken: token,// session token
+            sessionToken,       
             data: data,         // e.g., { username: "user123", password: "password123" }
             timestamp: new Date().toISOString() // Optionally add a timestamp
         }
@@ -62,6 +63,36 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
         }
         else {
             console.log('WebSocket is not open. Cannot send message.')
+        }
+    };
+
+    const updateProject = (ws, sessionToken, projectId, updatedProject) => {
+        const message = {
+            type: "updateProject",
+            sessionToken,
+            data: { projectId, updatedProject },
+        };
+    
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify(message));
+            console.log("Sent project update:", message);
+        } else {
+            console.error("WebSocket is not open. Cannot send project update.");
+        }
+    };
+
+    const updateUser = (ws, sessionToken, userId, updatedUserData) => {
+        const message = {
+            type: "updateUser",
+            sessionToken,
+            data: { userId, updatedUserData },
+        };
+    
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify(message));
+            console.log("Sent user update:", message);
+        } else {
+            console.error("WebSocket is not open. Cannot send user update.");
         }
     };
 
@@ -104,6 +135,34 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
         }
     }
 
+    // Track user-initiated changes to `data`
+    useEffect(() => {
+        if (isUserUpdatingData) {
+            const updatedProject = data.find((project) => project.isUpdated); // Example condition
+            if (updatedProject) {
+                updateProject(wss, userData.sessionToken, updatedProject.id, updatedProject); // Pass WebSocket connection
+            }
+            setIsUserUpdatingData(false); // Reset flag
+        }
+    }, [data, isUserUpdatingData, userData.sessionToken, setIsUserUpdatingData, wss]);
+
+    // Track user-initiated changes to `userData`
+    useEffect(() => {
+        if (isUserUpdatingUserData) {
+            updateUser(wss, userData.sessionToken, userData.id, userData); // Pass WebSocket connection
+            setIsUserUpdatingUserData(false); // Reset flag
+        }
+    }, [userData, isUserUpdatingUserData, setIsUserUpdatingUserData, wss]);
+
+    //cleanup
+    useEffect(() => {
+        return () => {
+            if (wss) {
+                wss.close()
+            }
+        }
+    }, [wss])
+
     const loginToServer = async (formValues) => {
         const selectedServer = servers.find((server) => server.id === formValues.server)
     
@@ -129,7 +188,8 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
                 // Set up WebSocket event handlers immediately
                 socket.onopen = () => {
                     console.log('WebSocket connection established.')
-                    sendMessage( "login", data.sessionToken, { login: formValues.login }, socket)
+                    setWss(socket)
+                    sendMessage(socket, data.sessionToken, "login", { login: formValues.login })
                 };
     
                 socket.onmessage = (event) => {

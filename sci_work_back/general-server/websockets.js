@@ -6,6 +6,10 @@ const Organisation = require("./models/Organisation");
 // Map to store WebSocket connections by session token
 const clients = new Map(); // This will store WebSocket connections keyed by session token
 
+const send = (ws, message, sessionToken, type, data) => {
+  ws.send(JSON.stringify({ message, sessionToken, data: { type, data } }))
+}
+
 const getData = async (type, login, ws, sessionToken) => {
 
   let data;
@@ -64,7 +68,7 @@ const getData = async (type, login, ws, sessionToken) => {
       throw new Error(`Invalid type: ${type}`)
     }
   }
-  ws.send(JSON.stringify({ message: "data", sessionToken, data: { type, data } }))
+  send(ws, "data", sessionToken, type, data)
 } 
 
 // start the WebSocket server
@@ -95,6 +99,75 @@ const startWebSocketServer = (port) => {
               }
               else {
                 ws.send(JSON.stringify({ error: "Session token missing" }))
+              }
+              break
+            }
+            case "addEditProject": {
+              const { projectId, updatedProject } = parsedMessage.data
+
+              // Convert projectId to ObjectId for MongoDB query
+              const objectId = new ObjectId(projectId)
+              
+              // Update project in the database
+              const project = Project.findByIdAndUpdate(objectId, updatedProject, { new: true })
+              
+              if (project) {
+                console.log(`Project ${projectId} updated successfully.`)
+
+                // Broadcast the updated project to all relevant users except the sender
+                project.userList.forEach(user => {
+                  try {
+                    // Fetch user data from the database to get login
+                    const userData = User.findById(user.id)
+            
+                    if (userData && clients.has(userData.login)) {
+                      const targetClient = clients.get(userData.login).socket
+          
+                      // Check if this is not the sender
+                      if (userData.login !== clients.get(sessionToken).login && targetClient.readyState === WebSocket.OPEN) {
+                        send(targetClient, "addEdit", sessionToken, "project", project)
+                      }
+                    }
+                  } catch (error) {
+                      console.error(`Error fetching user data for ID ${user.id}:`, error.message)
+                  }
+                })
+              }
+              else {
+                console.error(`Failed to update project with ID ${projectId}.`)
+              }
+              break
+            }
+            case "addEditUser": {
+              const { userId, updatedUserData } = parsedMessage.data
+          
+              try {
+                  // Update the user in the database
+
+                  // Convert userId to ObjectId for MongoDB query
+                  const objectId = new ObjectId(userId)
+
+                  // Update the user in the database
+                  const user = User.findByIdAndUpdate(objectId, updatedUserData, { new: true })
+          
+                  if (user) {
+                    console.log(`User ${userId} updated successfully.`)
+        
+                    // Ensure the user is not the sender before broadcasting the update
+                    const senderLogin = clients.get(sessionToken).login
+
+                    // Notify relevant WebSocket client (not the sender)
+                    const targetClient = clients.get(user.login)?.socket
+        
+                    if (user.login !== senderLogin && targetClient.readyState === WebSocket.OPEN) {
+                      send(targetClient, "addEdit", sessionToken, "updateUser", user)
+                    }
+                  }
+                  else {
+                    console.error(`Failed to update user with ID ${userId}.`)
+                  }
+              } catch (error) {
+                  onsole.error(`Error updating user with ID ${userId}:`, error.message)
               }
               break
             }
