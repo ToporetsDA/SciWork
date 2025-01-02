@@ -1,4 +1,5 @@
 import React, { useState, useMemo }  from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import '../../../css/pages/dialogs/AddEditItem.css';
 import '../../../css/pages/dialogs/dialog.css'
 
@@ -89,7 +90,7 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
         let newItem = {
             ...formValues,
             access: 0,
-            id: currentItem?.id || (state.currentProject === undefined ? data.length + 1 : (state.currentProject.id * 1000000000) + state.currentProject.activities.length + 1),
+            id: currentItem?.id || (state.currentProject === undefined ? uuidv4() : (state.currentProject.id * 1000000000) + state.currentProject.activities.length + 1),
         };
 
         if (selectedType === "Project") {
