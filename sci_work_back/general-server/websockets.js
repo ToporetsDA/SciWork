@@ -1,4 +1,5 @@
 const WebSocket = require("ws");
+const { ObjectId } = require('mongodb');
 const User = require("./models/User");
 const Project = require("./models/Project");
 const Organisation = require("./models/Organisation");
@@ -103,72 +104,91 @@ const startWebSocketServer = (port) => {
               break
             }
             case "addEditProject": {
-              const { projectId, updatedProject } = parsedMessage.data
-
-              // Convert projectId to ObjectId for MongoDB query
-              const objectId = new ObjectId(projectId)
+              const updatedProject = parsedMessage.data
+              const projectId = updatedProject._id
               
               // Update project in the database
-              const project = Project.findByIdAndUpdate(objectId, updatedProject, { new: true })
-              
-              if (project) {
-                console.log(`Project ${projectId} updated successfully.`)
+              Project.findByIdAndUpdate(projectId, updatedProject, { new: true })
+              .then(project => {
+                if (project) {
+                  console.log(`Project ${projectId} updated successfully.`);
 
-                // Broadcast the updated project to all relevant users except the sender
-                project.userList.forEach(user => {
-                  try {
-                    // Fetch user data from the database to get login
-                    const userData = User.findById(user.id)
-            
-                    if (userData && clients.has(userData.login)) {
-                      const targetClient = clients.get(userData.login).socket
-          
-                      // Check if this is not the sender
-                      if (userData.login !== clients.get(sessionToken).login && targetClient.readyState === WebSocket.OPEN) {
-                        send(targetClient, "addEdit", sessionToken, "project", project)
-                      }
-                    }
-                  } catch (error) {
-                      console.error(`Error fetching user data for ID ${user.id}:`, error.message)
+                  // Broadcast the updated project to all relevant users except the sender
+                  if (project.userList && Array.isArray(project.userList)) {
+                    project.userList.forEach(user => {
+                      const objectId = new ObjectId(user.id)
+                      // Fetch user data from the database to get login
+                      User.findById(objectId)
+                      .then(userData => {
+                        if (userData) {
+                          // Iterate over the clients map to find the sessionToken where the login matches
+                          let targetClientKey = null;
+                          for (let [key, value] of clients) {
+                            if (value.login === userData.login) {
+                              targetClientKey = key; // Found the sessionToken corresponding to userData.login
+                              break; // Exit loop after finding the match
+                            }
+                          }
+                    
+                          // If the sessionToken was found, proceed with the WebSocket logic
+                          if (targetClientKey) {
+                            const targetClient = clients.get(targetClientKey).socket; // Get the WebSocket socket for the matched client
+                    
+                            // Ensure this is not the sender and the target client is ready
+                            if (userData.login !== clients.get(sessionToken).login && targetClient.readyState === WebSocket.OPEN) {
+                              console.log(clients.get(targetClientKey).login)
+                              // Send the data to the target client
+                              send(targetClient, "addEdit", sessionToken, "project", project);
+                            }
+                          } else {
+                            console.error(`No client found with login: ${userData.login}`);
+                          }
+                        }
+                        else {
+                          console.error(`No user found with ID: ${user.id}`);
+                        }
+                      })
+                      .catch(userErr => {
+                        console.error(`Error fetching user data for ID ${user.id}:`, userErr.message);
+                      });
+                    });
+                  } else {
+                    console.error("Error: project.userList is either undefined or not an array.");
                   }
-                })
-              }
-              else {
-                console.error(`Failed to update project with ID ${projectId}.`)
-              }
+                } else {
+                  console.error(`Failed to update project with ID ${projectId}.`);
+                }
+              })
+              .catch(err => {
+                console.error(`Error updating project: ${err.message}`);
+              });
               break
             }
             case "addEditUser": {
-              const { userId, updatedUserData } = parsedMessage.data
+              const updatedUserData = parsedMessage.data
+              const userId = updatedUserData._id
           
-              try {
-                  // Update the user in the database
+              User.findByIdAndUpdate(userId, updatedUserData, { new: true })
+              .then((user) => {
+                if (user) {
+                  console.log(`User ${userId} updated successfully.`);
 
-                  // Convert userId to ObjectId for MongoDB query
-                  const objectId = new ObjectId(userId)
+                  // Ensure the user is not the sender before broadcasting the update
+                  const senderLogin = clients.get(sessionToken).login;
 
-                  // Update the user in the database
-                  const user = User.findByIdAndUpdate(objectId, updatedUserData, { new: true })
-          
-                  if (user) {
-                    console.log(`User ${userId} updated successfully.`)
-        
-                    // Ensure the user is not the sender before broadcasting the update
-                    const senderLogin = clients.get(sessionToken).login
+                  // Notify relevant WebSocket client (not the sender)
+                  const targetClient = clients.get(user.login)?.socket;
 
-                    // Notify relevant WebSocket client (not the sender)
-                    const targetClient = clients.get(user.login)?.socket
-        
-                    if (user.login !== senderLogin && targetClient.readyState === WebSocket.OPEN) {
-                      send(targetClient, "addEdit", sessionToken, "updateUser", user)
-                    }
+                  if (user.login !== senderLogin && targetClient.readyState === WebSocket.OPEN) {
+                    send(targetClient, "addEdit", sessionToken, "user", user);
                   }
-                  else {
-                    console.error(`Failed to update user with ID ${userId}.`)
-                  }
-              } catch (error) {
-                  onsole.error(`Error updating user with ID ${userId}:`, error.message)
-              }
+                } else {
+                  console.error(`Failed to update user with ID ${userId}.`);
+                }
+              })
+              .catch((err) => {
+                console.error(`Error updating user with ID ${userId}:`, err.message);
+              });
               break
             }
             default: {

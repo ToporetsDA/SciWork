@@ -74,7 +74,7 @@ router.post("/login", async (req, res) => {
     // Get WebSocket connection for logged-in user
     const ws = getWebSocketByToken(sessionToken) // Fetch the specific WebSocket by session token
     if (ws) {
-      ws.send(JSON.stringify({ message: "Login successful", sessionToken }))
+      ws.send(JSON.stringify({ message: "Login successful" }))
     } else {
       console.error("WebSocket client not found for user:", login)
     }

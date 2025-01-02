@@ -174,48 +174,46 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
         // submit
         
         if (selectedType === "Activity" && state.currentProject !== undefined) {
-            setData(() => {
-                const updatedData = data.map((project) => {
-                    if (project.id === state.currentProject.id) {
-                        // Check if the activity already exists in the project
-                        const existingIndex = project.activities?.findIndex((item) => item.id === newItem.id);
-                        
-                        const updatedActivities = existingIndex !== -1
-                        ? project.activities.map((item, idx) => idx === existingIndex ? newItem : item) // Update activity
-                        : [...(project.activities || []), newItem]; // Add activity
+            let updatedProject
+            const updatedData = data.map((project) => {
+                if (project.id === state.currentProject.id) {
+                    // Check if the activity already exists in the project
+                    const existingIndex = project.activities?.findIndex((item) => item.id === newItem.id);
+                    
+                    const updatedActivities = existingIndex !== -1
+                    ? project.activities.map((item, idx) => idx === existingIndex ? newItem : item) // Update activity
+                    : [...(project.activities || []), newItem]; // Add activity
 
-                        const updatedProject = {
-                            ...project,
-                            activities: updatedActivities,
-                        };
+                    updatedProject = {
+                        ...project,
+                        activities: updatedActivities,
+                    };
 
-                        // Update state.currentProject
-                        if (state.currentProject.id === project.id) {
-                            setState((prevState) => ({
-                                ...prevState,
-                                currentProject: updatedProject,
-                            }));
-                        }
-                        return updatedProject;
-                    }
-                    return project;
-                });
-                return updatedData;
-            });
-        } else {
-            setData(() => {
-                const existingIndex = data.findIndex((item) => item.id === currentItem.id);
-        
-                if (existingIndex !== -1) {
-                    // Update project
-                    const updatedData = [...data];
-                    updatedData[existingIndex] = { ...data[existingIndex], ...formValues };
-                    return updatedData;
-                } else {
-                    // Add project
-                    return [...data, newItem];
+                    return updatedProject;
                 }
+                return project;
             });
+            const index = updatedData.findIndex((item) => item.id === updatedProject.id);
+
+            setData( { action: "edit", id: index, item: updatedProject });
+            // Update state.currentProject
+            setState((prevState) => ({
+                ...prevState,
+                currentProject: updatedProject,
+            }));
+        }
+        else {
+            const existingIndex = data.findIndex((item) => item.id === currentItem.id);
+    
+            if (existingIndex !== -1) {
+                // Update project
+                console.log({ ...data[existingIndex], ...formValues })
+                setData({ action: "edit", item: { ...data[existingIndex], ...formValues }});
+            } else {
+                // Add project
+                console.log(newItem)
+                setData({ action: "add", item: newItem })
+            }
         }
 
         setState((prevState) => ({

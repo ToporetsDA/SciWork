@@ -7,8 +7,7 @@ import AppContent from './Components/AppContent'
 
 function App() {
 
-  //app
-
+  
   const [state, setState] = useState({
     currentPage: 'Home Page',   //string
     currentProject: undefined,  //object
@@ -17,7 +16,7 @@ function App() {
       name: undefined,  //string
       params: []        //[any]
     }
-  });
+  })
   
   //user
   
@@ -87,17 +86,15 @@ function App() {
         serviceName: ''
       }
     }
-  }, [userData.genStatus]);
+  }, [userData.genStatus])
 
   const [projects, setProjects] = useState()
 
   //header
-
   const isCompany = true;
 
   //nav
-
-  const [recentActivities, setRecentActivities] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([])
 
   //login
   const [isLoggedIn, setLoggedIn] = useState(false);
@@ -107,14 +104,31 @@ function App() {
   const [isUserUpdatingData, setIsUserUpdatingData] = useState(false)
   const [isUserUpdatingUserData, setIsUserUpdatingUserData] = useState(false)
 
+  const [updatedProjectId, setUpdatedProjectId] = useState()
+
   const updateProjects = (data) => {
     setIsUserUpdatingData(true)
-    setProjects(data)
+    const { action, item } = data
+    setUpdatedProjectId(item.id)
+    if (action === "add") {
+      setProjects(prevProjects => ({ ...prevProjects, item }))
+    }
+    if (action === "edit") {
+      setProjects(prevProjects => 
+        prevProjects.map(project => 
+            project.id === item.id ? item : project
+        )
+      )
+    }
+    console.log("from updateProjects: ", projects)
   }
 
-  const updateUser = (userData) => {
+  const updateUser = (newData) => {
     setIsUserUpdatingUserData(true)
-    setUserData(userData)
+    setUserData((prevUserData) => ({
+        ...prevUserData,
+        ...newData,
+    }))
   }
 
   //notifications
@@ -182,9 +196,12 @@ function App() {
       setIsUserUpdatingData={setIsUserUpdatingData}
       isUserUpdatingUserData={isUserUpdatingUserData}
       setIsUserUpdatingUserData={setIsUserUpdatingUserData}
+      updatedProjectId={updatedProjectId}
+      setUpdatedProjectId={setUpdatedProjectId}
     />
   </div>
-  );
+  )
 }
-
-export default App;
+/////
+//
+export default App
