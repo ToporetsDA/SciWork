@@ -4,39 +4,46 @@ import ControlPanel from './sharedComponents/ControlPanel';
 
 import * as Shared from './sharedComponents'
 
-const Projects = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, recentActivities, setRecentActivities }) => {
+const Projects = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, setRecentActivities }) => {
 
     //open project
     const goTo = Shared.GoTo;
 
     // Delete item
     const handleDelete = (itemToDelete) => {
-        setData(prevProjects =>
-            prevProjects.map(project => {
-                if (project.name === state.currentProject?.name) {
+        let updatedProject
 
-                    // Update the project activities
-                    const updatedProject = {
-                        ...project,
-                        activities: project.activities.map(activity =>
-                            activity.name === (itemToDelete.name) ? { ...activity, deleted: true } : activity
-                        )
-                    };
-    
-                    // Update the state.currentProject
-                    if (state.currentProject.name === project.name) {
-                        setState((prevState) => ({
-                            ...prevState,
-                            currentProject: updatedProject
-                        }));
-                    }
-    
-                    return updatedProject;
+        data.forEach(project => {
+            if (project.id === itemToDelete.id) {
+
+                // Update project
+                updatedProject = {
+                    ...project,
+                    activities: project.activities.map((activity) => {
+                        return { ...activity, deleted: true }
+                    }),
+                    deleted: true
+                };
+            }
+            else if (project.id === state.currentProject?.id) {
+
+                // Update activity
+                updatedProject = {
+                    ...project,
+                    activities: project.activities.map((activity) => {
+                        return activity.id === (itemToDelete.id) ? { ...activity, deleted: true } : activity
+                    })
                 }
-                return (project.name === itemToDelete.name ? { ...project, deleted: true } : project);
-            })
-        );
-    };
+
+                setState((prevState) => ({
+                    ...prevState,
+                    currentProject: updatedProject
+                }));
+            }
+        })
+
+        setData({ action: "edit", item: updatedProject })
+    }
 
     return (
         <>
@@ -75,6 +82,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                 </p>
                                 {!project.deleted && rights.edit.includes(project.access) &&
                                     <div className='actions'>
+                                        {!project.deleted && rights.edit.includes(project.access) &&
                                         <button
                                             className='gearButton'
                                             onClick={(e) => {
@@ -89,6 +97,8 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                         >
                                             ⚙️
                                         </button>
+                                        }
+                                        {!project.deleted && rights.edit.includes(project.access) &&
                                         <button
                                             className='deleteButton'
                                             onClick={(e) => {
@@ -98,6 +108,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                         >
                                             🗑️
                                         </button>
+                                        }
                                     </div>
                                 }
                             </div>
