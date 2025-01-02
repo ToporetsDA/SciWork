@@ -1,43 +1,43 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import '../../../css/pages/pageComponents/ScheduleBoard.css';
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import '../../../css/pages/pageComponents/ScheduleBoard.css'
 
 import * as Shared from '../sharedComponents'
 
 const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, gridValues, setGridValues, intervalAnchor, scheduleBoard, recentActivities, setRecentActivities }) => {
 
     const projectId = (id) => {
-        return Math.floor(id / 1000000000);
+        return Math.floor(id / 1000000000)
     }
 
     //calculate scale values
     const getDaysInMonth = useCallback((month, year) => {
-        return new Date(year, month, 0).getDate();
-    }, []);
+        return new Date(year, month, 0).getDate()
+    }, [])
 
     const [firstDay, setFirstDay] = useState(
         new Date(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear() - 1, 1).getDay()
-    );
+    )
 
     const firstDayOfMonth = useMemo(() => {
         return (firstDay === 0) ? 7 : firstDay
-    }, [firstDay]);
+    }, [firstDay])
 
     const [lastDayOfMonth, setLastDayOfMonth] = useState(
         new Date(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear(), 0).getDay()
-    );
+    )
     
     const [totalDaysInMonth, setTotalDaysInMonth] = useState(
         getDaysInMonth(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear())
-    );
+    )
 
     const weeksInMonth = useCallback((month, year) => {
-        setFirstDay(new Date(year, month - 1, 1).getDay());
-        setLastDayOfMonth(new Date(year, month, 0).getDay());
-        setTotalDaysInMonth(getDaysInMonth(month, year));
-        const fullWeeks = Math.floor((totalDaysInMonth + firstDayOfMonth) / 7);
+        setFirstDay(new Date(year, month - 1, 1).getDay())
+        setLastDayOfMonth(new Date(year, month, 0).getDay())
+        setTotalDaysInMonth(getDaysInMonth(month, year))
+        const fullWeeks = Math.floor((totalDaysInMonth + firstDayOfMonth) / 7)
         // Return total weeks: full weeks + 1 if there's a partial week at the end of month
-        return fullWeeks + (lastDayOfMonth !== 0 ? 1 : 0);
-    }, [getDaysInMonth, firstDayOfMonth, lastDayOfMonth, totalDaysInMonth]);
+        return fullWeeks + (lastDayOfMonth !== 0 ? 1 : 0)
+    }, [getDaysInMonth, firstDayOfMonth, lastDayOfMonth, totalDaysInMonth])
 
     //set grid resolution
     useEffect(() => {
@@ -45,19 +45,19 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
             setGridValues({
                 rows: 24,
                 columns: 7
-            });
+            })
         } else if (currentScale === 'month') {
             setGridValues({
                 rows: weeksInMonth(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear()),
                 columns: 7
-            });
+            })
         } else if (currentScale === 'year') {
             setGridValues({
                 rows: 31,
                 columns: 12
-            });
+            })
         }
-    }, [currentScale, weeksInMonth, intervalAnchor, setCurrentScale, setGridValues]);
+    }, [currentScale, weeksInMonth, intervalAnchor, setCurrentScale, setGridValues])
 
     //schedule BG like a simple calendar
     const scheduleCells = Array.from({ length: gridValues.rows * gridValues.columns }).map((_, index) => (
@@ -87,17 +87,17 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 `${Math.floor(index/12)+1}`
             }
         </div>
-    ));
+    ))
 
     // Determine data to display based on the scale
     //I need to modify data first! I mean creating start-end activities before filtering by rangeToDisplay
 
     const formatDate = (date) => {
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');  // Add leading zero if needed
-        const day = date.getDate().toString().padStart(2, '0');  // Add leading zero if needed
-        return `${year}-${month}-${day}`;
-    };
+        const year = date.getFullYear()
+        const month = (date.getMonth() + 1).toString().padStart(2, '0') // Add leading zero if needed
+        const day = date.getDate().toString().padStart(2, '0') // Add leading zero if needed
+        return `${year}-${month}-${day}`
+    }
 
     const rangeToDisplay = useMemo(() => ({
         week: {
@@ -112,13 +112,13 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
             start: new Date(intervalAnchor.getFullYear(), 0, 1),
             end: new Date(intervalAnchor.getFullYear(), 11, 31),
         },
-    }), [intervalAnchor]);
+    }), [intervalAnchor])
 
     // ranged data for current scale
     const scaledData = useMemo(() => {
-        if (!data) return [];
+        if (!data) return []
 
-        const { start, end } = rangeToDisplay[currentScale];
+        const { start, end } = rangeToDisplay[currentScale]
     
         // Filter and process activities Math.floor(event.id / 1000000000)
         const filteredActivities = data
@@ -141,7 +141,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     endDate: activity.startDate,
                     type: 'activity',
                     eventId: activity.id + '.start'
-                };
+                }
                 const endItem = {
                     ...activity,
                     name: `${activity.name} - End`,
@@ -149,26 +149,26 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     endDate: activity.endDate,
                     type: 'activity',
                     eventId: activity.id + '.end'
-                };
+                }
 
-                let repeatItems = [startItem];
+                let repeatItems = [startItem]
 
                 if (activity.repeat === true) {
-                    let start = new Date(activity.startDate);
+                    let start = new Date(activity.startDate)
                     start.setDate(start.getDate() + 1)
-                    const end = new Date(activity.endDate);
+                    const end = new Date(activity.endDate)
                     const daysOfWeek = activity.days.map(day => {
                         switch(day) {
-                            case 'Mon': return 1;
-                            case 'Tue': return 2;
-                            case 'Wed': return 3;
-                            case 'Thu': return 4;
-                            case 'Fri': return 5;
-                            case 'Sat': return 6;
-                            case 'Sun': return 0;
-                            default: return -1;
+                            case 'Mon': return 1
+                            case 'Tue': return 2
+                            case 'Wed': return 3
+                            case 'Thu': return 4
+                            case 'Fri': return 5
+                            case 'Sat': return 6
+                            case 'Sun': return 0
+                            default: return -1
                         }
-                    });
+                    })
             
                     // Loop through the days between startDate and endDate
                     for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
@@ -182,16 +182,16 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                                 endDate: formatDate(d),
                                 type: 'activity',
                                 eventId: activity.id + '_' + d.toLocaleDateString() // Use the date as part of the ID to make it unique
-                            };
+                            }
             
-                            repeatItems.push(repeatItem);
+                            repeatItems.push(repeatItem)
                         }
                     }
                 }
 
-                repeatItems.push(endItem);
+                repeatItems.push(endItem)
     
-                return repeatItems;
+                return repeatItems
             });
     
         // Filter and process projects for 'year' scale
@@ -207,7 +207,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                         type: 'project',
                         eventId: project.id + '_0',
                         page: true
-                    };
+                    }
                     const endItem = {
                         ...project,
                         name: `${project.name} - End`,
@@ -216,43 +216,43 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                         type: 'project',
                         eventId: project.id + '_1',
                         page: true
-                    };
+                    }
     
-                    return [startItem, endItem];
+                    return [startItem, endItem]
                 })
             : [];
         
         const rangedData = filteredActivities.concat(filteredProjects)
             .filter(project => {
-                const projectStart = new Date(project.startDate);
-                const projectEnd = new Date(project.endDate);
-                return projectEnd >= start && projectStart <= end;
-            });
+                const projectStart = new Date(project.startDate)
+                const projectEnd = new Date(project.endDate)
+                return projectEnd >= start && projectStart <= end
+            })
     
-        return rangedData;
-    }, [data, currentScale, rangeToDisplay]);
+        return rangedData
+    }, [data, currentScale, rangeToDisplay])
 
     // scaledData with grouped overlaps
     const scaledDataWithOverlaps = useMemo(() => {
 
-        const overlaps = [];
+        const overlaps = []
         // Sort events by start time/date
-        scaledData.sort((a, b) => (currentScale === "week" ? a.startTime - b.startTime : a.startDate - b.startDate));
+        scaledData.sort((a, b) => (currentScale === "week" ? a.startTime - b.startTime : a.startDate - b.startDate))
       
         // Group overlapping events
         scaledData.forEach((event, i) => {
 
-            const overlapGroup = [event];
+            const overlapGroup = [event]
 
             for (let j = i + 1; j < scaledData.length; j++) {
 
-                const nextEvent = scaledData[j];
+                const nextEvent = scaledData[j]
 
                 if (// all events last 1 day
                     (currentScale === "week" && nextEvent.startDate === event.startDate && ((nextEvent.startTime < event.endTime && nextEvent.endTime > event.startTime) || (event.startTime < nextEvent.endTime && event.endTime > nextEvent.startTime))) ||
                     (currentScale !== "week" && nextEvent.startDate === event.startDate)
                 ) {
-                    overlapGroup.push(nextEvent);
+                    overlapGroup.push(nextEvent)
                 }
             }
 
@@ -261,79 +261,78 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 overlapGroup.every(newEvent => 
                     existingGroup.some(existingEvent => existingEvent.eventId === newEvent.eventId) // assuming _id is the unique identifier
                 )
-            );
+            )
 
             if (!isContained) {
-                overlaps.push(overlapGroup);
+                overlaps.push(overlapGroup)
             }
-        });
+        })
       
-        return overlaps;
-    }, [currentScale, scaledData]);
+        return overlaps
+    }, [currentScale, scaledData])
 
-    const goTo = Shared.GoTo;
+    const goTo = Shared.GoTo
 
     // events rendered as <div></div>s
     const renderEvents = useCallback((group, i, content, isJoint, zIndex) => {
 
-        const eventStart = new Date(`${group[i].startDate}T${group[i].startTime || "01:00"}`);
-        const tmp = group;
+        const eventStart = new Date(`${group[i].startDate}T${group[i].startTime || "01:00"}`)
+        const tmp = group
         if (currentScale === "week" && group.length > 3) {
-            tmp.sort((a, b) => (b.endTime - a.endTime));
+            tmp.sort((a, b) => (b.endTime - a.endTime))
         }
-        const eventEnd = new Date(`${tmp[i].endDate}T${tmp[i].endTime || "02:45"}`);
+        const eventEnd = new Date(`${tmp[i].endDate}T${tmp[i].endTime || "02:45"}`)
         
-        const dayOfWeek = ((eventStart.getDay() === 0) ? 7 : eventStart.getDay()) - 1; // 0-6 (Monday - Sunday)
-        const dayOfMonth = eventStart.getDate(); // 1 - 28-31
+        const dayOfWeek = ((eventStart.getDay() === 0) ? 7 : eventStart.getDay()) - 1 // 0-6 (Monday - Sunday)
+        const dayOfMonth = eventStart.getDate() // 1 - 28-31
         
-        const startHour = eventStart.getHours();
-        const startMinutes = eventStart.getMinutes();
-        const endHour = eventEnd.getHours();
-        const endMinutes = eventEnd.getMinutes();
+        const startHour = eventStart.getHours()
+        const startMinutes = eventStart.getMinutes()
+        const endHour = eventEnd.getHours()
+        const endMinutes = eventEnd.getMinutes()
 
-        let part = (isJoint) ? 1 : group.length; //size of group element
+        let part = (isJoint) ? 1 : group.length //size of group element
 
-        let top;
-        let left;
-        let bottom;
-        let right;
+        let top
+        let left
+        let bottom
+        let right
 
-        let space;
+        let space
 
         switch(currentScale) {
             case "week": {
-                part = 100 / 7 / part;
-                space = part / 100;
+                part = 100 / 7 / part
+                space = part / 100
 
-                top = 100 / 24 * (startHour + (startMinutes / 60));
-                left = (100 / 7 * dayOfWeek) + (part * i);
-                bottom = 100 / 24 * (endHour + (endMinutes / 60));
-                right = left + (part);
-                break;
+                top = 100 / 24 * (startHour + (startMinutes / 60))
+                left = (100 / 7 * dayOfWeek) + (part * i)
+                bottom = 100 / 24 * (endHour + (endMinutes / 60))
+                right = left + (part)
+                break
             }
             case "month": {
-                const weeks = weeksInMonth(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear());
-                part = 100 / weeks / part;
-                space = part / 100;
+                const weeks = weeksInMonth(intervalAnchor.getMonth() + 1, intervalAnchor.getFullYear())
+                part = 100 / weeks / part
+                space = part / 100
 
-                top = (100 / weeks * Math.floor((dayOfMonth + firstDayOfMonth - 1) / 7)) + (part * i);
-                left = 100 / 7 * dayOfWeek;
-                bottom = top + (part);
-                right = left + (100 / 7);
-
-                break;
+                top = (100 / weeks * Math.floor((dayOfMonth + firstDayOfMonth - 1) / 7)) + (part * i)
+                left = 100 / 7 * dayOfWeek
+                bottom = top + (part)
+                right = left + (100 / 7)
+                break
             }
             case "year": {
-                part = 100 / 31 / part;
-                space = part / 100;
+                part = 100 / 31 / part
+                space = part / 100
                 
-                top = (100 / 31 * (dayOfMonth - 1)) + (part * i);
-                left = 100 / 12 * eventStart.getMonth();
-                bottom = top + (part);
-                right = left + (100 / 12);
-                break;
+                top = (100 / 31 * (dayOfMonth - 1)) + (part * i)
+                left = 100 / 12 * eventStart.getMonth()
+                bottom = top + (part)
+                right = left + (100 / 12)
+                break
             }
-            default: ;
+            default:
         }
 
         return (
@@ -368,8 +367,8 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
             >
                 {content}
             </div>
-        );
-    }, [currentScale, firstDayOfMonth, data, setState, weeksInMonth, intervalAnchor, goTo, setRecentActivities]);
+        )
+    }, [currentScale, firstDayOfMonth, data, setState, weeksInMonth, intervalAnchor, goTo, setRecentActivities])
 
     //schedule events as <div></div>s to display
     const eventsToDisplay = useMemo(() => {
@@ -380,7 +379,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
 
                 const groupDivs = group.flatMap((event, i) => {
                     // event data to display
-                    let content = ``;
+                    let content = ``
                     if (group[i].type === 'activity') {
                         content += `${data.find(p => p.id === projectId(group[0].id)).name}: `
                     }
@@ -392,10 +391,10 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                         content += `${group[i].name}\nStart at ${group[i].startDate}\nEnd at${group[i].endDate}`
                     }
                     
-                    return renderEvents(group, i, content, false, 2);
-                });
+                    return renderEvents(group, i, content, false, 2)
+                })
                 
-                return groupDivs;
+                return groupDivs
             }
             else if (group.length === 1 || group.length > 2) { // Normal activity or Joint block
 
@@ -419,30 +418,30 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                             content += `${data.find(p => p.id === projectId(event.id)).name}: `
                         }
                         content += `${event.name}\n`
-                    });
+                    })
                 }
 
-                return [renderEvents(group, 0, content, (group.length === 1) ? false : true, (group.length === 1) ? 1 : 3)];
+                return [renderEvents(group, 0, content, (group.length === 1) ? false : true, (group.length === 1) ? 1 : 3)]
             }
             else {
-                return [];
+                return []
             }
-        });
+        })
 
         //move text to visible part of event if any
         eventDivs.forEach((event) => {
-            const overlapEvent = document.querySelector(`.overlapEvent[data-id="${event.id}"]`);
+            const overlapEvent = document.querySelector(`.overlapEvent[data-id="${event.id}"]`)
             if (overlapEvent) {
-                const eventText = document.querySelector(`.event[data-id="${event.id}"] .text`);
+                const eventText = document.querySelector(`.event[data-id="${event.id}"] .text`)
                 if (eventText) {
-                  eventText.style.top = `${overlapEvent.offsetHeight}px`; // Adjust text to visible area
+                  eventText.style.top = `${overlapEvent.offsetHeight}px` // Adjust text to visible area
                 }
             }
-        });
+        })
 
-        return eventDivs;
+        return eventDivs
         
-    }, [data, currentScale, renderEvents, scaledDataWithOverlaps]);
+    }, [data, currentScale, renderEvents, scaledDataWithOverlaps])
 
     return (
         <div

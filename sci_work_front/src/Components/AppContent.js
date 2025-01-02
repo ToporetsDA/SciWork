@@ -1,33 +1,33 @@
-import React, { useState, Suspense } from 'react';
-import '../css/AppContent.css';
-import * as Pages from './pages';
-import * as Dialogs from './pages/dialogs';
+import React, { useState, Suspense } from 'react'
+import '../css/AppContent.css'
+import * as Pages from './pages'
+import * as Dialogs from './pages/dialogs'
 
 const AppContent = ({userData, setUserData, profileData, state, setState, data, setData, rights, itemStructure, defaultStructure, isCompany, notifications, setNotifications, recentActivities, setRecentActivities }) => {
 
     // dialogs
 
     const loadDialogComponent = (dialogName) => {
-        return Dialogs[dialogName.replace(/\s+/g, '')];
+        return Dialogs[dialogName.replace(/\s+/g, '')]
     }
 
-    const DialogComponent = (state.currentDialog.name !== undefined) ? loadDialogComponent(state.currentDialog.name) : undefined;
+    const DialogComponent = (state.currentDialog.name !== undefined) ? loadDialogComponent(state.currentDialog.name) : undefined
 
     // pages
     
     const loadPageComponent = (pageName) => {
-        const formattedPageName = (pageName === 'Subjects' || pageName === 'Project' || pageName === 'Activity') ? 'Projects' : pageName;
-        return Pages[formattedPageName.replace(/\s+/g, '')];
+        const formattedPageName = (pageName === 'Subjects' || pageName === 'Project' || pageName === 'Activity') ? 'Projects' : pageName
+        return Pages[formattedPageName.replace(/\s+/g, '')]
     }
 
-    const PageComponent = state.currentPage ? loadPageComponent(state.currentPage) : undefined;
+    const PageComponent = state.currentPage ? loadPageComponent(state.currentPage) : undefined
 
     // more for pages
 
     const [itemsToDisplay, setItemsToDisplay] = useState({
         projects: data,
         activities: state.currentProject?.activities ? state.currentProject.activities : []
-    }, [state.currentProject, data]);
+    }, [state.currentProject, data])
 
     return (
         <main className="content">

@@ -1,8 +1,8 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express')
+var router = express.Router()
 
-const activeServers = {};
-const lastHeartbeat = {};
+const activeServers = {}
+const lastHeartbeat = {}
 
 /*
  * Реєстрація серверів
@@ -10,30 +10,31 @@ const lastHeartbeat = {};
  * Body: { id: string, address: string, name: string }
  */
 router.post('/register', (req, res) => {
-  const { id, address, name } = req.body;
+  const { id, address, name } = req.body
 
   if (!id || !address) {
-    console.log(`serverId: ${id}, serverAddress: ${address}, serverName: ${name}`);
-    return res.status(400).json({ message: 'ID, address and name are required' });
+    console.log(`serverId: ${id}, serverAddress: ${address}, serverName: ${name}`)
+    return res.status(400).json({ message: 'ID, address and name are required' })
   }
 
   if (activeServers[id]) {
     if (activeServers[id].address === address) {
-      console.log(`Server ID=${id} is already registered with the same address. Updating heartbeat.`);
-      lastHeartbeat[id] = Date.now(); // Оновлюємо час останнього heartbeat
-    } else {
-      console.log(`Server ID=${id} is already registered with a different address. Updating address.`);
-      activeServers[id].address = address; // Оновлюємо адресу
-      activeServers[id].name = name; // Оновлюємо ім'я
-      lastHeartbeat[id] = Date.now(); // Оновлюємо час останнього heartbeat
+      console.log(`Server ID=${id} is already registered with the same address. Updating heartbeat.`)
+      lastHeartbeat[id] = Date.now() // Оновлюємо час останнього heartbeat
+    }
+    else {
+      console.log(`Server ID=${id} is already registered with a different address. Updating address.`)
+      activeServers[id].address = address // Оновлюємо адресу
+      activeServers[id].name = name // Оновлюємо ім'я
+      lastHeartbeat[id] = Date.now() // Оновлюємо час останнього heartbeat
     }
   } else {
-    console.log(`Registering new server: ID=${id}, Address=${address}`);
-    activeServers[id] = { address, name };
-    lastHeartbeat[id] = Date.now(); // Ініціалізуємо час останнього heartbeat
+    console.log(`Registering new server: ID=${id}, Address=${address}`)
+    activeServers[id] = { address, name }
+    lastHeartbeat[id] = Date.now() // Ініціалізуємо час останнього heartbeat
   }
 
-  res.json({ message: 'Server registered successfully' });
+  res.json({ message: 'Server registered successfully' })
 });
 
 /*
@@ -42,15 +43,15 @@ router.post('/register', (req, res) => {
  * Body: { id: string, address: string }
  */
 router.post('/heartbeat', (req, res) => {
-  const { id, address } = req.body;
+  const { id, address } = req.body
 
   if (!id || !activeServers[id]) {
-    return res.status(400).json({ message: 'Invalid server ID' });
+    return res.status(400).json({ message: 'Invalid server ID' })
   }
 
-  const serverAddress = activeServers[id].address;
+  const serverAddress = activeServers[id].address
   if (serverAddress !== address) { // Перевіряємо IP-адресу запиту
-    return res.status(400).json({ message: 'Server address mismatch' });
+    return res.status(400).json({ message: 'Server address mismatch' })
   }
 
   // Оновлюємо час останнього heartbeat
@@ -66,9 +67,9 @@ setInterval(() => {
 
   for (const id in lastHeartbeat) {
     if (now - lastHeartbeat[id] > timeout) {
-      console.log(`Server with ID=${id} is considered disconnected`);
-      delete activeServers[id];
-      delete lastHeartbeat[id];
+      console.log(`Server with ID=${id} is considered disconnected`)
+      delete activeServers[id]
+      delete lastHeartbeat[id]
     }
   }
 }, 30000); // Перевірка кожні 30 секунд
@@ -83,7 +84,7 @@ router.get('/list', (req, res) => {
     address: activeServers[id].address,
     name: activeServers[id].name
   }));
-  res.json(serverList);
+  res.json(serverList)
 });
 
-module.exports = router;
+module.exports = router

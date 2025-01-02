@@ -1,5 +1,5 @@
-import React from 'react';
-import '../../css/pages/Chats.css';
+import React from 'react'
+import '../../css/pages/Chats.css'
 
 const Chats = () => {
 

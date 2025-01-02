@@ -1,4 +1,4 @@
-import '../../../css/pages/sharedComponents/GoTo.css';
+import '../../../css/pages/sharedComponents/GoTo.css'
 
 //item here is either Activity or Project Object
 
@@ -23,9 +23,10 @@ const GoTo = (destination, data, setRecentActivities) => {
                 name: undefined,
                 params: []
             }
-        };
-    } else if (destination.page === true) {
-        const project = data.find(p => p.id === projectId(destination.id));
+        }
+    }
+    else if (destination.page === true) {
+        const project = data.find(p => p.id === projectId(destination.id))
         return {
             currentPage: 'Activity',
             currentProject: project,
@@ -34,8 +35,9 @@ const GoTo = (destination, data, setRecentActivities) => {
                 name: undefined,
                 params: []
             }
-        };
-    } else {
+        }
+    }
+    else {
         return {
             currentPage: 'Project',
             currentProject: data.find(p => p.id === projectId(destination.id)),
@@ -43,8 +45,8 @@ const GoTo = (destination, data, setRecentActivities) => {
                 name: undefined,
                 params: []
             }
-        };
+        }
     }
-};
+}
 
 export default GoTo

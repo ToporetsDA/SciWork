@@ -10,24 +10,24 @@ const LogIn = ({ setState, isLoggedIn, servers, loginToServer }) => {
             server: "",
             login: "",
             password: ""
-        };
-    });
+        }
+    })
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value } = e.target
         setFormValues((prev) => ({
             ...prev,
             [name]: value
-        }));
-    };
+        }))
+    }
     
     const handleSubmit = (e) => {
-        e.preventDefault();
+        e.preventDefault()
         if (servers.length === 0) {
-            alert("No servers available. Unable to log in.");
-            return;
+            alert("No servers available. Unable to log in.")
+            return
         }
-        loginToServer(formValues);
+        loginToServer(formValues)
     }
 
     const handleOutsideClick = (e) => {
@@ -38,9 +38,9 @@ const LogIn = ({ setState, isLoggedIn, servers, loginToServer }) => {
                     name: undefined,
                     params: []
                 }
-            }));
+            }))
         }
-    };
+    }
 
     return (
         <>
@@ -113,7 +113,7 @@ const LogIn = ({ setState, isLoggedIn, servers, loginToServer }) => {
             </div>
             }
         </>
-    );
+    )
 }
 
 export default LogIn

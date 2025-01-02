@@ -1,5 +1,5 @@
-import React from 'react';
-import '../../../css/pages/dialogs/JointEventOverlap.css';
+import React from 'react'
+import '../../../css/pages/dialogs/JointEventOverlap.css'
 import '../../../css/pages/dialogs/dialog.css'
 
 import * as Shared from '../sharedComponents'
@@ -16,11 +16,11 @@ const JointEventOverlapDialog = ({ data, setData, state, setState }) => {
                     name: undefined,
                     params: []
                 }
-            }));
+            }))
         }
-    };
+    }
 
-    const ItemList = Shared.LinkList;
+    const ItemList = Shared.LinkList
 
     return (
         <div
@@ -42,7 +42,7 @@ const JointEventOverlapDialog = ({ data, setData, state, setState }) => {
                 </button>
             </div>
         </div>
-    );
+    )
 }
 
 export default JointEventOverlapDialog

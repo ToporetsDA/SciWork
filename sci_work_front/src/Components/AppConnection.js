@@ -4,12 +4,12 @@ import LogIn from './pages/dialogs/LogIn'
 
 const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn, setLoggedIn, setRights, isUserUpdatingData, setIsUserUpdatingData, isUserUpdatingUserData, setIsUserUpdatingUserData, updatedProjectId, setUpdatedProjectId }) => {
 
-    const [servers, setServers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [sessionToken, setToken] = useState();
-  const [receivedData, setReceivedData] = useState();
-  const [formValues, setFormValues] = useState();
-  const [wsUrl, setWsUrl] = useState(null);
+    const [servers, setServers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [sessionToken, setToken] = useState()
+  const [receivedData, setReceivedData] = useState()
+  const [formValues, setFormValues] = useState()
+  const [wsUrl, setWsUrl] = useState(null)
 
     //create server address string
     const serverAddress = (address) => {
@@ -33,19 +33,19 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
 
     const { sendMessage, readyState } = useWebSocket(wsUrl, {
         onOpen: () => {
-            console.log('WebSocket connection established.');
+            console.log('WebSocket connection established.')
             // Send the login message after the connection is established
             sendMsg(receivedData.sessionToken, "login", { login: formValues.login });
         },
         onClose: () => console.log('WebSocket connection closed'),
         onMessage: (event) => handleResponse(event),
         onError: (error) => {
-            console.error('WebSocket error:', error);
+            console.error('WebSocket error:', error)
         },
         shouldReconnect: () => true, // Reconnect on disconnection
         queryParams: { token: sessionToken }, // Optional query params
         share: true // Share the WebSocket instance between components
-    });
+    })
 
     // Callback to send a message
     const sendMsg = useCallback((sessionToken, type, data) => {
@@ -54,15 +54,15 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
             sessionToken,        // Auth token
             data: data,          // Payload data
             timestamp: new Date().toISOString(), // Optional timestamp
-        };
+        }
 
         // Send the message as a JSON string
-        sendMessage(JSON.stringify(message));
-        console.log('Sent message:', message);
+        sendMessage(JSON.stringify(message))
+        console.log('Sent message:', message)
 
-        setIsUserUpdatingData(false); // Reset flag
-        setIsUserUpdatingUserData(false); // Reset flag
-    }, [sendMessage, setIsUserUpdatingData, setIsUserUpdatingUserData]);
+        setIsUserUpdatingData(false) // Reset flag
+        setIsUserUpdatingUserData(false) // Reset flag
+    }, [sendMessage, setIsUserUpdatingData, setIsUserUpdatingUserData])
 
     const handleResponse = useCallback((event) => {
         console.log("from handleResponse: ", data)
@@ -150,89 +150,41 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
     const updateProject = useCallback((sessionToken, updatedProject) => {
 
         if (readyState === 1) { // Check if WebSocket is open
-            sendMsg(sessionToken, "addEditProject", updatedProject);
-            console.log("Sent project update:", updatedProject);
+            sendMsg(sessionToken, "addEditProject", updatedProject)
+            console.log("Sent project update:", updatedProject)
         } else {
-            console.error("WebSocket is not open. Cannot send project update.");
+            console.error("WebSocket is not open. Cannot send project update.")
         }
 
-    }, [readyState, sendMsg]);
+    }, [readyState, sendMsg])
 
     // Trigger project update when a user modifies `data`
     useEffect(() => {
         if (isUserUpdatingData) {
-            const updatedProject = data.find((project) => project.id === updatedProjectId);
+            const updatedProject = data.find((project) => project.id === updatedProjectId)
             if (updatedProject) {
-                updateProject(sessionToken, updatedProject); // Pass session token and updated project
+                updateProject(sessionToken, updatedProject) // Pass session token and updated project
             }
         }
-    }, [data, updateProject, updatedProjectId, sessionToken, isUserUpdatingData]);
+    }, [data, updateProject, updatedProjectId, sessionToken, isUserUpdatingData])
 
     // Track user-initiated changes to `userData`
     const updateUser = useCallback((sessionToken, updatedUserData) => {
 
         if (readyState === 1) { // Check if WebSocket is open
-            sendMsg(sessionToken, "addEditUser", updatedUserData);
-            console.log("Sent user update:", updatedUserData);
+            sendMsg(sessionToken, "addEditUser", updatedUserData)
+            console.log("Sent user update:", updatedUserData)
         } else {
-            console.error("WebSocket is not open. Cannot send user update.");
+            console.error("WebSocket is not open. Cannot send user update.")
         }
-    }, [readyState, sendMsg]);
+    }, [readyState, sendMsg])
 
     // Trigger user update when a user modifies `userData`
     useEffect(() => {
         if (isUserUpdatingUserData) {
-            updateUser(sessionToken, userData); // Pass session token and updated user data
+            updateUser(sessionToken, userData) // Pass session token and updated user data
         }
-    }, [userData, updateUser, sessionToken, isUserUpdatingUserData]);
-
-    // // Track user-initiated changes to `data`
-
-    // const updateProject = useCallback((sessionToken, updatedProject) => {
-    //     const message = {
-    //         type: "addEditProject",
-    //         sessionToken,
-    //         data: updatedProject,
-    //     }
-    //     if (socket && socket.readyState === WebSocket.OPEN) {
-    //         socket.send(JSON.stringify(message))
-    //         console.log("Sent project update:", message)
-    //     }
-    //     else {
-    //         console.error("WebSocket is not open. Cannot send project update.")
-    //     }
-
-    //     setIsUserUpdatingData(false) // Reset flag
-    // }, [socket, setIsUserUpdatingData])
-
-    // useEffect(() => {
-    //     if (isUserUpdatingData) {
-    //         const updatedProject = data.find((project) => project.id === updatedProjectId)
-    //         if (updatedProject) {
-    //             updateProject(sessionToken, updatedProject) // Pass WebSocket connection
-    //         }
-    //     }
-    // }, [data, updateProject, updatedProjectId, sessionToken, isUserUpdatingData, setIsUserUpdatingData])
-
-    // // Track user-initiated changes to `userData`
-
-    // const updateUser = useCallback((sessionToken, updatedUserData) => {
-    
-    //     if (socket && socket.readyState === WebSocket.OPEN) {
-    //         sendMessage(sessionToken, "addEditUser", updatedUserData)
-    //         console.log("Sent user update")
-    //     }
-    //     else {
-    //         console.error("WebSocket is not open. Cannot send user update.")
-    //     }
-    //     setIsUserUpdatingUserData(false) // Reset flag
-    // }, [socket, sendMessage, setIsUserUpdatingUserData])
-
-    // useEffect(() => {
-    //     if (isUserUpdatingUserData) {
-    //         updateUser(sessionToken, userData) // Pass WebSocket connection
-    //     }
-    // }, [userData, updateUser, sessionToken, isUserUpdatingUserData, setIsUserUpdatingUserData])
+    }, [userData, updateUser, sessionToken, isUserUpdatingUserData])
 
     //on login
     const loginToServer = async (formValues) => {
@@ -259,10 +211,10 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
                 setFormValues(formValues)
 
                 // Set WebSocket URL dynamically
-                const wsAddress = `ws://${serverAddress(selectedServer.address)}`;
-                setWsUrl(wsAddress);
+                const wsAddress = `ws://${serverAddress(selectedServer.address)}`
+                setWsUrl(wsAddress)
 
-                console.log('WebSocket URL:', wsAddress);
+                console.log('WebSocket URL:', wsAddress)
             }
             else {
                 alert('Login failed')

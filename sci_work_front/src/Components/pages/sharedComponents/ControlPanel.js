@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback }  from 'react';
-import '../../../css/pages/sharedComponents/ControlPanel.css';
+import React, { useState, useEffect, useRef, useMemo, useCallback }  from 'react'
+import '../../../css/pages/sharedComponents/ControlPanel.css'
 
 const ControlPanel = ({ userData, setUserData, state, setState, data, rights, setItemsToDisplay, currentScale, setCurrentScale, editIntervalAnchor }) => {
 
@@ -8,36 +8,36 @@ const ControlPanel = ({ userData, setUserData, state, setState, data, rights, se
         state: ["all", "expired", "expiring"]
     }
 
-    const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
-    const [isStateDropdownOpen, setIsStateDropdownOpen] = useState(false);
-    const [currentSortOption, setCurrentSortOption] = useState(userData.currentSettings.sortFilter);
-    const [currentStateOption, setCurrentStateOption] = useState(userData.currentSettings.stateFilter);
-    const [searchQuery, setSearchQuery] = useState("");
+    const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false)
+    const [isStateDropdownOpen, setIsStateDropdownOpen] = useState(false)
+    const [currentSortOption, setCurrentSortOption] = useState(userData.currentSettings.sortFilter)
+    const [currentStateOption, setCurrentStateOption] = useState(userData.currentSettings.stateFilter)
+    const [searchQuery, setSearchQuery] = useState("")
 
-    const sortDropdownRef = useRef(null);
-    const stateDropdownRef = useRef(null);
+    const sortDropdownRef = useRef(null)
+    const stateDropdownRef = useRef(null)
 
     useEffect(() => {
-        setSearchQuery("");
-    }, [state.currentProject]);
+        setSearchQuery("")
+    }, [state.currentProject])
 
     //update filter values
 
     useEffect(() => {
         if (userData) {
-            setCurrentSortOption(userData.currentSettings.sortFilter);
-            setCurrentStateOption(userData.currentSettings.statusFilter);
+            setCurrentSortOption(userData.currentSettings.sortFilter)
+            setCurrentStateOption(userData.currentSettings.statusFilter)
         }
     }, [userData])
 
     const handleSortOptionSelect = (option) => {
-        setUserData(prevData => ({ ...prevData, currentSettings: {...prevData.currentSettings, sortFilter: option} }));
-        setIsSortDropdownOpen(false);
+        setUserData(prevData => ({ ...prevData, currentSettings: {...prevData.currentSettings, sortFilter: option} }))
+        setIsSortDropdownOpen(false)
     }
 
     const handleStateOptionSelect = (option) => {
-        setUserData(prevData => ({ ...prevData, currentSettings: {...prevData.currentSettings, statusFilter: option} }));
-        setIsStateDropdownOpen(false);
+        setUserData(prevData => ({ ...prevData, currentSettings: {...prevData.currentSettings, statusFilter: option} }))
+        setIsStateDropdownOpen(false)
     }
 
     //close filter option lists on click outside
@@ -45,18 +45,18 @@ const ControlPanel = ({ userData, setUserData, state, setState, data, rights, se
     const handleClickOutside = useCallback((event) => {
         if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
             if (isSortDropdownOpen) {
-                setIsSortDropdownOpen(false);
+                setIsSortDropdownOpen(false)
             }
             if (isStateDropdownOpen) {
-                setIsStateDropdownOpen(false);
+                setIsStateDropdownOpen(false)
             }
         }
-    }, [isSortDropdownOpen, isStateDropdownOpen]);
+    }, [isSortDropdownOpen, isStateDropdownOpen])
 
     useState(() => {
-        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('mousedown', handleClickOutside)
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('mousedown', handleClickOutside)
         }
     }, [handleClickOutside])
 
@@ -65,65 +65,65 @@ const ControlPanel = ({ userData, setUserData, state, setState, data, rights, se
     const sortItems = useCallback((items) => {
         return items.sort((a, b) => {
             if (currentSortOption === "A-Z") {
-                return a.name.localeCompare(b.name);
+                return a.name.localeCompare(b.name)
             }
             if (currentSortOption === "Z-A") {
-                return b.name.localeCompare(a.name);
+                return b.name.localeCompare(a.name)
             }
             if (currentSortOption === "start date") {
-                return new Date(a.startDate) - new Date(b.startDate);
+                return new Date(a.startDate) - new Date(b.startDate)
             }
             if (currentSortOption === "end date") {
-                return new Date(a.endDate) - new Date(b.endDate);
+                return new Date(a.endDate) - new Date(b.endDate)
             }
-            return 0;
-        });
-    }, [currentSortOption]);
+            return 0
+        })
+    }, [currentSortOption])
 
     //filter items
 
     const filterItems = useCallback((items) => {
-        let filtered = items;
+        let filtered = items
 
-        filtered = filtered.filter(item => !item.deleted || (item.deleted && rights.fullView.includes(item.access)));
+        filtered = filtered.filter(item => !item.deleted || (item.deleted && rights.fullView.includes(item.access)))
 
         // Filter by state first
         if (currentStateOption !== "all") {
             filtered = filtered.filter(item => {
 
-                const endDate = new Date(item.endDate);
-                const timeDifference = (endDate - new Date()) / (24 * 60 * 60 * 1000); // days remaining
+                const endDate = new Date(item.endDate)
+                const timeDifference = (endDate - new Date()) / (24 * 60 * 60 * 1000) // days remaining
                 if (currentStateOption === "expired" && timeDifference < 0) {
-                    return true; // Expired items
+                    return true // Expired items
                 }
                 if (currentStateOption === "expiring" && timeDifference < 30 && timeDifference >= 0) {
-                    return true; // Expiring items (within 30 days)
+                    return true // Expiring items (within 30 days)
                 }
-                return false;
-            });
+                return false
+            })
         }
 
         // Filter by search query
         if (searchQuery.trim() !== "") {
             filtered = filtered.filter(item =>
                 item.name.toLowerCase().includes(searchQuery.toLowerCase()) // Case-insensitive search
-            );
-            console.log(filtered);
+            )
+            console.log(filtered)
         }
 
-        return filtered;
+        return filtered
     }, [currentStateOption, searchQuery, rights.fullView])
 
     //data to display
 
     const projectsToDisplay = useMemo(() => {
-        return data ? filterItems(sortItems([...data])) : [];
-    }, [data, filterItems, sortItems]);
+        return data ? filterItems(sortItems([...data])) : []
+    }, [data, filterItems, sortItems])
     
     const activitiesToDisplay = useMemo(() => {
         return state.currentProject?.activities
             ? filterItems(sortItems(state.currentProject.activities))
-            : [];
+            : []
     }, [state.currentProject, filterItems, sortItems]);
 
     //return data to display it
@@ -131,7 +131,7 @@ const ControlPanel = ({ userData, setUserData, state, setState, data, rights, se
         setItemsToDisplay({
             projects: projectsToDisplay,
             activities: activitiesToDisplay
-        });
+        })
     }, [projectsToDisplay, activitiesToDisplay, setItemsToDisplay])
 
     return (

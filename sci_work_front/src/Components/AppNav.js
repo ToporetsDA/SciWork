@@ -1,12 +1,11 @@
-import React from 'react';
-import '../css/AppNav.css';
+import React from 'react'
+import '../css/AppNav.css'
 
 import * as Shared from '../Components/pages/sharedComponents'
 
 const AppNav = ({ data, state, setState, organisationType, recentActivities, setRecentActivities }) => {
   
   //project.name and activity.name pairs
-
   const clearRecent = () => {
     setRecentActivities([])
   }
@@ -104,10 +103,10 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
                   </ul>
                 </details>
               </li>
-            );
+            )
           }
           else {
-            return null;
+            return null
           }
         })}
 
@@ -119,7 +118,7 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
         </button>
       </ul>
     </nav>
-  );
-};
+  )
+}
 
-export default AppNav;
+export default AppNav

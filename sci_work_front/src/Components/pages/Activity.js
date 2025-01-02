@@ -1,5 +1,5 @@
-import React from 'react';
-import '../../css/pages/Activity.css';
+import React from 'react'
+import '../../css/pages/Activity.css'
 
 const Activity = () => {
 

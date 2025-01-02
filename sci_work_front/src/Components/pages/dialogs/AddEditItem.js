@@ -1,12 +1,12 @@
-import React, { useState, useMemo }  from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import '../../../css/pages/dialogs/AddEditItem.css';
+import React, { useState, useMemo }  from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import '../../../css/pages/dialogs/AddEditItem.css'
 import '../../../css/pages/dialogs/dialog.css'
 
 const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, defaultStructure, isCompany }) => {
 
-    const currentItem = state.currentDialog.params[0];
-    const [selectedType, setSelectedType] = useState(state.currentProject ? "Activity" : "Project"); // Default to "Project"
+    const currentItem = state.currentDialog.params[0]
+    const [selectedType, setSelectedType] = useState(state.currentProject ? "Activity" : "Project") // Default to "Project"
 
     // Initialize form values based on default type
 
@@ -14,63 +14,63 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
         if (currentItem === true) {
             // If currentItem is 'true', return default values for a new item
             return Object.keys(defaultValues).reduce((acc, key) => {
-                acc[key] = defaultValues[key] || (structure[key] === 'checkbox' ? false : ''); // Fallback to empty string if no default
-                return acc;
-            }, {});
+                acc[key] = defaultValues[key] || (structure[key] === 'checkbox' ? false : '') // Fallback to empty string if no default
+                return acc
+            }, {})
         } else if (currentItem !== undefined) {
             // If currentItem is an object, fill with its values
             return Object.keys(defaultValues).reduce((acc, key) => {
-                acc[key] = currentItem[key] !== undefined ? currentItem[key] : defaultValues[key] || (structure[key] === 'checkbox' ? false : ''); // Fallback to default if missing
-                return acc;
-            }, {});
+                acc[key] = currentItem[key] !== undefined ? currentItem[key] : defaultValues[key] || (structure[key] === 'checkbox' ? false : '') // Fallback to default if missing
+                return acc
+            }, {})
         }
-        return {}; // Return empty object if currentItem is undefined
-    };
+        return {} // Return empty object if currentItem is undefined
+    }
 
     const [formValues, setFormValues] = useState(() => {
         return initializeFormValues(defaultStructure[selectedType.toLowerCase()], itemStructure[selectedType.toLowerCase()]);
-    });
+    })
 
     // Reset form values for the new type
 
     const handleTypeChange = (e) => {
-        const type = e.target.value;
-        setSelectedType(type);
-        setFormValues(initializeFormValues(defaultStructure[type.toLowerCase()], itemStructure[selectedType.toLowerCase()]));
-        setErrors({});
+        const type = e.target.value
+        setSelectedType(type)
+        setFormValues(initializeFormValues(defaultStructure[type.toLowerCase()], itemStructure[selectedType.toLowerCase()]))
+        setErrors({})
         if (type === "Project") {
             setState((prevState) => ({
                 ...prevState,
                 currentProject: undefined,
-            }));
+            }))
         }
-    };
+    }
 
     const handleInputChange = (e) => {
-        const { name, type, checked, value } = e.target;
+        const { name, type, checked, value } = e.target
         setFormValues((prev) => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
-        }));
-    };
+        }))
+    }
 
     // Update set of selected days
     const toggleDaySelection = (day) => {
         setFormValues((prev) => {
-            const currentDays = prev.days || [];
+            const currentDays = prev.days || []
             const updatedDays = currentDays.includes(day)
                 ? currentDays.filter((d) => d !== day) // Remove the day if already selected
-                : [...currentDays, day]; // Add the day if not selected
-            return { ...prev, days: updatedDays };
-        });
-    };
+                : [...currentDays, day] // Add the day if not selected
+            return { ...prev, days: updatedDays }
+        })
+    }
 
     //show item-fields
     const showItemFields = useMemo(() => {
         return (state.currentPage !== 'Schedule' || selectedType === 'Project' ||
         (selectedType === 'Activity' && state.currentProject !== undefined)) &&
         ((state.currentProject !== undefined) ? rights.edit.includes(state.currentProject.access) : true);
-    }, [state, selectedType, rights.edit]);
+    }, [state, selectedType, rights.edit])
 
     //conditions for fields that should appear based on other fields values
     const fieldsChecks = useMemo(() => {
@@ -78,97 +78,97 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
             days: (formValues?.repeat === true) || false,
             serviceName: (formValues?.thirdParty === true) || false
         }
-    }, [formValues]);
+    }, [formValues])
 
     // Close the dialog
 
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState({})
 
     const handleSubmit = (e) => {
-        e.preventDefault();
+        e.preventDefault()
 
         let newItem = {
             ...formValues,
             access: 0,
             id: currentItem?.id || (state.currentProject === undefined ? uuidv4() : (state.currentProject.id * 1000000000) + state.currentProject.activities.length + 1),
-        };
+        }
 
         if (selectedType === "Project") {
-            newItem.activities = [];
+            newItem.activities = []
         }
 
         //validation
-        const newErrors = {};
+        const newErrors = {}
 
         //empty check
         Object.keys(formValues).forEach((key) => {
             if (formValues[key] === '' && itemStructure[key] !== 'checkbox' && fieldsChecks[key] === true) {
-                newErrors[key] = 'This field is required.';
+                newErrors[key] = 'This field is required.'
             }
-        });
+        })
 
         //name check
         if (formValues.name.length < 3) {
-            newErrors.name = 'Too short';
+            newErrors.name = 'Too short'
         }
 
         //date checks
         if (formValues.startDate && formValues.endDate) {
 
-            const startDate = new Date(formValues.startDate);
-            const endDate = new Date(formValues.endDate);
+            const startDate = new Date(formValues.startDate)
+            const endDate = new Date(formValues.endDate)
 
             if (startDate > endDate) {
                 if ((startDate === endDate && selectedType === 'Project') || selectedType === 'Activity') {
-                    newErrors.startDate = 'Start date must be before end date.';
+                    newErrors.startDate = 'Start date must be before end date.'
                 }
             }
 
             if (endDate < new Date()) {
-                newErrors.endDate = 'Trying to create expired project';
+                newErrors.endDate = 'Trying to create expired project'
             }
 
             if (selectedType === 'Activity') {
                 if (startDate < state.currentProject.startDate || startDate >= state.currentProject.endDate) {
-                    newErrors.startDate = "Start date must be within project's lifetime.";
+                    newErrors.startDate = "Start date must be within project's lifetime."
                 }
 
                 if (endDate < state.currentProject.startDate || endDate > state.currentProject.endDate) {
-                    newErrors.startDate = "End date must be within project's lifetime.";
+                    newErrors.startDate = "End date must be within project's lifetime."
                 }
             }
         }
 
         //time check
         if (formValues.startDate && formValues.endDate && formValues.startTime && formValues.endTime) {
-            const startDate = new Date(formValues.startDate);
-            const endDate = new Date(formValues.endDate);
+            const startDate = new Date(formValues.startDate)
+            const endDate = new Date(formValues.endDate)
 
-            const [startHour, startMinute] = formValues.startTime.split(':').map(Number);
-            const [endHour, endMinute] = formValues.endTime.split(':').map(Number);
+            const [startHour, startMinute] = formValues.startTime.split(':').map(Number)
+            const [endHour, endMinute] = formValues.endTime.split(':').map(Number)
         
-            const startInMinutes = startHour * 60 + startMinute;
-            const endInMinutes = endHour * 60 + endMinute;
+            const startInMinutes = startHour * 60 + startMinute
+            const endInMinutes = endHour * 60 + endMinute
 
             if(startDate === endDate && startInMinutes > endInMinutes) {
-                newErrors.startTime = "Activity can not start after it has ended";
+                newErrors.startTime = "Activity can not start after it has ended"
             }
         
             if (startDate === endDate && startInMinutes + 15 >= endInMinutes) {
-                newErrors.endTime = "Activity must exist at least 15 minutes.";
+                newErrors.endTime = "Activity must exist at least 15 minutes."
             }
         }
 
         //repeat check
         if (formValues.repeat === true && formValues.days.length === 0) {
-            newErrors.repeat = "Select at least 1 day to repeat the activity.";
+            newErrors.repeat = "Select at least 1 day to repeat the activity."
         }
 
         // If there are any errors, update the state and stop submission
         if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            alert('Please fix the errors before saving.');
-            return;
+            setErrors(newErrors)
+            alert('Please fix the errors before saving.')
+            return
         }
         
         // submit
@@ -178,37 +178,37 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
             const updatedData = data.map((project) => {
                 if (project.id === state.currentProject.id) {
                     // Check if the activity already exists in the project
-                    const existingIndex = project.activities?.findIndex((item) => item.id === newItem.id);
+                    const existingIndex = project.activities?.findIndex((item) => item.id === newItem.id)
                     
                     const updatedActivities = existingIndex !== -1
                     ? project.activities.map((item, idx) => idx === existingIndex ? newItem : item) // Update activity
-                    : [...(project.activities || []), newItem]; // Add activity
+                    : [...(project.activities || []), newItem] // Add activity
 
                     updatedProject = {
                         ...project,
                         activities: updatedActivities,
-                    };
+                    }
 
-                    return updatedProject;
+                    return updatedProject
                 }
-                return project;
-            });
-            const index = updatedData.findIndex((item) => item.id === updatedProject.id);
+                return project
+            })
+            const index = updatedData.findIndex((item) => item.id === updatedProject.id)
 
-            setData( { action: "edit", id: index, item: updatedProject });
+            setData( { action: "edit", id: index, item: updatedProject })
             // Update state.currentProject
             setState((prevState) => ({
                 ...prevState,
                 currentProject: updatedProject,
-            }));
+            }))
         }
         else {
-            const existingIndex = data.findIndex((item) => item.id === currentItem.id);
+            const existingIndex = data.findIndex((item) => item.id === currentItem.id)
     
             if (existingIndex !== -1) {
                 // Update project
                 console.log({ ...data[existingIndex], ...formValues })
-                setData({ action: "edit", item: { ...data[existingIndex], ...formValues }});
+                setData({ action: "edit", item: { ...data[existingIndex], ...formValues }})
             } else {
                 // Add project
                 console.log(newItem)
@@ -222,8 +222,8 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
                 name: undefined,
                 params: []
             }
-        }));
-    };
+        }))
+    }
 
     const handleOutsideClick = (e) => {
         if (e.target === e.currentTarget) {
@@ -233,13 +233,13 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
                     name: undefined,
                     params: []
                 }
-            }));
+            }))
         }
-    };
+    }
 
-    const formatLabel = (key) => key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
+    const formatLabel = (key) => key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
 
-    const currentStructure = itemStructure[selectedType.toLowerCase()];
+    const currentStructure = itemStructure[selectedType.toLowerCase()]
 
     return (
         <div className="addEditItemDialog dialogContainer" onClick={handleOutsideClick}>
@@ -330,7 +330,7 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
                 </form>
             </div>
         </div>
-    );
+    )
 }
 
 export default AddEditItem

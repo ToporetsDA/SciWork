@@ -1,5 +1,5 @@
-import React from 'react';
-import '../../css/pages/Settings.css';
+import React from 'react'
+import '../../css/pages/Settings.css'
 
 const Settings = () => {
 

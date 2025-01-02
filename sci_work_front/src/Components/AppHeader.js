@@ -1,35 +1,35 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import '../css/AppHeader.css';
-import logo from "../logo.svg";
+import React, { useState, useRef, useEffect, useMemo } from 'react'
+import '../css/AppHeader.css'
+import logo from "../logo.svg"
 
 const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setNotifications, organisationType}) => {
 
-    const [isDropdownOpen, setDropdownOpen] = useState(false);
-    const dropdownRef = useRef(null);
+    const [isDropdownOpen, setDropdownOpen] = useState(false)
+    const dropdownRef = useRef(null)
     
-    const pages = ['Home Page', 'Schedule', (organisationType) ? 'Projects' : 'Subjects'];
+    const pages = ['Home Page', 'Schedule', (organisationType) ? 'Projects' : 'Subjects']
     const morePages = (userData.genStatus === 0) ? (
         ['Profile', 'User List', 'Notifications', 'Chats', 'Settings']
     ) : (
         ['Profile', 'Notifications', 'Chats', 'Settings']
-    );
+    )
 
     const notificationsMark = useMemo(() => {
         return notifications.filter(notification => notification.state === "unseen").length
-    }, [notifications]);
+    }, [notifications])
 
     const setAllSeen = () => {
         setNotifications(
             notifications.map(n => {
                 if (n.state === "unseen") {
-                    return { ...n, state: "unread" }; // Change "unseen" to "unread"
+                    return { ...n, state: "unread" } // Change "unseen" to "unread"
                 }
                 if (n.state === "unread") {
-                    return { ...n, state: "seen" }; // Change "unread" to "seen"
+                    return { ...n, state: "seen" } // Change "unread" to "seen"
                 }
-                return n; // Leave other states as is
+                return n // Leave other states as is
             })
-        );
+        )
     }
 
     //go to page
@@ -43,37 +43,37 @@ const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setN
                 name: undefined,
                 params: []
             }
-        }));
-        setDropdownOpen(false);
+        }))
+        setDropdownOpen(false)
 
         if (page === "Notifications") {
-            setAllSeen();
+            setAllSeen()
         }
     }
 
     //open dropdown menu with more pages
     const handleMore = () => {
-        setDropdownOpen(!isDropdownOpen);
+        setDropdownOpen(!isDropdownOpen)
     }
 
     //log out
     const handleLogOut = () => {
-        handleClick(null);
-        setLoggedIn(false);
+        handleClick(null)
+        setLoggedIn(false)
     }
 
     //close dropdown menu if clicked outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setDropdownOpen(false);
+                setDropdownOpen(false)
             }
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('mousedown', handleClickOutside)
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
     }, [dropdownRef])
 
     return (

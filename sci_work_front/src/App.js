@@ -1,13 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import './App.css';
+import React, { useState, useMemo } from 'react'
+import './App.css'
+
 import AppConnection from './Components/AppConnection'
 import AppHeader from './Components/AppHeader'
 import AppNav from './Components/AppNav'
 import AppContent from './Components/AppContent'
 
-function App() {
+const App = () => {
 
-  
   const [state, setState] = useState({
     currentPage: 'Home Page',   //string
     currentProject: undefined,  //object
@@ -202,6 +202,5 @@ function App() {
   </div>
   )
 }
-/////
-//
+
 export default App

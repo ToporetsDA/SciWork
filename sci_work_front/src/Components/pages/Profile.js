@@ -1,36 +1,36 @@
-import React, { useState } from 'react';
-import '../../css/pages/Profile.css';
+import React, { useState } from 'react'
+import '../../css/pages/Profile.css'
 
 const Profile = ({ userData, setUserData, profileData }) => {
 
-    const [editMode, setEditMode] = useState(false);
-    const [tmpUserData, setTempData] = useState({ ...userData });
-    const [errors, setErrors] = useState({});
+    const [editMode, setEditMode] = useState(false)
+    const [tmpUserData, setTempData] = useState({ ...userData })
+    const [errors, setErrors] = useState({})
   
     const handleInputChange = (field, value) => {
-        setTempData({ ...tmpUserData, [field]: value });
-        setErrors({ ...errors, [field]: false }); // Clear error on change
-    };
+        setTempData({ ...tmpUserData, [field]: value })
+        setErrors({ ...errors, [field]: false }) // Clear error on change
+    }
   
     const validateRequiredFields = () => {
-        const newErrors = {};
+        const newErrors = {}
         Object.entries(profileData.basic).forEach(([key, [isRequired]]) => {
             if (isRequired && (!tmpUserData[key] || tmpUserData[key].trim() === '')) {
-            newErrors[key] = true; // Mark field as invalid
+            newErrors[key] = true // Mark field as invalid
             }
-        });
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0; // Return true if no errors
-    };
+        })
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0 // Return true if no errors
+    }
 
     const saveChanges = () => {
         if (!validateRequiredFields()) {
-            alert("Please fill out all required fields.");
-            return;
+            alert("Please fill out all required fields.")
+            return
         }
-        setUserData(tmpUserData);
-        setEditMode(false);
-    };
+        setUserData(tmpUserData)
+        setEditMode(false)
+    }
     
     return (
         <div className="accountPage">
@@ -78,10 +78,10 @@ const Profile = ({ userData, setUserData, profileData }) => {
                 )}
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default Profile;
+export default Profile
 
 /*!!! for beta-version !!!
 

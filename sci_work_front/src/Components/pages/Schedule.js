@@ -1,62 +1,61 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import '../../css/pages/Schedule.css';
-import ControlPanel from './sharedComponents/ControlPanel';
+import React, { useState, useCallback, useMemo } from 'react'
+import '../../css/pages/Schedule.css'
+import ControlPanel from './sharedComponents/ControlPanel'
 import ScheduleBoard from './pageComponents/ScheduleBoard'
 
 const Schedule = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, recentActivities, setRecentActivities }) => {
     
-    const daysOfWeek = useMemo(() => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], []);
-    const months = useMemo(() => ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'], []);
+    const daysOfWeek = useMemo(() => ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], [])
+    const months = useMemo(() => ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'], [])
 
     //date data
-    const now = useMemo(() => new Date(), []);
-    const [intervalAnchor, setIntervalAnchor] = useState(now);
+    const now = useMemo(() => new Date(), [])
+    const [intervalAnchor, setIntervalAnchor] = useState(now)
 
-    const [currentScale, setCurrentScale] = useState('week');
-    const [gridValues, setGridValues] = useState({ rows: 24, columns: 7 });
+    const [currentScale, setCurrentScale] = useState('week')
+    const [gridValues, setGridValues] = useState({ rows: 24, columns: 7 })
 
     //update displayed period
     const editIntervalAnchor = useCallback((val) => {
         setIntervalAnchor((prevAnchor) => {
             if (val === 0) {
-                return now;
+                return now
             }
     
-            const newAnchor = new Date(prevAnchor);
+            const newAnchor = new Date(prevAnchor)
     
             switch (currentScale) {
                 case 'week':
-                    newAnchor.setDate(prevAnchor.getDate() + val * 7);
-                    break;
+                    newAnchor.setDate(prevAnchor.getDate() + val * 7)
+                    break
                 case 'month':
-                    newAnchor.setMonth(prevAnchor.getMonth() + val);
+                    newAnchor.setMonth(prevAnchor.getMonth() + val)
                     break;
                 case 'year':
-                    newAnchor.setFullYear(prevAnchor.getFullYear() + val);
-                    break;
+                    newAnchor.setFullYear(prevAnchor.getFullYear() + val)
+                    break
                 default:
-                    break;
             }
     
-            return newAnchor;
-        });
-    }, [currentScale, now]);
+            return newAnchor
+        })
+    }, [currentScale, now])
 
     //calculate scale values
     const getWeekOfYear = (date) => {
-        const startOfYear = new Date(date.getFullYear(), 0, 1);
-        const diff = date - startOfYear;
-        const oneDay = 1000 * 60 * 60 * 24;
-        const weekNumber = Math.floor(diff / oneDay / 7);
-        return weekNumber + 1; // Week number starts from 1
-    };
+        const startOfYear = new Date(date.getFullYear(), 0, 1)
+        const diff = date - startOfYear
+        const oneDay = 1000 * 60 * 60 * 24
+        const weekNumber = Math.floor(diff / oneDay / 7)
+        return weekNumber + 1 // Week number starts from 1
+    }
 
     const scheduleBoard = {
         display: 'grid',
         gridTemplateRows: `repeat(${gridValues.rows}, 1fr)`,
         gridTemplateColumns: `repeat(${gridValues.columns}, 1fr)`,
         position: 'relative'
-    };
+    }
 
     //schedule maps
     const scheduleVMap = useMemo(() => {
@@ -64,76 +63,80 @@ const Schedule = ({ userData, setUserData, state, setState, data, setData, items
         if (currentScale === 'week' || currentScale === 'month') {
             
             // Get the start of the week based on the intervalAnchor
-            const startOfWeek = new Date(intervalAnchor);
-            const currentDay = startOfWeek.getDay();
-            const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
-            startOfWeek.setDate(startOfWeek.getDate() + mondayOffset);
+            const startOfWeek = new Date(intervalAnchor)
+            const currentDay = startOfWeek.getDay()
+            const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay
+            startOfWeek.setDate(startOfWeek.getDate() + mondayOffset)
     
             return daysOfWeek.map((day, index) => {
-                const dayDate = new Date(startOfWeek);
-                dayDate.setDate(dayDate.getDate() + index); // Increment day by index
+                const dayDate = new Date(startOfWeek)
+                dayDate.setDate(dayDate.getDate() + index) // Increment day by index
                 
-                const formattedDate = `${String(dayDate.getDate()).padStart(2, '0')}.${String(dayDate.getMonth() + 1).padStart(2, '0')}`;
+                const formattedDate = `${String(dayDate.getDate()).padStart(2, '0')}.${String(dayDate.getMonth() + 1).padStart(2, '0')}`
                 
                 return (
                     <div key={'v-' + index} className="topLabel">
                         {day} {(currentScale === 'week') && formattedDate}
                     </div>
-                );
-            });
+                )
+            })
         }
         if (currentScale === 'year') {
-            return months.map((month, index) => <div key={'v-' + index} className="topLabel">{month}</div>);
+            return months.map((month, index) => <div key={'v-' + index} className="topLabel">{month}</div>)
         }
-        return [];
-    }, [currentScale, intervalAnchor, daysOfWeek, months]);
+        return []
+    }, [currentScale, intervalAnchor, daysOfWeek, months])
 
     const scheduleHMap = useMemo(() => {
 
-        let length;
+        let length
         switch(currentScale) {
             case 'week': {
-                length = 24;
-                break;
+                length = 24
+                break
             }
             case 'month': {
-                length = gridValues.rows;
-                break;
+                length = gridValues.rows
+                break
             }
             case 'year': {
-                length = 31;
-                break;
+                length = 31
+                break
             }
             default: {
-                length = 0;
+                length = 0
             }
         }
         
         return Array.from({ length: length }).map((_, index) => {
 
-            let itemInfo = '';
+            let itemInfo = ''
             switch (currentScale) {
-                case 'week':
-                    itemInfo = `${index}:00`;
-                    break;
-                case 'month':
-                    itemInfo = `Week ${index + getWeekOfYear(intervalAnchor)}`;
-                    break;
-                case 'year':
-                    itemInfo = `${index + 1}`;
-                    break;
-                default:
-                    itemInfo = '';
+                case 'week': {
+                    itemInfo = `${index}:00`
+                    break
+                }
+                case 'month': {
+                    itemInfo = `Week ${index + getWeekOfYear(intervalAnchor)}`
+                    break
+                }
+                case 'year': {
+                    itemInfo = `${index + 1}`
+                    break
+                }
+                default: {
+                    itemInfo = ''
+                }
             }
 
             return (
                 <div key={`h-${index}`} className="leftLabel">
                     {itemInfo}
                 </div>
-            );
-        });
+            )
+        })
         
-    }, [currentScale, gridValues, intervalAnchor]);
+    }, [currentScale, gridValues, intervalAnchor])
 
     return (
         <>

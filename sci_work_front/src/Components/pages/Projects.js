@@ -1,13 +1,13 @@
-import React, { Suspense }  from 'react';
-import '../../css/pages/Projects.css';
-import ControlPanel from './sharedComponents/ControlPanel';
+import React, { Suspense }  from 'react'
+import '../../css/pages/Projects.css'
+import ControlPanel from './sharedComponents/ControlPanel'
 
 import * as Shared from './sharedComponents'
 
 const Projects = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, setRecentActivities }) => {
 
     //open project
-    const goTo = Shared.GoTo;
+    const goTo = Shared.GoTo
 
     // Delete item
     const handleDelete = (itemToDelete) => {
@@ -178,5 +178,3 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
     )}
 
 export default Projects
-
-// Separate list to display condition from state?
