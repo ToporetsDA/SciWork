@@ -3,7 +3,7 @@ import '../../../css/pages/sharedComponents/LinkList.css'
 import '../../../css/pages/Notifications.css'
 import * as Shared from './index'
 
-const LinkList = ({ data, state, setState, list, setList }) => {
+const LinkList = ({ data, state, setState, list, setList, setRecentActivities }) => {
 
     const goTo = Shared.GoTo
 
@@ -27,7 +27,7 @@ const LinkList = ({ data, state, setState, list, setList }) => {
                     <div key={i} className='item' onClick={() => {
                         setState((prevState) => ({
                             ...prevState,
-                            ...goTo(item, data)
+                            ...goTo(item, data, setRecentActivities)
                         }))
                     }}>
                         <div className='content'>
@@ -52,17 +52,18 @@ const LinkList = ({ data, state, setState, list, setList }) => {
                             () => {
                                 setState((prevState) => ({
                                     ...prevState,
-                                    ...goTo(tmpItem, data)
+                                    ...goTo(tmpItem, data, setRecentActivities)
                                 }))
                                 const updatedItem = { ...item, state: 'read' }
             
-                                setList((prevList) => {
-                                    return prevList.map((notification) => 
-                                        (notification.notificationId === item.notificationId) ? updatedItem : notification
+                                setList(
+                                    list.map((notification) =>
+                                        notification.notificationId === item.notificationId ? updatedItem : notification
                                     )
-                                })
+                                )
                             }
-                        }>
+                        }
+                        >
                         <div className='content'>
                             <p>{projectName}</p>
                             {(item.id > 1000000000) &&
@@ -81,7 +82,7 @@ const LinkList = ({ data, state, setState, list, setList }) => {
             }
             
         })
-    }, [data, state, setState, list, setList, goTo])
+    }, [data, state, setState, list, goTo, setList, setRecentActivities])
 
     return (
         <div className='list'>

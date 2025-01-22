@@ -111,7 +111,7 @@ const App = () => {
     const { action, item } = data
     setUpdatedProjectId(item.id)
     if (action === "add") {
-      setProjects(prevProjects => ({ ...prevProjects, item }))
+      setProjects(prevProjects => [ ...prevProjects, item ])
     }
     if (action === "edit") {
       setProjects(prevProjects => 

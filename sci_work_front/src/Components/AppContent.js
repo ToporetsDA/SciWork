@@ -42,7 +42,6 @@ const AppContent = ({userData, setUserData, profileData, state, setState, data, 
                     defaultStructure={defaultStructure}
                     isCompany={isCompany}
                 />
-                //
             }
             {PageComponent ? (
                 <Suspense fallback={<div>Loading...</div>}>

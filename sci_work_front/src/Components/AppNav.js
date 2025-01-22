@@ -41,7 +41,7 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
           opacity: state.currentPage === 'Projects' ? 0.5 : 1,
           }}
         >
-          {organisationType ? 'Projects' : 'Subjects'}
+          {organisationType === true ? 'Projects' : 'Subjects'}
         </h4>
 
         {data.map((project) => (
