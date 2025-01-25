@@ -5,20 +5,20 @@ import '../../../css/pages/sharedComponents/GoTo.css'
 const GoTo = (destination, data, setRecentActivities) => {
 
     const projectId = (id) => {
-        return Math.floor(id / 1000000000)
+        return id.split('.')[0]
     }
 
-    if (destination.id > 1000000000) {
+    if (destination._id > 1000000000) {
         setRecentActivities((prevActivities) => [
             ...prevActivities,
             destination
         ])
     }
 
-    if (destination.id < 1000000000) {
+    if (destination._id < 1000000000) {
         return {
             currentPage: 'Project',
-            currentProject: data.find(p => p.id === destination.id),
+            currentProject: data.find(p => p._id === destination._id),
             currentDialog: {
                 name: undefined,
                 params: []
@@ -26,11 +26,11 @@ const GoTo = (destination, data, setRecentActivities) => {
         }
     }
     else if (destination.page === true) {
-        const project = data.find(p => p.id === projectId(destination.id))
+        const project = data.find(p => p._id === projectId(destination.id))
         return {
             currentPage: 'Activity',
             currentProject: project,
-            currentActivity: project.activities.find(a => a.id === destination.id),
+            currentActivity: project.activities.find(a => a._id === destination._id),
             currentDialog: {
                 name: undefined,
                 params: []
@@ -40,7 +40,7 @@ const GoTo = (destination, data, setRecentActivities) => {
     else {
         return {
             currentPage: 'Project',
-            currentProject: data.find(p => p.id === projectId(destination.id)),
+            currentProject: data.find(p => p._id === projectId(destination._id)),
             currentDialog: {
                 name: undefined,
                 params: []

@@ -16,7 +16,7 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
   const goTo = Shared.GoTo
 
   const handleClick = (activity) => {
-    const activityExists = recentActivities.some(recent => recent.id === activity.id);
+    const activityExists = recentActivities.some(recent => recent._id === activity._id);
 
     if (activityExists === false) {
       setRecentActivities((prevActivities) => [
@@ -71,7 +71,7 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
         <h4>Recent</h4>
         {data.map((project) => {
 
-          const projectRecentActivities = recentActivities.filter(recent => Math.floor(recent.id / 1000000000) === project.id)
+          const projectRecentActivities = recentActivities.filter(recent => Math.floor(recent._id / 1000000000) === project._id)
 
           if (projectRecentActivities.length > 0) {
 
@@ -81,11 +81,11 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
                   <summary>{project.name}</summary>
                   <ul>
                     {project.activities.map((activity) => {
-                      const recentActivity = recentActivities.filter(recent => recent.id === activity.id)
+                      const recentActivity = recentActivities.filter(recent => recent._id === activity._id)
                       if (recentActivity.length > 0) {
                         return (
                           <li
-                            key={activity.id}
+                            key={activity._id}
                             onClick={() => {handleClick(activity)}}
                             className={state.currentActivity === undefined ? 'active' : ''}
                             style={{

@@ -33,6 +33,8 @@ const AppContent = ({userData, setUserData, profileData, state, setState, data, 
         <main className="content">
             {DialogComponent &&
                 <DialogComponent
+                    userData={userData}
+                    setUserData={setUserData}
                     data={data}
                     setData={setData}
                     state={state}

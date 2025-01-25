@@ -6,7 +6,7 @@ import * as Shared from '../sharedComponents'
 const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, gridValues, setGridValues, intervalAnchor, scheduleBoard, recentActivities, setRecentActivities }) => {
 
     const projectId = (id) => {
-        return Math.floor(id / 1000000000)
+        return id.split('.')[0]
     }
 
     //calculate scale values
@@ -120,7 +120,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
 
         const { start, end } = rangeToDisplay[currentScale]
     
-        // Filter and process activities Math.floor(event.id / 1000000000)
+        // Filter and process activities Math.floor(event._id / 1000000000)
         const filteredActivities = data
             .flatMap(project => project.activities)
             .flatMap(activity => {
@@ -129,7 +129,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     // Single-day activity
                     return [{
                         ...activity,
-                        eventId: activity.id
+                        eventId: activity._id
                     }]
                 }
     
@@ -140,7 +140,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     startDate: activity.startDate,
                     endDate: activity.startDate,
                     type: 'activity',
-                    eventId: activity.id + '.start'
+                    eventId: activity._id + '.start'
                 }
                 const endItem = {
                     ...activity,
@@ -148,7 +148,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     startDate: activity.endDate,
                     endDate: activity.endDate,
                     type: 'activity',
-                    eventId: activity.id + '.end'
+                    eventId: activity._id + '.end'
                 }
 
                 let repeatItems = [startItem]
@@ -181,7 +181,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                                 startDate: formatDate(d),
                                 endDate: formatDate(d),
                                 type: 'activity',
-                                eventId: activity.id + '_' + d.toLocaleDateString() // Use the date as part of the ID to make it unique
+                                eventId: activity._id + '_' + d.toLocaleDateString() // Use the date as part of the ID to make it unique
                             }
             
                             repeatItems.push(repeatItem)
@@ -205,7 +205,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                         startDate: project.startDate,
                         endDate: project.startDate,
                         type: 'project',
-                        eventId: project.id + '_0',
+                        eventId: project._id + '_0',
                         page: true
                     }
                     const endItem = {
@@ -214,7 +214,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                         startDate: project.endDate,
                         endDate: project.endDate,
                         type: 'project',
-                        eventId: project.id + '_1',
+                        eventId: project._id + '_1',
                         page: true
                     }
     
@@ -381,7 +381,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                     // event data to display
                     let content = ``
                     if (group[i].type === 'activity') {
-                        content += `${data.find(p => p.id === projectId(group[0].id)).name}: `
+                        content += `${data.find(p => p._id === projectId(group[0].id)).name}: `
                     }
                     
                     if (currentScale === 'week') {
@@ -402,7 +402,8 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 let content = ``;
                 if (group.length === 1) {//event
                     if (group[0].type === 'activity') {
-                        content += `${data.find(p => p.id === projectId(group[0].id)).name}: `
+                        console.log(group[0])
+                        content += `${data.find(p => p._id === projectId(group[0].id)).name}: `
                     }
                     
                     if (currentScale === 'week') {
@@ -415,7 +416,7 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 else {//joint block
                     group.forEach((event, i) => {
                         if (event.type === 'activity') {
-                            content += `${data.find(p => p.id === projectId(event.id)).name}: `
+                            content += `${data.find(p => p._id === projectId(event.id)).name}: `
                         }
                         content += `${event.name}\n`
                     })
@@ -430,9 +431,9 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
 
         //move text to visible part of event if any
         eventDivs.forEach((event) => {
-            const overlapEvent = document.querySelector(`.overlapEvent[data-id="${event.id}"]`)
+            const overlapEvent = document.querySelector(`.overlapEvent[data-id="${event._id}"]`)
             if (overlapEvent) {
-                const eventText = document.querySelector(`.event[data-id="${event.id}"] .text`)
+                const eventText = document.querySelector(`.event[data-id="${event._id}"] .text`)
                 if (eventText) {
                   eventText.style.top = `${overlapEvent.offsetHeight}px` // Adjust text to visible area
                 }

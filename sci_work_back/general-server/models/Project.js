@@ -18,7 +18,7 @@ const projectSchema = new mongoose.Schema({
       days: { type: [String], default: [] }, // Array of days
       thirdParty: { type: Boolean, default: false },
       serviceName: { type: String, default: null },
-      id: { type: Number, required: true }
+      id: { type: String, required: true }
     }
   ],
   userList: [

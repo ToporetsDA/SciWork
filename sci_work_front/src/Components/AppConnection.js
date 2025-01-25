@@ -115,13 +115,13 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
                 switch (type) {
                 case"project": {
                     const item = fetchedData
-                    if (data.find(project => project.id === item.id).length === 0) {
+                    if (data.find(project => project._id === item._id).length === 0) {
                     setData(prevData => ({ ...prevData, item }))
                     }
                     else {
                         setData(prevData => 
                             prevData.map(project => 
-                            project.id === item.id ? item : project
+                            project._id === item._id ? item : project
                         ))
                     }
                     break

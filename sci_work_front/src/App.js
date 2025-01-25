@@ -109,14 +109,14 @@ const App = () => {
   const updateProjects = (data) => {
     setIsUserUpdatingData(true)
     const { action, item } = data
-    setUpdatedProjectId(item.id)
+    setUpdatedProjectId(item._id)
     if (action === "add") {
       setProjects(prevProjects => [ ...prevProjects, item ])
     }
     if (action === "edit") {
       setProjects(prevProjects => 
         prevProjects.map(project => 
-            project.id === item.id ? item : project
+            project._id === item._id ? item : project
         )
       )
     }

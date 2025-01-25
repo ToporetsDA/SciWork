@@ -9,12 +9,16 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
     //open project
     const goTo = Shared.GoTo
 
+    const getAccess = (item) => {
+        return item.userList.find(item => item.id === userData._id).access
+    }
+
     // Delete item
     const handleDelete = (itemToDelete) => {
         let updatedProject
 
         data.forEach(project => {
-            if (project.id === itemToDelete.id) {
+            if (project._id === itemToDelete._id) {
 
                 // Update project
                 updatedProject = {
@@ -25,13 +29,13 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                     deleted: true
                 };
             }
-            else if (project.id === state.currentProject?.id) {
+            else if (project._id === state.currentProject?._id) {
 
                 // Update activity
                 updatedProject = {
                     ...project,
                     activities: project.activities.map((activity) => {
-                        return activity.id === (itemToDelete.id) ? { ...activity, deleted: true } : activity
+                        return activity._id === (itemToDelete._id) ? { ...activity, deleted: true } : activity
                     })
                 }
 
@@ -80,9 +84,8 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                 <p className='timeLimit'>
                                     {project.startDate ? project.startDate : 'N/A'} - {project.endDate}
                                 </p>
-                                {!project.deleted && rights.edit.includes(project.access) &&
+                                {!project.deleted && rights.edit.includes(getAccess(project)) &&
                                     <div className='actions'>
-                                        {!project.deleted && rights.edit.includes(project.access) &&
                                         <button
                                             className='gearButton'
                                             onClick={(e) => {
@@ -97,8 +100,6 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                         >
                                             ⚙️
                                         </button>
-                                        }
-                                        {!project.deleted && rights.edit.includes(project.access) &&
                                         <button
                                             className='deleteButton'
                                             onClick={(e) => {
@@ -108,7 +109,6 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                         >
                                             🗑️
                                         </button>
-                                        }
                                     </div>
                                 }
                             </div>
@@ -139,7 +139,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                     <p className='details'>
                                         {activity.thirdParty ? `Service: ${activity.serviceName}` : 'No third-party service'}
                                     </p>
-                                    {!activity.deleted && rights.edit.includes(state.currentProject.access) &&
+                                    {!activity.deleted && rights.edit.includes(getAccess(state.currentProject)) &&
                                         <div className='actions'>
                                         <button
                                             className='gearButton'

@@ -1,9 +1,8 @@
 import React, { useState, useMemo }  from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import '../../../css/pages/dialogs/AddEditItem.css'
 import '../../../css/pages/dialogs/dialog.css'
 
-const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, defaultStructure, isCompany }) => {
+const AddEditItem = ({ userData, setUserData, data, setData, state, setState, rights, itemStructure, defaultStructure, isCompany }) => {
 
     const currentItem = state.currentDialog.params[0]
     const [selectedType, setSelectedType] = useState(state.currentProject ? "Activity" : "Project") // Default to "Project"
@@ -89,9 +88,14 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
 
         let newItem = {
             ...formValues,
-            access: 0,
-            id: currentItem?.id || (state.currentProject === undefined ? uuidv4() : (state.currentProject.id * 1000000000) + state.currentProject.activities.length + 1),
-        }
+            ...(state.currentProject !== undefined && {
+                _id: currentItem?._id || (state.currentProject._id + (state.currentProject.activities.length + 1).toString())
+            }),
+            userList: [{
+                _id: userData._id,
+                access: 0
+            }]
+        };
 
         if (selectedType === "Project") {
             newItem.activities = []
@@ -176,9 +180,9 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
         if (selectedType === "Activity" && state.currentProject !== undefined) {
             let updatedProject
             const updatedData = data.map((project) => {
-                if (project.id === state.currentProject.id) {
+                if (project._id === state.currentProject._id) {
                     // Check if the activity already exists in the project
-                    const existingIndex = project.activities?.findIndex((item) => item.id === newItem.id)
+                    const existingIndex = project.activities?.findIndex((item) => item._id === newItem._id)
                     
                     const updatedActivities = existingIndex !== -1
                     ? project.activities.map((item, idx) => idx === existingIndex ? newItem : item) // Update activity
@@ -193,9 +197,9 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
                 }
                 return project
             })
-            const index = updatedData.findIndex((item) => item.id === updatedProject.id)
+            const index = updatedData.findIndex((item) => item._id === updatedProject._id)
 
-            setData( { action: "edit", id: index, item: updatedProject })
+            setData( { action: "edit", _id: index, item: updatedProject })
             // Update state.currentProject
             setState((prevState) => ({
                 ...prevState,
@@ -203,7 +207,7 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
             }))
         }
         else {
-            const existingIndex = data.findIndex((item) => item.id === currentItem.id)
+            const existingIndex = data.findIndex((item) => item._id === currentItem._id)
     
             if (existingIndex !== -1) {
                 // Update project
@@ -259,9 +263,9 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
                         {selectedType === 'Activity' &&
                             <select
                                 id="projectList"
-                                value={state.currentProject?.id || ""}
+                                value={state.currentProject?._id || ""}
                                 onChange={(e) => {
-                                    const selectedProject = data.find((project) => String(project.id) === e.target.value);
+                                    const selectedProject = data.find((project) => String(project._id) === e.target.value);
                                     if (selectedProject) {
                                         setState((prevState) => ({
                                             ...prevState,
@@ -274,7 +278,7 @@ const AddEditItem = ({ data, setData, state, setState, rights, itemStructure, de
                                     Select a Project
                                 </option>
                                 {data.map((project) => (
-                                    <option key={project.id} value={project.id}>
+                                    <option key={project._id} value={project._id}>
                                         {project.name}
                                     </option>
                                 ))}

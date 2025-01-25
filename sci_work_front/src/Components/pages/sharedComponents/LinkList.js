@@ -8,11 +8,11 @@ const LinkList = ({ data, state, setState, list, setList, setRecentActivities })
     const goTo = Shared.GoTo
 
     const projectId = (id) => {
-        if (id > 1000000000) {
-        return Math.floor(id / 1000000000)
+        if (id.includes('.')) {
+            return id.split('.')[0]
         }
         else {
-            return id
+            return id.split('.')[1]
         }
     }
 
@@ -39,10 +39,10 @@ const LinkList = ({ data, state, setState, list, setList, setRecentActivities })
                 )
             }
             case "Notifications": {
-                const tmpItem = (item.id < 1000000000) ? data.find(p => p.id === item.id) : data.find(p => p.id === projectId(item.id)).activities.find(a => a.id === item.id)
+                const tmpItem = (item._id < 1000000000) ? data.find(p => p._id === item._id) : data.find(p => p._id === projectId(item._id)).activities.find(a => a._id === item._id)
                 
-                const projectName = data.find(p => p.id === projectId(item.id)).name
-                const activityName = (item.id > 1000000000) ? data.find(p => p.id === projectId(item.id)).activities.find(a => a.id === item.id).name : undefined
+                const projectName = data.find(p => p._id === projectId(item._id)).name
+                const activityName = (item._id > 1000000000) ? data.find(p => p._id === projectId(item._id)).activities.find(a => a._id === item._id).name : undefined
                 
                 return (
                     <div
@@ -66,7 +66,7 @@ const LinkList = ({ data, state, setState, list, setList, setRecentActivities })
                         >
                         <div className='content'>
                             <p>{projectName}</p>
-                            {(item.id > 1000000000) &&
+                            {(item._id > 1000000000) &&
                                 <p>{activityName}</p>
                             }
                             <p>{item.content}</p>

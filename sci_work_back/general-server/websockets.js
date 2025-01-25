@@ -108,7 +108,7 @@ const startWebSocketServer = (port) => {
               const projectId = updatedProject._id
               
               // Update project in the database
-              Project.findByIdAndUpdate(projectId, updatedProject, { new: true })
+              Project.findByIdAndUpdate(projectId, updatedProject, { new: true, upsert: true })
               .then(project => {
                 if (project) {
                   console.log(`Project ${projectId} updated successfully.`);

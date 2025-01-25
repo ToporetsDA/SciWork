@@ -21,6 +21,10 @@ const ControlPanel = ({ userData, setUserData, state, setState, data, rights, se
         setSearchQuery("")
     }, [state.currentProject])
 
+    const getAccess = (item) => {
+        return item.userList.find(item => item.id === userData._id).access
+    }
+
     //update filter values
 
     useEffect(() => {
@@ -165,7 +169,7 @@ const ControlPanel = ({ userData, setUserData, state, setState, data, rights, se
                     </button>
                 </div>
             }
-            {(state.currentPage === "Projects" || state.currentPage === "Project") &&
+            {(state.currentPage === "Projects" || state.currentPage === "Project"  || state.currentPage === "Activity") &&
                 <div className='sortAndFilter'>
                     <div>
                         <button
@@ -203,11 +207,26 @@ const ControlPanel = ({ userData, setUserData, state, setState, data, rights, se
                             </ul>
                         )}
                     </div>
+                    {((state.currentPage !== "Projects")
+                    && ((state.currentProject) ? rights.edit.includes(getAccess(state.currentProject)) : false))
+                    && (
+                        <div>
+                        <button className="addItem" onClick={() => {
+                            setState((prevState) => ({
+                                ...prevState,
+                                currentDialog: {
+                                    name: 'AddEditUserList',
+                                    params: [true]},
+                            }));
+                        }}>
+                            Add/Edit users
+                        </button>
+                        </div>
+                    )}
                 </div>
             }
             {(((rights.edit.includes(userData.genStatus)
-            && (state.currentProject) ? rights.edit.includes(state.currentProject.access) : true))
-            || state.currentPage === 'Schedule')
+            && (state.currentProject) ? rights.edit.includes(getAccess(state.currentProject)) : true)))
             && (
                 <button className="addItem" onClick={() => {
                     setState((prevState) => ({
