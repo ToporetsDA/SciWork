@@ -28,7 +28,15 @@ const getData = async (type, login, ws, sessionToken) => {
       });
       const organisation = await Organisation.findOne({ name: "default" })
 
-      data = { user, projects, organisation }
+      const users = await User.find({}, {
+        login: 0,
+        password: 0,
+        currentSettings: 0,
+        notifications: 0,
+        statusName: 0
+      })
+
+      data = { user, projects, organisation, users }
       break
     }
     case "user": {
@@ -62,8 +70,18 @@ const getData = async (type, login, ws, sessionToken) => {
       if (!organisation) {
         throw new Error("Organisation with name 'default' not found")
       }
-      data =  organisation
+      data = organisation
       break
+    }
+    case "users": {
+      const users = await User.find({}, {
+        login: 0,
+        password: 0,
+        currentSettings: 0,
+        notifications: 0,
+        statusName: 0
+      })
+      data = users
     }
     default: {
       throw new Error(`Invalid type: ${type}`)

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import useWebSocket from 'react-use-websocket'
 import LogIn from './pages/dialogs/LogIn'
 
-const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn, setLoggedIn, setRights, isUserUpdatingData, setIsUserUpdatingData, isUserUpdatingUserData, setIsUserUpdatingUserData, updatedProjectId, setUpdatedProjectId }) => {
+const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn, setLoggedIn, setRights, setUsers, isUserUpdatingData, setIsUserUpdatingData, isUserUpdatingUserData, setIsUserUpdatingUserData, updatedProjectId, setUpdatedProjectId }) => {
 
     const [servers, setServers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -85,6 +85,7 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
                     setUserData(fetchedData.user)
                     setData(fetchedData.projects)
                     setRights(fetchedData.organisation.rights)
+                    setUsers(fetchedData.users)
                     break
                 }
                 case "user": {
@@ -97,6 +98,10 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
                 }
                 case "organisation": {
                     setRights(fetchedData.organisation.rights)
+                    break
+                }
+                case "users": {
+                    setUsers(fetchedData.users)
                     break
                 }
                 default: {
@@ -144,7 +149,7 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
         } catch (error) {
             console.error("Error processing message:", error.message)
         }
-    }, [data, setData, setLoggedIn, setRights, setUserData])
+    }, [data, setData, setLoggedIn, setRights, setUsers, setUserData])
 
     // Track user-initiated changes to `data` (projects)
     const updateProject = useCallback((sessionToken, updatedProject) => {

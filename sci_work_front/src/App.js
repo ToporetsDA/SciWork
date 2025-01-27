@@ -106,6 +106,8 @@ const App = () => {
 
   const [updatedProjectId, setUpdatedProjectId] = useState()
 
+  const [users, setUsers] = useState()
+
   const updateProjects = (data) => {
     setIsUserUpdatingData(true)
     const { action, item } = data
@@ -172,6 +174,7 @@ const App = () => {
             data={projects}
             setData={updateProjects}
             rights={rights}
+            users={users}
             itemStructure={defaultItemStructure}
             defaultStructure={defaultStructure}
             isCompany={isCompany}
@@ -192,6 +195,7 @@ const App = () => {
       isLoggedIn={isLoggedIn}
       setLoggedIn={setLoggedIn}
       setRights={setRights}
+      setUsers={setUsers}
       isUserUpdatingData={isUserUpdatingData}
       setIsUserUpdatingData={setIsUserUpdatingData}
       isUserUpdatingUserData={isUserUpdatingUserData}
