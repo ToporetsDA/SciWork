@@ -83,37 +83,20 @@ const AddEditItem = ({ userData, setUserData, data, setData, state, setState, ri
 
     const [errors, setErrors] = useState({})
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
+    const validation = () => {
 
-        let newItem = {
-            ...formValues,
-            ...(state.currentProject !== undefined && {
-                _id: currentItem?._id || (state.currentProject._id + (state.currentProject.activities.length + 1).toString())
-            }),
-            userList: [{
-                _id: userData._id,
-                access: 0
-            }]
-        };
-
-        if (selectedType === "Project") {
-            newItem.activities = []
-        }
-
-        //validation
-        const newErrors = {}
+        const errors = {}
 
         //empty check
         Object.keys(formValues).forEach((key) => {
             if (formValues[key] === '' && itemStructure[key] !== 'checkbox' && fieldsChecks[key] === true) {
-                newErrors[key] = 'This field is required.'
+                errors[key] = 'This field is required.'
             }
         })
 
         //name check
         if (formValues.name.length < 3) {
-            newErrors.name = 'Too short'
+            errors.name = 'Too short'
         }
 
         //date checks
@@ -124,21 +107,21 @@ const AddEditItem = ({ userData, setUserData, data, setData, state, setState, ri
 
             if (startDate > endDate) {
                 if ((startDate === endDate && selectedType === 'Project') || selectedType === 'Activity') {
-                    newErrors.startDate = 'Start date must be before end date.'
+                    errors.startDate = 'Start date must be before end date.'
                 }
             }
 
             if (endDate < new Date()) {
-                newErrors.endDate = 'Trying to create expired project'
+                errors.endDate = 'Trying to create expired project'
             }
 
             if (selectedType === 'Activity') {
                 if (startDate < state.currentProject.startDate || startDate >= state.currentProject.endDate) {
-                    newErrors.startDate = "Start date must be within project's lifetime."
+                    errors.startDate = "Start date must be within project's lifetime."
                 }
 
                 if (endDate < state.currentProject.startDate || endDate > state.currentProject.endDate) {
-                    newErrors.startDate = "End date must be within project's lifetime."
+                    errors.startDate = "End date must be within project's lifetime."
                 }
             }
         }
@@ -155,73 +138,88 @@ const AddEditItem = ({ userData, setUserData, data, setData, state, setState, ri
             const endInMinutes = endHour * 60 + endMinute
 
             if(startDate === endDate && startInMinutes > endInMinutes) {
-                newErrors.startTime = "Activity can not start after it has ended"
+                errors.startTime = "Activity can not start after it has ended"
             }
         
             if (startDate === endDate && startInMinutes + 15 >= endInMinutes) {
-                newErrors.endTime = "Activity must exist at least 15 minutes."
+                errors.endTime = "Activity must exist at least 15 minutes."
             }
         }
 
         //repeat check
         if (formValues.repeat === true && formValues.days.length === 0) {
-            newErrors.repeat = "Select at least 1 day to repeat the activity."
+            errors.repeat = "Select at least 1 day to repeat the activity."
         }
 
-        // If there are any errors, update the state and stop submission
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors)
+        return errors
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault()
+
+        //validation
+        const errors = validation()
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors)
             alert('Please fix the errors before saving.')
             return
         }
-        
+
+        let newItem = {
+            ...formValues,
+            ...(state.currentProject !== undefined && {
+                _id: currentItem?._id || (state.currentProject._id + (state.currentProject.activities.length + 1).toString())
+            }),
+            userList: [{
+                id: userData._id,
+                access: 0
+            }]
+        }
+
+        if (selectedType === "Project") {
+            newItem.activities = []
+        }
+
+        console.log(newItem)
+
         // submit
+
+        let action = "edit"
+        let item
+
+        let project
+
+        const isActivity = selectedType === "Activity" && state.currentProject !== undefined
         
-        if (selectedType === "Activity" && state.currentProject !== undefined) {
-            let updatedProject
-            const updatedData = data.map((project) => {
-                if (project._id === state.currentProject._id) {
-                    // Check if the activity already exists in the project
-                    const existingIndex = project.activities?.findIndex((item) => item._id === newItem._id)
-                    
-                    const updatedActivities = existingIndex !== -1
-                    ? project.activities.map((item, idx) => idx === existingIndex ? newItem : item) // Update activity
-                    : [...(project.activities || []), newItem] // Add activity
+        if (isActivity) {
 
-                    updatedProject = {
-                        ...project,
-                        activities: updatedActivities,
-                    }
+            project = state.currentProject
+            const existingActivity = project.activities?.find((item) => item._id === newItem._id)
 
-                    return updatedProject
-                }
-                return project
-            })
-            const index = updatedData.findIndex((item) => item._id === updatedProject._id)
+            const updatedActivities = existingActivity
+                ? project.activities.map((item) => item._id === existingActivity._id ? newItem : item) // Update
+                : [...(project.activities || []), newItem] // Add
 
-            setData( { action: "edit", _id: index, item: updatedProject })
-            // Update state.currentProject
-            setState((prevState) => ({
-                ...prevState,
-                currentProject: updatedProject,
-            }))
+            item = {
+                ...project,
+                activities: updatedActivities,
+            }
         }
         else {
-            const existingIndex = data.findIndex((item) => item._id === currentItem._id)
-    
-            if (existingIndex !== -1) {
-                // Update project
-                console.log({ ...data[existingIndex], ...formValues })
-                setData({ action: "edit", item: { ...data[existingIndex], ...formValues }})
-            } else {
-                // Add project
-                console.log(newItem)
-                setData({ action: "add", item: newItem })
+            const existingItem = data.find((item) => item._id === currentItem._id)
+            if (existingItem) {
+                item = { ...existingItem, ...formValues }
+            }
+            else {
+                action = "add"
+                item = newItem
             }
         }
 
+        setData({ action, item })
         setState((prevState) => ({
             ...prevState,
+            currentProject: ((isActivity === true) ? item : project),
             currentDialog: {
                 name: undefined,
                 params: []
