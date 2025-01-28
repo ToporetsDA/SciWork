@@ -1,28 +1,41 @@
-import React, { useState, useMemo }  from 'react'
+import React, { useMemo }  from 'react'
 import '../../../css/pages/dialogs/AddEditUserList.css'
 import '../../../css/pages/dialogs/dialog.css'
 
 const AddEditUserList = ({ userData, setUserData, data, setData, state, setState, rights, users, itemStructure, defaultStructure, isCompany }) => {
 
-    const currentItem = useMemo(() => {
-        return state.currentProject
-    }, [state.currentProject])
+    const getFullName = (user) => {
+        let fullName = user.name + ' '
+        if (user.secondName) {
+            fullName += user.secondName + ' '
+        }
+        if (user.surName) {
+            fullName += user.surName + ' '
+        }
+        if (user.patronymic) {
+            fullName += user.patronymic + ' '
+        }
+        return fullName
+    }
 
     const userList = useMemo(() => {
-        return currentItem.userList || []
-    }, [currentItem])
+        return state.currentProject.userList || []
+    }, [state.currentProject])
 
     const usersWithAccess = useMemo(() => {
         return users.filter(user => userList.some(listItem => listItem.id === user._id))
+            .map(user => {
+                const userAccess = userList.find(listItem => listItem.id === user._id)?.access
+                return { ...user, access: userAccess }
+            });
     }, [users, userList])
 
     const usersWithoutAccess = useMemo(() => {
         return users.filter(user => !userList.some(listItem => listItem.id === user._id))
+            .map(user => {
+                return { ...user, access: null }
+            })
     }, [users, userList])
-
-    const handleInputChange = (e) => {
-        
-    }
 
     // Close the dialog
 
@@ -38,27 +51,41 @@ const AddEditUserList = ({ userData, setUserData, data, setData, state, setState
         }
     }
 
-    const formatLabel = (key) => key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())
+    const saveChanges = (updatedUserList) => {
+        // Update state
+        setState(prevState => {
+            const newState = {
+                ...prevState,
+                currentProject: {
+                    ...state.currentProject,
+                    userList: updatedUserList,
+                },
+            }
+            
+            // Ensure the state is updated before sending data to the server
+            setData({ action: "edit", item: newState.currentProject })
+    
+            // Return updated state
+            return newState
+        })
+    }
 
     const handleRemoveUser = (userId) => {
-        // Logic to remove user from the current list
+        const updatedUserList = userList.filter(item => item.id !== userId)
+        saveChanges(updatedUserList)
     }
 
     const handleAddUser = (userId) => {
-        // Add user to userList in currentItem with default access
-        const defaultAccess = rights.length > 0 ? rights[0].value : null;
-        const updatedUserList = [...userList, { id: userId, access: defaultAccess }];
-        setState(prevState => ({
-            ...prevState,
-            currentProject: {
-                ...currentItem,
-                userList: updatedUserList,
-            },
-        }));
-    };
+        const defaultAccess = rights.length - 1 //lowest
+        const updatedUserList = [...userList, { id: userId, access: defaultAccess }]
+        saveChanges(updatedUserList)
+    }
 
     const handleRightChange = (userId, newRight) => {
-        // Logic to change access rights
+        const updatedUserList = userList.map(item => 
+            item.id === userId ? { ...item, access: newRight } : item
+        )
+        saveChanges(updatedUserList)
     }
 
     return (
@@ -68,19 +95,29 @@ const AddEditUserList = ({ userData, setUserData, data, setData, state, setState
                     <h3>Users with Access</h3>
                     <div className="scrollableList">
                         {usersWithAccess.map(user => (
-                            <div key={user.id} className="userItem">
-                                <span>{`${user.name} ${user.secondName} ${user.surname} ${user.patronymic}`}</span>
-                                <select
-                                    value={user.right}
-                                    onChange={(e) => handleRightChange(user.id, e.target.value)}
-                                >
-                                    {rights.map((right) => (
-                                        <option key={right.value} value={right.value}>
-                                            {right.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <button onClick={() => handleRemoveUser(user.id)}>Remove</button>
+                            <div key={user._id} className="userItem" >
+                                <span>{getFullName(user)}</span>
+                                { (user.access !== 0) && 
+                                (true) &&
+                                <>
+                                    <select
+                                        value={user.access}
+                                        onChange={(e) => handleRightChange(user._id, e.target.value)}
+                                    >
+                                        {rights.names.map((right, index) => {
+                                            if (index !== 0) { // Exclude access level 0
+                                                return (
+                                                    <option key={index} value={index}>
+                                                        {right}
+                                                    </option>
+                                                )
+                                            }
+                                            return null
+                                        })}
+                                    </select>
+                                    <button onClick={() => handleRemoveUser(user._id)}>Remove</button>
+                                </>
+                                }
                             </div>
                         ))}
                     </div>
@@ -89,9 +126,9 @@ const AddEditUserList = ({ userData, setUserData, data, setData, state, setState
                     <h3>Users without Access</h3>
                     <div className="scrollableList">
                         {usersWithoutAccess.map(user => (
-                            <div key={user.id} className="userItem">
-                                <span>{`${user.name} ${user.secondName} ${user.surname} ${user.patronymic}`}</span>
-                                <button onClick={() => handleAddUser(user.id)}>Add</button>
+                            <div key={user._id} className="userItem">
+                                <span>{getFullName(user)}</span>
+                                <button onClick={() => handleAddUser(user._id)}>Add</button>
                             </div>
                         ))}
                     </div>

@@ -70,8 +70,8 @@ const App = () => {
         name: '',
         startDate: '',
         endDate: '',
-        access: userData.genStatus,
-        activities: []
+        activities: [],
+        userList: []
       },
       activity: {
         name: '',
@@ -86,7 +86,7 @@ const App = () => {
         serviceName: ''
       }
     }
-  }, [userData.genStatus])
+  }, [])
 
   const [projects, setProjects] = useState()
 
@@ -104,14 +104,16 @@ const App = () => {
   const [isUserUpdatingData, setIsUserUpdatingData] = useState(false)
   const [isUserUpdatingUserData, setIsUserUpdatingUserData] = useState(false)
 
-  const [updatedProjectId, setUpdatedProjectId] = useState()
+  const [editedProject, setEditedProject] = useState()
 
   const [users, setUsers] = useState()
 
   const updateProjects = (data) => {
+
     setIsUserUpdatingData(true)
     const { action, item } = data
-    setUpdatedProjectId(item._id)
+    setEditedProject(item)
+
     if (action === "add") {
       setProjects(prevProjects => [ ...prevProjects, item ])
     }
@@ -200,8 +202,8 @@ const App = () => {
       setIsUserUpdatingData={setIsUserUpdatingData}
       isUserUpdatingUserData={isUserUpdatingUserData}
       setIsUserUpdatingUserData={setIsUserUpdatingUserData}
-      updatedProjectId={updatedProjectId}
-      setUpdatedProjectId={setUpdatedProjectId}
+      editedProject={editedProject}
+      setEditedProject={setEditedProject}
     />
   </div>
   )

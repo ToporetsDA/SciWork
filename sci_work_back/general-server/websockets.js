@@ -1,8 +1,9 @@
-const WebSocket = require("ws");
-const { ObjectId } = require('mongodb');
-const User = require("./models/User");
-const Project = require("./models/Project");
-const Organisation = require("./models/Organisation");
+const WebSocket = require("ws")
+const { ObjectId } = require('mongodb')
+const mongoose = require('mongoose')
+const User = require("./models/User")
+const Project = require("./models/Project")
+const Organisation = require("./models/Organisation")
 
 // Map to store WebSocket connections by session token
 const clients = new Map(); // This will store WebSocket connections keyed by session token
@@ -123,7 +124,7 @@ const startWebSocketServer = (port) => {
             }
             case "addEditProject": {
               const updatedProject = parsedMessage.data
-              const projectId = updatedProject._id
+              const projectId = updatedProject._id || new mongoose.Types.ObjectId()
               
               // Update project in the database
               Project.findByIdAndUpdate(projectId, updatedProject, { new: true, upsert: true })
