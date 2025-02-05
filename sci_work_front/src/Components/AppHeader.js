@@ -1,8 +1,15 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react'
+import { useNavigate } from "react-router-dom"
 import '../css/AppHeader.css'
 import logo from "../logo.svg"
 
 const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setNotifications, organisationType}) => {
+
+    const navigate = useNavigate()
+
+    const format = (str) => {
+        return str.replace(/\s+/g, '')
+    }
 
     const [isDropdownOpen, setDropdownOpen] = useState(false)
     const dropdownRef = useRef(null)
@@ -34,16 +41,7 @@ const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setN
 
     //go to page
     const handleClick = (page) => {
-        setState(prevState => ({
-            ...prevState,
-            currentPage: page,
-            currentProject: undefined,
-            currentActivity: undefined,
-            currentDialog: {
-                name: undefined,
-                params: []
-            }
-        }))
+        navigate(`/${page}`)
         setDropdownOpen(false)
 
         if (page === "Notifications") {
@@ -82,13 +80,13 @@ const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setN
             <ul className="menu">
                 {pages.map((page) => (
                 <li
-                    key={page}
-                    onClick={() => handleClick(page)}
-                    className={state.currentPage === page ? 'active' : ''}
+                    key={format(page)}
+                    onClick={() => handleClick(format(page))}
+                    className={state.currentPage === format(page) ? 'active' : ''}
                     style={{
-                    fontWeight: state.currentPage === page ? 'bold' : 'normal',
-                    pointerEvents: state.currentPage === page ? 'none' : 'auto',
-                    opacity: state.currentPage === page ? 0.5 : 1,
+                    fontWeight: state.currentPage === format(page) ? 'bold' : 'normal',
+                    pointerEvents: state.currentPage === format(page) ? 'none' : 'auto',
+                    opacity: state.currentPage === format(page) ? 0.5 : 1,
                     }}
                 >
                     <p>{page}</p>
@@ -115,17 +113,17 @@ const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setN
                         <ul className="more">
                             {morePages.map((page) => (
                             <li
-                                key={page}
-                                onClick={() => handleClick(page)}
-                                className={state.currentPage === page ? 'active' : ''}
+                                key={format(page)}
+                                onClick={() => handleClick(format(page))}
+                                className={state.currentPage === format(page) ? 'active' : ''}
                                 style={{
-                                fontWeight: state.currentPage === page ? 'bold' : 'normal',
-                                pointerEvents: state.currentPage === page ? 'none' : 'auto',
-                                opacity: state.currentPage === page ? 0.5 : 1
+                                fontWeight: state.currentPage === format(page) ? 'bold' : 'normal',
+                                pointerEvents: state.currentPage === format(page) ? 'none' : 'auto',
+                                opacity: state.currentPage === format(page) ? 0.5 : 1
                                 }}
                             >
                                 <p>{page}</p>
-                                {page === 'Notifications' && notificationsMark > 0 && (
+                                {format(page) === 'Notifications' && notificationsMark > 0 && (
                                         <span className="notification-circle">{(notificationsMark > 99) ? "99+" : notificationsMark}</span>
                                 )}
                             </li>

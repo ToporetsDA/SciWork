@@ -1,9 +1,13 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import { useNavigate } from "react-router-dom"
 import '../../../css/pages/pageComponents/ScheduleBoard.css'
 
 import * as Shared from '../sharedComponents'
 
 const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, gridValues, setGridValues, intervalAnchor, scheduleBoard, recentActivities, setRecentActivities }) => {
+
+    const navigate = useNavigate()
+    const goTo = Shared.GoTo
 
     const projectId = (id) => {
         return id.split('.')[0]
@@ -271,8 +275,6 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
         return overlaps
     }, [currentScale, scaledData])
 
-    const goTo = Shared.GoTo
-
     // events rendered as <div></div>s
     const renderEvents = useCallback((group, i, content, isJoint, zIndex) => {
 
@@ -358,17 +360,14 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                             }
                         }))
                     ) : (
-                        setState((prevState) => ({
-                            ...prevState,
-                            ...goTo(group[i], data, setRecentActivities)
-                        }))
+                        navigate(goTo(group[i], data, setRecentActivities))
                     )
                 }}
             >
                 {content}
             </div>
         )
-    }, [currentScale, firstDayOfMonth, data, setState, weeksInMonth, intervalAnchor, goTo, setRecentActivities])
+    }, [currentScale, firstDayOfMonth, data, setState, weeksInMonth, intervalAnchor, goTo, navigate, setRecentActivities])
 
     //schedule events as <div></div>s to display
     const eventsToDisplay = useMemo(() => {
@@ -402,7 +401,6 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                 let content = ``;
                 if (group.length === 1) {//event
                     if (group[0].type === 'activity') {
-                        console.log(group[0])
                         content += `${data.find(p => p._id === projectId(group[0].id)).name}: `
                     }
                     

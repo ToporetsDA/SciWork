@@ -1,10 +1,12 @@
 import React, { useMemo }  from 'react'
+import { useNavigate } from "react-router-dom"
 import '../../../css/pages/sharedComponents/LinkList.css'
 import '../../../css/pages/Notifications.css'
 import * as Shared from './index'
 
 const LinkList = ({ data, state, setState, list, setList, setRecentActivities }) => {
 
+    const navigate = useNavigate()
     const goTo = Shared.GoTo
 
     const projectId = (id) => {
@@ -25,10 +27,7 @@ const LinkList = ({ data, state, setState, list, setList, setRecentActivities })
                 const end = new Date(`${item.endDate}T${item.endTime || "02:45"}`).toLocaleString()
                 return (
                     <div key={i} className='item' onClick={() => {
-                        setState((prevState) => ({
-                            ...prevState,
-                            ...goTo(item, data, setRecentActivities)
-                        }))
+                        navigate(goTo(item, data, setRecentActivities))
                     }}>
                         <div className='content'>
                             <p>{`${item.name}`}</p>
@@ -50,10 +49,7 @@ const LinkList = ({ data, state, setState, list, setList, setRecentActivities })
                         className={`item ${item.state}`}
                         onClick={
                             () => {
-                                setState((prevState) => ({
-                                    ...prevState,
-                                    ...goTo(tmpItem, data, setRecentActivities)
-                                }))
+                                navigate(goTo(tmpItem, data, setRecentActivities))
                                 const updatedItem = { ...item, state: 'read' }
             
                                 setList(
@@ -82,7 +78,7 @@ const LinkList = ({ data, state, setState, list, setList, setRecentActivities })
             }
             
         })
-    }, [data, state, setState, list, goTo, setList, setRecentActivities])
+    }, [data, state, list, goTo, navigate, setList, setRecentActivities])
 
     return (
         <div className='list'>

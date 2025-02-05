@@ -3,7 +3,7 @@ import '../css/AppNav.css'
 
 import * as Shared from '../Components/pages/sharedComponents'
 
-const AppNav = ({ data, state, setState, organisationType, recentActivities, setRecentActivities }) => {
+const AppNav = ({ data, state, organisationType, recentActivities, setRecentActivities }) => {
   
   //project.name and activity.name pairs
   const clearRecent = () => {
@@ -24,10 +24,7 @@ const AppNav = ({ data, state, setState, organisationType, recentActivities, set
         activity
       ])
     }
-    setState((prevState) => ({
-      ...prevState,
-      ...goTo(activity, data, setRecentActivities)
-    }))
+    goTo(activity, data, setRecentActivities)
   }
   
   return (

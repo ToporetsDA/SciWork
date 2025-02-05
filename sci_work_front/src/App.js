@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css'
 
 import AppConnection from './Components/AppConnection'
 import AppHeader from './Components/AppHeader'
 import AppNav from './Components/AppNav'
-import AppContent from './Components/AppContent'
+import AppDynamicContent from './Components/AppDynamicContent'
 
 const App = () => {
 
@@ -146,7 +147,7 @@ const App = () => {
   
   //Html
   return (
-    <div>
+    <Router>
     {isLoggedIn === true && (
       <div className="App">
         <AppHeader
@@ -162,29 +163,32 @@ const App = () => {
           <AppNav
             data={projects}
             state={state}
-            setState={setState}
             organisationType={isCompany}
             recentActivities={recentActivities}
             setRecentActivities={setRecentActivities}
           />
-          <AppContent
-            userData={userData}
-            setUserData={updateUser}
-            profileData={defaultProfileData}
-            state={state}
-            setState={setState}
-            data={projects}
-            setData={updateProjects}
-            rights={rights}
-            users={users}
-            itemStructure={defaultItemStructure}
-            defaultStructure={defaultStructure}
-            isCompany={isCompany}
-            notifications={userData.notifications}
-            setNotifications={setNotifications}
-            recentActivities={recentActivities}
-            setRecentActivities={setRecentActivities}
-          />
+          <Routes>
+            <Route path="*" element={
+              <AppDynamicContent
+                userData={userData}
+                setUserData={updateUser}
+                profileData={defaultProfileData}
+                state={state}
+                setState={setState}
+                data={projects}
+                setData={updateProjects}
+                rights={rights}
+                users={users}
+                itemStructure={defaultItemStructure}
+                defaultStructure={defaultStructure}
+                isCompany={isCompany}
+                notifications={userData.notifications}
+                setNotifications={setNotifications}
+                recentActivities={recentActivities}
+                setRecentActivities={setRecentActivities}
+              />
+            } />
+          </Routes>
         </div>
       </div>
     )}
@@ -205,7 +209,7 @@ const App = () => {
       editedProject={editedProject}
       setEditedProject={setEditedProject}
     />
-  </div>
+  </Router>
   )
 }
 

@@ -8,44 +8,25 @@ const GoTo = (destination, data, setRecentActivities) => {
         return id.split('.')[0]
     }
 
-    if (destination._id > 1000000000) {
+    if (!destination.id) {
         setRecentActivities((prevActivities) => [
             ...prevActivities,
             destination
         ])
     }
 
-    if (destination._id < 1000000000) {
-        return {
-            currentPage: 'Project',
-            currentProject: data.find(p => p._id === destination._id),
-            currentDialog: {
-                name: undefined,
-                params: []
-            }
-        }
+    if (!destination.id) {
+        const project = data.find(p => p._id === destination._id)
+        return `/Projects/${project._id}`
     }
     else if (destination.page === true) {
         const project = data.find(p => p._id === projectId(destination.id))
-        return {
-            currentPage: 'Activity',
-            currentProject: project,
-            currentActivity: project.activities.find(a => a._id === destination._id),
-            currentDialog: {
-                name: undefined,
-                params: []
-            }
-        }
+        const activity = project.activities.find(a => a._id === destination._id)
+        return `/Projects/${project._id}/${activity.id}`
     }
     else {
-        return {
-            currentPage: 'Project',
-            currentProject: data.find(p => p._id === projectId(destination._id)),
-            currentDialog: {
-                name: undefined,
-                params: []
-            }
-        }
+        const project = data.find(p => p._id === projectId(destination.id))
+        return `/Projects/${project._id}`
     }
 }
 

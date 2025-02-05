@@ -37,12 +37,6 @@ const AddEditItem = ({ userData, setUserData, data, setData, state, setState, ri
         setSelectedType(type)
         setFormValues(initializeFormValues(defaultStructure[type.toLowerCase()], itemStructure[selectedType.toLowerCase()]))
         setErrors({})
-        if (type === "Project") {
-            setState((prevState) => ({
-                ...prevState,
-                currentProject: undefined,
-            }))
-        }
     }
 
     const handleInputChange = (e) => {

@@ -1,10 +1,13 @@
 import React, { Suspense }  from 'react'
+import { useNavigate } from "react-router-dom"
 import '../../css/pages/Projects.css'
 import ControlPanel from './sharedComponents/ControlPanel'
 
 import * as Shared from './sharedComponents'
 
 const Projects = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, setRecentActivities }) => {
+
+    const navigate = useNavigate()
 
     //open project
     const goTo = Shared.GoTo
@@ -27,7 +30,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                         return { ...activity, deleted: true }
                     }),
                     deleted: true
-                };
+                }
             }
             else if (project._id === state.currentProject?._id) {
 
@@ -38,11 +41,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                         return activity._id === (itemToDelete._id) ? { ...activity, deleted: true } : activity
                     })
                 }
-
-                setState((prevState) => ({
-                    ...prevState,
-                    currentProject: updatedProject
-                }));
+                navigate(`/Projects/${updatedProject.name}`)
             }
         })
 
@@ -72,10 +71,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                     ${(new Date(project.endDate) < new Date()) ? 'expired' : ''}
                                 `}
                                 onClick={() => {
-                                    setState((prevState) => ({
-                                        ...prevState,
-                                        ...goTo(project, data, setRecentActivities)
-                                    }))
+                                    navigate(goTo(project, data, setRecentActivities))
                                 }}
                             >
                                 <h3 className='name'>
@@ -126,10 +122,9 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                         ${(new Date(activity.endDate) < new Date()) ? 'expired' : ''}
                                     `}
                                     onClick={() => {
-                                        setState((prevState) => ({
-                                            ...prevState,
-                                            ...goTo(activity, data, setRecentActivities)
-                                        }))
+                                        if (activity.page === true) {
+                                            navigate(goTo(activity, data, setRecentActivities))
+                                        }
                                     }}
                                 >
                                     <h3 className='name'>{activity.name}</h3>
