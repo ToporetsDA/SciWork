@@ -1,30 +1,38 @@
 import React from 'react'
+import { useNavigate } from "react-router-dom"
 import '../css/AppNav.css'
 
 import * as Shared from '../Components/pages/sharedComponents'
 
 const AppNav = ({ data, state, organisationType, recentActivities, setRecentActivities }) => {
   
+  const navigate = useNavigate()
+  const goTo = Shared.GoTo
+
+  const projectId = (id) => {
+    return id.split('.')[0]
+  }
+
   //project.name and activity.name pairs
   const clearRecent = () => {
     setRecentActivities([])
   }
 
-  //project and activity are objects
-  //recent.project and recent.activity are strings
-
-  const goTo = Shared.GoTo
-
-  const handleClick = (activity) => {
-    const activityExists = recentActivities.some(recent => recent._id === activity._id);
-
-    if (activityExists === false) {
-      setRecentActivities((prevActivities) => [
-        ...prevActivities,
-        activity
-      ])
-    }
-    goTo(activity, data, setRecentActivities)
+  const getLi = (activity) => {
+    return (
+      <li
+        key={activity.id}
+        onClick={() => {navigate(goTo(activity, data, recentActivities, setRecentActivities))}}
+        className={state.currentActivity === undefined ? 'active' : ''}
+        style={{
+          fontWeight: state.currentPage === undefined ? 'bold' : 'normal',
+          pointerEvents: state.currentPage === undefined ? 'none' : 'auto',
+          opacity: state.currentPage === undefined ? 0.5 : 1,
+        }}
+      >
+        {activity.name}
+      </li>
+    )
   }
   
   return (
@@ -42,21 +50,12 @@ const AppNav = ({ data, state, organisationType, recentActivities, setRecentActi
         </h4>
 
         {data.map((project) => (
-          <li key={project.name}>
+          <li key={project._id}>
             <details>
               <summary>{project.name}</summary>
               <ul>
                 {project.activities.map((activity) => (
-                <li
-                  key={activity.name}
-                  onClick={() => {handleClick(activity)}}
-                  className={state.currentPage === activity.name ? 'active' : ''}
-                  style={{
-                  fontWeight: state.currentPage === activity.name ? 'bold' : 'normal',
-                  pointerEvents: state.currentPage === activity.name ? 'none' : 'auto',
-                  opacity: state.currentPage === activity.name ? 0.5 : 1,
-                  }}
-                >{activity.name}</li>
+                  getLi(activity)
                 ))}
               </ul>
             </details>
@@ -68,32 +67,19 @@ const AppNav = ({ data, state, organisationType, recentActivities, setRecentActi
         <h4>Recent</h4>
         {data.map((project) => {
 
-          const projectRecentActivities = recentActivities.filter(recent => Math.floor(recent._id / 1000000000) === project._id)
-
+          const projectRecentActivities = recentActivities.filter(recent => projectId(recent.id) === project._id)
+          
           if (projectRecentActivities.length > 0) {
 
             return (
-              <li key={project.name}>
+              <li key={project._id}>
                 <details>
                   <summary>{project.name}</summary>
                   <ul>
                     {project.activities.map((activity) => {
-                      const recentActivity = recentActivities.filter(recent => recent._id === activity._id)
+                      const recentActivity = recentActivities.filter(recent => recent.id === activity.id)
                       if (recentActivity.length > 0) {
-                        return (
-                          <li
-                            key={activity._id}
-                            onClick={() => {handleClick(activity)}}
-                            className={state.currentActivity === undefined ? 'active' : ''}
-                            style={{
-                              fontWeight: state.currentPage === undefined ? 'bold' : 'normal',
-                              pointerEvents: state.currentPage === undefined ? 'none' : 'auto',
-                              opacity: state.currentPage === undefined ? 0.5 : 1,
-                            }}
-                          >
-                            {activity.name}
-                          </li>
-                        )
+                        return getLi(activity)
                       }
                       return null
                   })}

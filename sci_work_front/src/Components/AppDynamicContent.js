@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useLocation, useNavigate } from "react-router-dom"
 
 import AppContent from './AppContent'
@@ -7,8 +7,6 @@ const AppDynamicContent = ({userData, setUserData, profileData, state, setState,
     
   const location = useLocation()
   const navigate = useNavigate()
-
-  const [pathMapping, setPathMapping] = useState({})
   
   useEffect(() => {
     const pathParts = location.pathname.split('/').filter(Boolean)
@@ -29,27 +27,20 @@ const AppDynamicContent = ({userData, setUserData, profileData, state, setState,
       }
       case 1: {
         if (state.currentPage === pathParts[0]) return
-
         updateState(pathParts[0], undefined, undefined)
         break
       }
-      case 2: {
-        const project = data.find(project => project._id === pathParts[1]) || undefined
-
-        if (state.currentProject !== project) {
-          updateState("Projects", project, undefined)
-        }
-        window.history.replaceState({}, "", `/Projects/${project.name}`)
-        break
-      }
+      case 2:
       case 3: {
         const project = data.find(project => project._id === pathParts[1]) || undefined
-        const activity = project.activities.find(activity => activity.id === pathParts[2]) || undefined
+        let activity = undefined
+        if (project) {
+          activity = project.activities.find(activity => activity.id === pathParts[2]) || undefined
+        }
 
         if (state.currentProject !== project) {
-          updateState("Projects", project, activity)
+          updateState(pathParts[0], project, activity)
         }
-        window.history.replaceState({}, "", `/Projects/${project.name}/${activity.name}`)
         break
       }
       default: {}

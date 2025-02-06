@@ -17,6 +17,7 @@ const AppContent = ({userData, setUserData, profileData, state, setState, data, 
     
     const loadPageComponent = (pageName) => {
         const formattedPageName = (pageName === 'Subjects' || pageName === 'Project' || pageName === 'Activity') ? 'Projects' : pageName
+        console.log(pageName)
         return Pages[formattedPageName.replace(/\s+/g, '')]
     }
 

@@ -5,7 +5,7 @@ import ControlPanel from './sharedComponents/ControlPanel'
 
 import * as Shared from './sharedComponents'
 
-const Projects = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, setRecentActivities }) => {
+const Projects = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, recentActivities, setRecentActivities }) => {
 
     const navigate = useNavigate()
 
@@ -71,7 +71,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                     ${(new Date(project.endDate) < new Date()) ? 'expired' : ''}
                                 `}
                                 onClick={() => {
-                                    navigate(goTo(project, data, setRecentActivities))
+                                    navigate(goTo(project, data, recentActivities, setRecentActivities))
                                 }}
                             >
                                 <h3 className='name'>
@@ -122,9 +122,7 @@ const Projects = ({ userData, setUserData, state, setState, data, setData, items
                                         ${(new Date(activity.endDate) < new Date()) ? 'expired' : ''}
                                     `}
                                     onClick={() => {
-                                        if (activity.page === true) {
-                                            navigate(goTo(activity, data, setRecentActivities))
-                                        }
+                                        navigate(goTo(activity, data, recentActivities, setRecentActivities))
                                     }}
                                 >
                                     <h3 className='name'>{activity.name}</h3>

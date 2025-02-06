@@ -74,23 +74,32 @@ const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setN
         }
     }, [dropdownRef])
 
+    const getLi = (page) => {
+        return (
+            <li
+                key={format(page)}
+                onClick={() => handleClick(format(page))}
+                className={state.currentPage === format(page) ? 'active' : ''}
+                style={{
+                fontWeight: state.currentPage === format(page) ? 'bold' : 'normal',
+                pointerEvents: state.currentPage === format(page) ? 'none' : 'auto',
+                opacity: state.currentPage === format(page) ? 0.5 : 1,
+                }}
+            >
+                <p>{page}</p>
+                {format(page) === 'Notifications' && notificationsMark > 0 && (
+                    <span className="notification-circle">{(notificationsMark > 99) ? "99+" : notificationsMark}</span>
+                )}
+            </li>
+        )
+    }
+    
     return (
         <header>
             <img className="logo" src={logo} alt="SciWork" />
             <ul className="menu">
                 {pages.map((page) => (
-                <li
-                    key={format(page)}
-                    onClick={() => handleClick(format(page))}
-                    className={state.currentPage === format(page) ? 'active' : ''}
-                    style={{
-                    fontWeight: state.currentPage === format(page) ? 'bold' : 'normal',
-                    pointerEvents: state.currentPage === format(page) ? 'none' : 'auto',
-                    opacity: state.currentPage === format(page) ? 0.5 : 1,
-                    }}
-                >
-                    <p>{page}</p>
-                </li>
+                    getLi(page)
                 ))}
                 <li
                     onClick={handleMore}
@@ -112,21 +121,7 @@ const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setN
                     {isDropdownOpen && (
                         <ul className="more">
                             {morePages.map((page) => (
-                            <li
-                                key={format(page)}
-                                onClick={() => handleClick(format(page))}
-                                className={state.currentPage === format(page) ? 'active' : ''}
-                                style={{
-                                fontWeight: state.currentPage === format(page) ? 'bold' : 'normal',
-                                pointerEvents: state.currentPage === format(page) ? 'none' : 'auto',
-                                opacity: state.currentPage === format(page) ? 0.5 : 1
-                                }}
-                            >
-                                <p>{page}</p>
-                                {format(page) === 'Notifications' && notificationsMark > 0 && (
-                                        <span className="notification-circle">{(notificationsMark > 99) ? "99+" : notificationsMark}</span>
-                                )}
-                            </li>
+                                getLi(page)
                             ))}
                             <li onClick={handleLogOut}><p>Log Out</p></li>
                         </ul>

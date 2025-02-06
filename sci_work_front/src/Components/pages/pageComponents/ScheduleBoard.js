@@ -360,14 +360,14 @@ const ScheduleBoard = ({ data, state, setState, currentScale, setCurrentScale, g
                             }
                         }))
                     ) : (
-                        navigate(goTo(group[i], data, setRecentActivities))
+                        navigate(goTo(group[i], data, recentActivities, setRecentActivities))
                     )
                 }}
             >
                 {content}
             </div>
         )
-    }, [currentScale, firstDayOfMonth, data, setState, weeksInMonth, intervalAnchor, goTo, navigate, setRecentActivities])
+    }, [currentScale, firstDayOfMonth, data, setState, weeksInMonth, intervalAnchor, goTo, navigate, recentActivities, setRecentActivities])
 
     //schedule events as <div></div>s to display
     const eventsToDisplay = useMemo(() => {
