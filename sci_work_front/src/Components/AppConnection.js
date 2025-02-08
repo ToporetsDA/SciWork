@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import useWebSocket from 'react-use-websocket'
 import LogIn from './pages/dialogs/LogIn'
 
-const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn, setLoggedIn, setRights, setUsers, isUserUpdatingData, setIsUserUpdatingData, isUserUpdatingUserData, setIsUserUpdatingUserData, editedProject, setEditedProject }) => {
+const Connection = ({ state, setState, userData, setUserData, data, setData, isLoggedIn, setLoggedIn, setRights, setUsers, isUserUpdatingData, setIsUserUpdatingData, isUserUpdatingUserData, setIsUserUpdatingUserData, editedProject, setEditedProject }) => {
 
     const [servers, setServers] = useState([])
   const [loading, setLoading] = useState(true)
@@ -254,12 +254,16 @@ const Connection = ({ setState, userData, setUserData, data, setData, isLoggedIn
             {loading ? (
                 <p>Loading servers...</p> // Display loading message while fetching servers
             ) : (
-                <LogIn
-                    setState={setState}
-                    isLoggedIn={isLoggedIn}
-                    servers={servers}
-                    loginToServer={loginToServer}
-                />
+                <>
+                    {state.currentDialog.name === "LogIn" &&
+                        <LogIn
+                            setState={setState}
+                            isLoggedIn={isLoggedIn}
+                            servers={servers}
+                            loginToServer={loginToServer}
+                        />
+                    }
+                </>
             )}
         </div>
     )

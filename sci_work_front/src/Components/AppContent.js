@@ -11,7 +11,7 @@ const AppContent = ({userData, setUserData, profileData, state, setState, data, 
         return Dialogs[dialogName.replace(/\s+/g, '')]
     }
 
-    const DialogComponent = (state.currentDialog.name !== undefined) ? loadDialogComponent(state.currentDialog.name) : undefined
+    const DialogComponent = (state.currentDialog.name !== undefined && state.currentDialog.name !== "LogIn") ? loadDialogComponent(state.currentDialog.name) : undefined
 
     // pages
     

@@ -148,12 +148,12 @@ const App = () => {
   //Html
   return (
     <Router>
-    {isLoggedIn === true && (
       <div className="App">
         <AppHeader
           state={state}
           setState={setState}
           userData={userData}
+          isLoggedIn={isLoggedIn}
           setLoggedIn={setLoggedIn}
           notifications={userData.notifications}
           setNotifications={setNotifications}
@@ -163,6 +163,7 @@ const App = () => {
           <AppNav
             data={projects}
             state={state}
+            isLoggedIn={isLoggedIn}
             organisationType={isCompany}
             recentActivities={recentActivities}
             setRecentActivities={setRecentActivities}
@@ -191,8 +192,8 @@ const App = () => {
           </Routes>
         </div>
       </div>
-    )}
     <AppConnection
+      state={state}
       setState={setState}
       userData={userData}
       setUserData={setUserData}

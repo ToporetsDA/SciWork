@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import '../css/AppHeader.css'
 import logo from "../logo.svg"
 
-const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setNotifications, organisationType}) => {
+const AppHeader = ({ state, setState, userData, isLoggedIn, setLoggedIn, notifications, setNotifications, organisationType}) => {
 
     const navigate = useNavigate()
 
@@ -22,8 +22,11 @@ const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setN
     )
 
     const notificationsMark = useMemo(() => {
+        if (isLoggedIn === true) {
         return notifications.filter(notification => notification.state === "unseen").length
-    }, [notifications])
+        }
+        return -1
+    }, [notifications, isLoggedIn])
 
     const setAllSeen = () => {
         setNotifications(
@@ -49,6 +52,16 @@ const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setN
         }
     }
 
+    const handleDialog = (dialog, params) => {
+        setState((prevState) => ({
+            ...prevState,
+            currentDialog: {
+                name: dialog,
+                params: params
+            }
+        }))
+    }
+
     //open dropdown menu with more pages
     const handleMore = () => {
         setDropdownOpen(!isDropdownOpen)
@@ -56,7 +69,8 @@ const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setN
 
     //log out
     const handleLogOut = () => {
-        handleClick(null)
+        handleClick(format("Home Page"))
+        handleDialog()
         setLoggedIn(false)
     }
 
@@ -97,36 +111,47 @@ const AppHeader = ({ state, setState, userData, setLoggedIn, notifications, setN
     return (
         <header>
             <img className="logo" src={logo} alt="SciWork" />
-            <ul className="menu">
-                {pages.map((page) => (
-                    getLi(page)
-                ))}
-                <li
-                    onClick={handleMore}
-                    ref={dropdownRef}
-                >
-                    <p
-                        onClick={handleMore}
-                        style={{
-                            fontWeight: isDropdownOpen ? 'bold' : 'normal',
-                            pointerEvents: 'auto',
-                            opacity: isDropdownOpen ? 0.5 : 1,
-                        }}
+                <ul className="menu">
+                {(isLoggedIn === true) ? (
+                    <>
+                        {pages.map((page) => (
+                            getLi(page)
+                        ))}
+                        <li
+                            onClick={handleMore}
+                            ref={dropdownRef}
+                        >
+                            <p
+                                onClick={handleMore}
+                                style={{
+                                    fontWeight: isDropdownOpen ? 'bold' : 'normal',
+                                    pointerEvents: 'auto',
+                                    opacity: isDropdownOpen ? 0.5 : 1,
+                                }}
+                            >
+                                More
+                            </p>
+                            {!isDropdownOpen && notificationsMark > 0 && (
+                                    <span className="notification-circle">{(notificationsMark > 99) ? "99+" : notificationsMark}</span>
+                            )}
+                            {isDropdownOpen && (
+                                <ul className="more">
+                                    {morePages.map((page) => (
+                                        getLi(page)
+                                    ))}
+                                    <li onClick={handleLogOut}><p>Log Out</p></li>
+                                </ul>
+                            )}
+                        </li>
+                    </>
+                ) : (
+                    <li
+                        key={"LogIn"}
+                        onClick={() => handleDialog("LogIn")}
                     >
-                        More
-                    </p>
-                    {!isDropdownOpen && notificationsMark > 0 && (
-                            <span className="notification-circle">{(notificationsMark > 99) ? "99+" : notificationsMark}</span>
-                    )}
-                    {isDropdownOpen && (
-                        <ul className="more">
-                            {morePages.map((page) => (
-                                getLi(page)
-                            ))}
-                            <li onClick={handleLogOut}><p>Log Out</p></li>
-                        </ul>
-                    )}
-                </li>
+                        <p>Log In</p>
+                    </li>
+                )}
             </ul>
         </header>
     )}
