@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import useWebSocket from 'react-use-websocket'
 import LogIn from './pages/dialogs/LogIn'
 
-const Connection = ({ state, setState, userData, setUserData, data, setData, isLoggedIn, setLoggedIn, setRights, setUsers, isUserUpdatingData, setIsUserUpdatingData, isUserUpdatingUserData, setIsUserUpdatingUserData, editedProject, setEditedProject }) => {
+const Connection = ({ state, setState, editorData, setEditorData, data, setData, isLoggedIn, setLoggedIn, setRights, setUsers, isUserUpdatingData, setIsUserUpdatingData }) => {
 
     const [servers, setServers] = useState([])
     const [loading, setLoading] = useState(true)
@@ -25,7 +25,7 @@ const Connection = ({ state, setState, userData, setUserData, data, setData, isL
         const [domain, port] = serverAddress.split(':')
         
         // Increment the port by 1
-        const newPort = parseInt(port, 10) + 1
+        const newPort = parseInt(port, 10) + 2
         
         // Reassemble the address with the new port
         return `${domain}:${newPort}`
@@ -60,10 +60,8 @@ const Connection = ({ state, setState, userData, setUserData, data, setData, isL
         sendMessage(JSON.stringify(message))
         console.log('Sent message:', message)
 
-        setEditedProject()
         setIsUserUpdatingData(false) // Reset flag
-        setIsUserUpdatingUserData(false) // Reset flag
-    }, [sendMessage, setEditedProject, setIsUserUpdatingData, setIsUserUpdatingUserData])
+    }, [sendMessage, setIsUserUpdatingData])
 
     const handleResponse = useCallback((event) => {
         console.log("from handleResponse: ", data)
@@ -83,14 +81,14 @@ const Connection = ({ state, setState, userData, setUserData, data, setData, isL
                 // You can handle the data based on the type (user, projects, etc.)
                 switch (type) {
                 case "all": {
-                    setUserData(fetchedData.user)
+                    setEditorData(fetchedData.editor)
                     setData(fetchedData.projects)
                     setRights(fetchedData.organisation.rights)
                     setUsers(fetchedData.users)
                     break
                 }
-                case "user": {
-                    setUserData(fetchedData)
+                case "editor": {
+                    setEditorData(fetchedData.editor)
                     break
                 }
                 case "projects": {
@@ -133,7 +131,7 @@ const Connection = ({ state, setState, userData, setUserData, data, setData, isL
                     break
                 }
                 case"user": {
-                    setUserData(fetchedData)
+                    setEditorData(fetchedData)
                     break
                 }
                 default: {
@@ -150,7 +148,7 @@ const Connection = ({ state, setState, userData, setUserData, data, setData, isL
         } catch (error) {
             console.error("Error processing message:", error.message)
         }
-    }, [data, setData, setLoggedIn, setRights, setUsers, setUserData])
+    }, [data, setData, setLoggedIn, setRights, setUsers, setEditorData])
 
     // Track user-initiated changes to `data` (projects)
     const updateProject = useCallback((sessionToken, editedProject) => {

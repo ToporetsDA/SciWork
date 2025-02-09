@@ -10,8 +10,13 @@ const { v4: uuidv4 } = require('uuid')
 const fs = require('fs')
 const axios = require("axios")
 
+//routes
 const usersRouter = require("./routes/users")
-const { startWebSocketServer } = require('./websockets')
+//admin routes
+const usersAdminRouter = require("./routes/adminUsers")
+
+const { startWebSocketServer } = require('./sockets/websockets')
+const { startAdminWebSocketServer } = require('./sockets/adminWebsockets')
 
 const app = express()
 
@@ -31,6 +36,7 @@ const serverAddress = `http://localhost:${port}`  // Адреса цього с�
 const serverName = fs.readFileSync(path.join(__dirname, 'serverName.txt'), 'utf-8')
 
 const wss = startWebSocketServer(port + 1)
+const awss = startAdminWebSocketServer(port + 2)
 
 // Підключення до бази даних
 mongoose.connect("mongodb://127.0.0.1:27017/SciWork", {})
@@ -49,8 +55,12 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, "public")))
 
+// routes
 app.use("/users", usersRouter)
+// admin routes
+app.use("/admin/users", usersAdminRouter)
 
+// Налаштування ID
 if (fs.existsSync(idFilePath)) {
   serverId = fs.readFileSync(idFilePath, 'utf-8')
   console.log(`Loaded existing server ID: ${serverId}`)
@@ -93,7 +103,6 @@ const sendHeartbeat = async () => {
       id: serverId,
       address: serverAddress
     })
-    console.log("Heartbeat sent to coordinator")
     heartbeatFailures = 0 // Скидаємо лічильник при успішному з'єднанні
   } catch (error) {
     console.error("Error sending heartbeat:", error.message)
