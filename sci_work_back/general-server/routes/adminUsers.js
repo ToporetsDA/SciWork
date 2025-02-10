@@ -2,7 +2,7 @@ const express = require("express")
 const router = express.Router()
 const User = require("../models/User")
 const crypto = require('crypto')
-const { getWebSocketByToken } = require("../sockets/adminWebsockets")
+const { getAdminWebSocketByToken } = require("../sockets/adminWebsockets")
 
 const loggedInUsers = new Set()
 
@@ -84,13 +84,13 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "User is already logged in" })
     }
 
-    // Generate a unique session token
+    // Generate a unique session token (need to redo with cookies!)
     const sessionToken = crypto.randomBytes(64).toString("hex")
 
     // Get WebSocket connection for logged-in user
-    const ws = getWebSocketByToken(sessionToken) // Fetch the specific WebSocket by session token
+    const ws = getAdminWebSocketByToken(sessionToken) // Fetch the specific WebSocket by session token
     if (ws) {
-      ws.send(JSON.stringify({ message: "Login successful" }))
+      console.error("WebSocket client already exist for user:", login)
     } else {
       console.error("WebSocket client not found for user:", login)
     }

@@ -20,9 +20,11 @@ const App = () => {
   //user
   
   //genStatus: 0 - item creator/organisation owner, 1 - manager (add/edit items), 2 - supervisor, 3 - user
+  const [userData, setUserData] = useState({ genStatus: -1})
+
   const [editorData, setEditorData] = useState({ genStatus: -1})
 
-  const [rights, setRights] = useState()
+  const [orgData, setOrgData] = useState({rights: undefined, dataTypes: []})
 
   const defaultProfileData = {// [isOptional, type]
     basic: {
@@ -87,9 +89,6 @@ const App = () => {
     }
   }, [])
 
-  //organisation data
-  const [data, setData] = useState()
-
   //header
   const isCompany = true;
 
@@ -107,7 +106,7 @@ const App = () => {
 
   //updates
 
-  const [updates, setUpdates] = useState()
+  const [updates, setUpdates] = useState([])
   
   //Html
   return (
@@ -132,9 +131,9 @@ const App = () => {
               profileData={defaultProfileData}
               state={state}
               setState={setState}
-              data={data}
-              setData={setData}
-              rights={rights}
+              orgData={orgData}
+              setOrgData={setOrgData}
+              rights={orgData.rights}
               users={users}
               itemStructure={defaultItemStructure}
               defaultStructure={defaultStructure}
@@ -154,11 +153,11 @@ const App = () => {
       setState={setState}
       editorData={editorData}
       setEditorData={setEditorData}
-      data={data}
-      setData={setData}
+      userData={userData}
+      setUserData={setUserData}
       isLoggedIn={isLoggedIn}
       setLoggedIn={setLoggedIn}
-      setRights={setRights}
+      setOrgData={setOrgData}
       setUsers={setUsers}
       isUserUpdatingData={isUserUpdatingData}
       setIsUserUpdatingData={setIsUserUpdatingData}

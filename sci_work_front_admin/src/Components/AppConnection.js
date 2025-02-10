@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import useWebSocket from 'react-use-websocket'
 import LogIn from './pages/dialogs/LogIn'
 
-const Connection = ({ state, setState, editorData, setEditorData, data, setData, isLoggedIn, setLoggedIn, setRights, setUsers, isUserUpdatingData, setIsUserUpdatingData }) => {
+const Connection = ({ state, setState, editorData, setEditorData, userData, setUserData, isLoggedIn, setLoggedIn, setOrgData, setUsers, isUserUpdatingData, setIsUserUpdatingData }) => {
 
     const [servers, setServers] = useState([])
     const [loading, setLoading] = useState(true)
@@ -64,7 +64,6 @@ const Connection = ({ state, setState, editorData, setEditorData, data, setData,
     }, [sendMessage, setIsUserUpdatingData])
 
     const handleResponse = useCallback((event) => {
-        console.log("from handleResponse: ", data)
         try {
             const response = JSON.parse(event.data)
             console.log(response) // This will log the entire response
@@ -80,27 +79,21 @@ const Connection = ({ state, setState, editorData, setEditorData, data, setData,
         
                 // You can handle the data based on the type (user, projects, etc.)
                 switch (type) {
-                case "all": {
-                    setEditorData(fetchedData.editor)
-                    setData(fetchedData.projects)
-                    setRights(fetchedData.organisation.rights)
-                    setUsers(fetchedData.users)
+                case "setup": {
+                    setUserData(fetchedData.user)
+                    setOrgData(fetchedData.organisation)
                     break
                 }
                 case "editor": {
-                    setEditorData(fetchedData.editor)
-                    break
-                }
-                case "projects": {
-                    setData(fetchedData)
+                    setEditorData(fetchedData)
                     break
                 }
                 case "organisation": {
-                    setRights(fetchedData.organisation.rights)
+                    setOrgData(fetchedData)
                     break
                 }
                 case "users": {
-                    setUsers(fetchedData.users)
+                    setUsers(fetchedData)
                     break
                 }
                 default: {
@@ -117,13 +110,13 @@ const Connection = ({ state, setState, editorData, setEditorData, data, setData,
         
                 // You can handle the data based on the type (user, projects, etc.)
                 switch (type) {
-                case"project": {
+                case"editor": {
                     const item = fetchedData
-                    if (data.find(project => project._id === item._id).length === 0) {
-                    setData(prevData => ({ ...prevData, item }))
+                    if (editorData.find(project => project._id === item._id).length === 0) {
+                    setEditorData(prevData => ({ ...prevData, item }))
                     }
                     else {
-                        setData(prevData => 
+                        setEditorData(prevData => 
                             prevData.map(project => 
                             project._id === item._id ? item : project
                         ))
@@ -148,44 +141,25 @@ const Connection = ({ state, setState, editorData, setEditorData, data, setData,
         } catch (error) {
             console.error("Error processing message:", error.message)
         }
-    }, [data, setData, setLoggedIn, setRights, setUsers, setEditorData])
+    }, [editorData, setEditorData, setUserData, setLoggedIn, setOrgData, setUsers])
 
-    // Track user-initiated changes to `data` (projects)
-    const updateProject = useCallback((sessionToken, editedProject) => {
-
-        if (readyState === 1) { // Check if WebSocket is open
-            sendMsg(sessionToken, "addEditProject", editedProject)
-            console.log("Sent project update:", editedProject)
-        } else {
-            console.error("WebSocket is not open. Cannot send project update.")
-        }
-
-    }, [readyState, sendMsg])
-
-    // Trigger project update when a user modifies `data`
-    useEffect(() => {
-        if (isUserUpdatingData) {
-            updateProject(sessionToken, editedProject)
-        }
-    }, [data, updateProject, editedProject, sessionToken, isUserUpdatingData])
-
-    // Track user-initiated changes to `userData`
-    const updateUser = useCallback((sessionToken, updatedUserData) => {
+    // Track user-initiated changes
+    const updateData = useCallback((sessionToken, updatedEditorData) => {
 
         if (readyState === 1) { // Check if WebSocket is open
-            sendMsg(sessionToken, "addEditUser", updatedUserData)
-            console.log("Sent user update:", updatedUserData)
+            sendMsg(sessionToken, "addEditUser", updatedEditorData)
+            console.log("Sent user update:", updatedEditorData)
         } else {
             console.error("WebSocket is not open. Cannot send user update.")
         }
     }, [readyState, sendMsg])
 
-    // Trigger user update when a user modifies `userData`
+    // Trigger user updates data in editor
     useEffect(() => {
-        if (isUserUpdatingUserData) {
-            updateUser(sessionToken, userData) // Pass session token and updated user data
+        if (isUserUpdatingData) {
+            updateData(sessionToken, editorData) // Pass session token and updated user data
         }
-    }, [userData, updateUser, sessionToken, isUserUpdatingUserData])
+    }, [editorData, updateData, sessionToken, isUserUpdatingData])
 
     //on login
     const loginToServer = async (formValues) => {
@@ -197,7 +171,7 @@ const Connection = ({ state, setState, editorData, setEditorData, data, setData,
         }
     
         try {
-            const response = await fetch(`${selectedServer.address}/users/login`, {
+            const response = await fetch(`${selectedServer.address}/admin/users/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ login: formValues.login, password: formValues.password })

@@ -68,7 +68,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "User is already logged in" })
     }
 
-    // Generate a unique session token
+    // Generate a unique session token (need to redo with cookies!)
     const sessionToken = crypto.randomBytes(64).toString("hex")
 
     // Get WebSocket connection for logged-in user

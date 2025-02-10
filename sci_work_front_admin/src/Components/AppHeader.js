@@ -14,7 +14,7 @@ const AppHeader = ({ state, setState, editorData, setEditorData, isLoggedIn, set
     const [isDropdownOpen, setDropdownOpen] = useState(false)
     const dropdownRef = useRef(null)
     
-    const pages = ["Home Page", "Logs", "Data Type Editor", "Users"]
+    const pages = ["Home Page", "Logs", "Data Type Editors", "Users"]
     const morePages = ["Updates", "Settings"]
 
     const updatesMark = useMemo(() => {
@@ -40,10 +40,11 @@ const AppHeader = ({ state, setState, editorData, setEditorData, isLoggedIn, set
 
     //go to page
     const handleClick = (page) => {
-        navigate(`/${page}`)
+        const formattedPage = (page === format("Data Type Editors")) ? "Editors" : page
+        navigate(`/${formattedPage}`)
         setDropdownOpen(false)
 
-        if (page === "Notifications") {
+        if (page === "Updates") {
             setAllSeen()
         }
     }

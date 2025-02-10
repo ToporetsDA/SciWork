@@ -9,9 +9,6 @@ const Editors = ({ userData, setUserData, state, setState, data, setData, itemsT
 
     const navigate = useNavigate()
 
-    //open project
-    const goTo = Shared.GoTo
-
     const getAccess = (item) => {
         return item.userList.find(item => item.id === userData._id).access
     }
@@ -71,7 +68,7 @@ const Editors = ({ userData, setUserData, state, setState, data, setData, itemsT
                                     ${(new Date(project.endDate) < new Date()) ? 'expired' : ''}
                                 `}
                                 onClick={() => {
-                                    navigate(goTo(project, data, recentActivities, setRecentActivities))
+                                    navigate()
                                 }}
                             >
                                 <h3 className='name'>
@@ -122,7 +119,7 @@ const Editors = ({ userData, setUserData, state, setState, data, setData, itemsT
                                         ${(new Date(activity.endDate) < new Date()) ? 'expired' : ''}
                                     `}
                                     onClick={() => {
-                                        navigate(goTo(activity, data, recentActivities, setRecentActivities))
+                                        navigate()
                                     }}
                                 >
                                     <h3 className='name'>{activity.name}</h3>

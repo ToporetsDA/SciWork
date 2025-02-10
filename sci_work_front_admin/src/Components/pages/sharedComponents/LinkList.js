@@ -1,13 +1,12 @@
 import React, { useMemo }  from 'react'
 import { useNavigate } from "react-router-dom"
 import '../../../css/pages/sharedComponents/LinkList.css'
-import '../../../css/pages/Notifications.css'
+import '../../../css/pages/Updates.css'
 import * as Shared from './index'
 
 const LinkList = ({ data, state, setState, list, setList, setRecentActivities }) => {
 
     const navigate = useNavigate()
-    const goTo = Shared.GoTo
 
     const projectId = (id) => {
         if (id.includes('.')) {
@@ -80,7 +79,7 @@ const LinkList = ({ data, state, setState, list, setList, setRecentActivities })
             }
             
         })
-    }, [data, state, list, goTo, navigate, setList, setRecentActivities])
+    }, [data, state, list])
 
     return (
         <div className='list'>

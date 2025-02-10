@@ -3,7 +3,7 @@ import '../css/AppContent.css'
 import * as Pages from './pages'
 import * as Dialogs from './pages/dialogs'
 
-const AppContent = ({editorData, setEditorData, profileData, state, setState, data, setData, rights, users, itemStructure, defaultStructure, isCompany, updates, setUpdates, recentActivities, setRecentActivities }) => {
+const AppContent = ({editorData, setEditorData, profileData, state, setState, rights, orgData, setOrgData, users, itemStructure, defaultStructure, isCompany, updates, setUpdates, recentActivities, setRecentActivities }) => {
 
     // dialogs
 
@@ -26,8 +26,8 @@ const AppContent = ({editorData, setEditorData, profileData, state, setState, da
     // more for pages
 
     const [itemsToDisplay, setItemsToDisplay] = useState(() => {
-        return (state.currentEditor !== undefined) ? editorData : data.dataTypes;
-    }, [state.currentProject, data]);
+        return (state.currentEditor) ? editorData : orgData.dataTypes
+    }, [state.currentProject, orgData])
 
     return (
         <main className="content">
@@ -35,8 +35,8 @@ const AppContent = ({editorData, setEditorData, profileData, state, setState, da
                 <DialogComponent
                     editorData={editorData}
                     setEditorData={setEditorData}
-                    data={data}
-                    setData={setData}
+                    orgData={orgData}
+                    setOrgData={setOrgData}
                     state={state}
                     setState={setState}
                     rights={rights}
@@ -54,8 +54,8 @@ const AppContent = ({editorData, setEditorData, profileData, state, setState, da
                         profileData={profileData}
                         state={state}
                         setState={setState}
-                        data={data}
-                        setData={setData}
+                        orgData={orgData}
+                        setOrgData={setOrgData}
                         itemsToDisplay={itemsToDisplay}
                         setItemsToDisplay={setItemsToDisplay}
                         rights={rights}
