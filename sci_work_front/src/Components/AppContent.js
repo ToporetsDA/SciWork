@@ -26,7 +26,7 @@ const AppContent = ({userData, setUserData, profileData, state, setState, data, 
     // more for pages
 
     const [itemsToDisplay, setItemsToDisplay] = useState({
-        projects: data,
+        projects: data || [],
         activities: state.currentProject?.activities ? state.currentProject.activities : []
     }, [state.currentProject, data])
 

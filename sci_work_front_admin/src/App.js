@@ -104,6 +104,19 @@ const App = () => {
 
   const [users, setUsers] = useState()
 
+  const editUserList = (user, action) => {
+    if (action === "add") {
+      setUsers(prev => [ ...prev, user ])
+    }
+    if (action === "edit") {
+      setUsers(prev => 
+        prev.map(prevUser => 
+          prevUser._id === user._id ? user : prevUser
+        )
+      )
+    }
+  }
+
   //updates
 
   const [updates, setUpdates] = useState([])
@@ -135,6 +148,7 @@ const App = () => {
               setOrgData={setOrgData}
               rights={orgData.rights}
               users={users}
+              setUsers={editUserList}
               itemStructure={defaultItemStructure}
               defaultStructure={defaultStructure}
               isCompany={isCompany}

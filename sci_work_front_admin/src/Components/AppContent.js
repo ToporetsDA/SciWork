@@ -3,7 +3,7 @@ import '../css/AppContent.css'
 import * as Pages from './pages'
 import * as Dialogs from './pages/dialogs'
 
-const AppContent = ({editorData, setEditorData, profileData, state, setState, rights, orgData, setOrgData, users, itemStructure, defaultStructure, isCompany, updates, setUpdates, recentActivities, setRecentActivities }) => {
+const AppContent = ({editorData, setEditorData, profileData, state, setState, rights, orgData, setOrgData, users, setUsers, itemStructure, defaultStructure, isCompany, updates, setUpdates, recentActivities, setRecentActivities }) => {
 
     // dialogs
 
@@ -41,6 +41,7 @@ const AppContent = ({editorData, setEditorData, profileData, state, setState, ri
                     setState={setState}
                     rights={rights}
                     users={users}
+                    setUsers={setUsers}
                     itemStructure={itemStructure}
                     defaultStructure={defaultStructure}
                     isCompany={isCompany}
@@ -59,6 +60,8 @@ const AppContent = ({editorData, setEditorData, profileData, state, setState, ri
                         itemsToDisplay={itemsToDisplay}
                         setItemsToDisplay={setItemsToDisplay}
                         rights={rights}
+                        users={users}
+                        setUsers={setUsers}
                         updates={updates}
                         setUpdates={setUpdates}
                         recentActivities={recentActivities}

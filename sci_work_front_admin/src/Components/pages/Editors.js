@@ -5,7 +5,7 @@ import ControlPanel from './sharedComponents/ControlPanel'
 
 import * as Shared from './sharedComponents'
 
-const Editors = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, recentActivities, setRecentActivities }) => {
+const Editors = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights }) => {
 
     const navigate = useNavigate()
 

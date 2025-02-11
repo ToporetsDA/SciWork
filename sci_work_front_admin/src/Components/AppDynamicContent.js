@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 
 import AppContent from './AppContent'
 
-const AppDynamicContent = ({editorData, setEditorData, profileData, state, setState, orgData, setOrgData, rights, users, itemStructure, defaultStructure, isCompany, updates, setUpdates, recentActivities, setRecentActivities }) => {
+const AppDynamicContent = ({editorData, setEditorData, profileData, state, setState, orgData, setOrgData, rights, users, setUsers, itemStructure, defaultStructure, isCompany, updates, setUpdates, recentActivities, setRecentActivities }) => {
     
   const location = useLocation()
   const navigate = useNavigate()
@@ -52,6 +52,7 @@ const AppDynamicContent = ({editorData, setEditorData, profileData, state, setSt
       setOrgData={setOrgData}
       rights={rights}
       users={users}
+      setUsers={setUsers}
       itemStructure={itemStructure}
       defaultStructure={defaultStructure}
       isCompany={isCompany}

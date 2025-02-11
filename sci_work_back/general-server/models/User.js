@@ -61,7 +61,7 @@ const userSchema = new mongoose.Schema({
 });*/
 
 // Export the user model
-const User = mongoose.model("User", userSchema)
+const User = mongoose.model("User", userSchema, "users")
 
 // Validation function
 /*const validateUser = (userData) => {

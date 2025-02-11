@@ -1,4 +1,4 @@
-import React, { useMemo }  from 'react'
+import React, { useCallback, useMemo }  from 'react'
 import '../../../css/pages/dialogs/AddEditUserList.css'
 import '../../../css/pages/dialogs/dialog.css'
 
@@ -22,13 +22,18 @@ const AddEditUserList = ({ userData, setUserData, data, setData, state, setState
         return state.currentProject.userList || []
     }, [state.currentProject])
 
+    const getAccess = useCallback((user, userList) => {
+        return userList.find(listItem => listItem.id === user._id)?.access
+    }, [])
+
     const usersWithAccess = useMemo(() => {
         return users.filter(user => userList.some(listItem => listItem.id === user._id))
             .map(user => {
-                const userAccess = userList.find(listItem => listItem.id === user._id)?.access
+                console.log("userList", userList)
+                const userAccess = getAccess(user, userList)
                 return { ...user, access: userAccess }
             });
-    }, [users, userList])
+    }, [users, userList, getAccess])
 
     const usersWithoutAccess = useMemo(() => {
         return users.filter(user => !userList.some(listItem => listItem.id === user._id))
@@ -76,7 +81,7 @@ const AddEditUserList = ({ userData, setUserData, data, setData, state, setState
     }
 
     const handleAddUser = (userId) => {
-        const defaultAccess = rights.length - 1 //lowest
+        const defaultAccess = rights.names.length - 1 //lowest
         const updatedUserList = [...userList, { id: userId, access: defaultAccess }]
         saveChanges(updatedUserList)
     }
@@ -98,7 +103,7 @@ const AddEditUserList = ({ userData, setUserData, data, setData, state, setState
                             <div key={user._id} className="userItem" >
                                 <span>{getFullName(user)}</span>
                                 { (user.access !== 0) && 
-                                (true) &&
+                                  (getAccess(userData, userList) < user.access) &&
                                 <>
                                     <select
                                         value={user.access}

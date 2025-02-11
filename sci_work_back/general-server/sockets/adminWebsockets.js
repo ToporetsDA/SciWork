@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const User = require("../models/User")
 const Project = require("../models/Project")
 const Organisation = require("../models/Organisation")
+const AdminLog = require("../models/adminLog")
 
 // Map to store WebSocket connections by session token
 const admins = new Map(); // This will store WebSocket connections keyed by session token
@@ -82,7 +83,11 @@ const getData = async (type, login, ws, sessionToken) => {
     }
   }
   send(ws, "data", sessionToken, type, data)
-} 
+}
+
+const logAdminAction = async (adminId, action, targetUserId = null, details = "") => {
+  await AdminLog.create({ adminId, action, targetUserId, details })
+}
 
 // start the WebSocket server
 const startAdminWebSocketServer = (port) => {

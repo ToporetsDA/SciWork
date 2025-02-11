@@ -74,35 +74,34 @@ const Connection = ({ state, setState, userData, setUserData, data, setData, isL
             // Now, you can access specific parts of the response
             switch(response.message) {
             case "data": {
-                const { data } = response
-                const { type, data: fetchedData } = data
+                const { type, data } = response.data
         
                 console.log("Received data type:", type)
-                console.log("Fetched data:", fetchedData)
+                console.log("Fetched data:", data)
         
                 // You can handle the data based on the type (user, projects, etc.)
                 switch (type) {
                 case "all": {
-                    setUserData(fetchedData.user)
-                    setData(fetchedData.projects)
-                    setRights(fetchedData.organisation.rights)
-                    setUsers(fetchedData.users)
+                    setUserData(data.user)
+                    setData(data.projects)
+                    setRights(data.organisation.rights)
+                    setUsers(data.users)
                     break
                 }
                 case "user": {
-                    setUserData(fetchedData)
+                    setUserData(data)
                     break
                 }
                 case "projects": {
-                    setData(fetchedData)
+                    setData(data)
                     break
                 }
                 case "organisation": {
-                    setRights(fetchedData.organisation.rights)
+                    setRights(data.organisation.rights)
                     break
                 }
                 case "users": {
-                    setUsers(fetchedData.users)
+                    setUsers(data.users)
                     break
                 }
                 default: {
