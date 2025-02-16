@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import '../../css/pages/Profile.css'
 
-const Profile = ({ userData, setUserData, profileData }) => {
+const Profile = ({ userData, setUserData, profileData, rights }) => {
 
     const [editMode, setEditMode] = useState(false)
     const [tmpUserData, setTempData] = useState({ ...userData })
@@ -15,7 +15,8 @@ const Profile = ({ userData, setUserData, profileData }) => {
     const validateRequiredFields = () => {
         const newErrors = {}
         Object.entries(profileData.basic).forEach(([key, [isRequired]]) => {
-            if (isRequired && (!tmpUserData[key] || tmpUserData[key].trim() === '')) {
+            console.log(key, isRequired, tmpUserData[key])
+            if (isRequired && (!tmpUserData[key] || tmpUserData[key].trim() === '') && key !== "statusName") {
             newErrors[key] = true // Mark field as invalid
             }
         })
@@ -28,7 +29,7 @@ const Profile = ({ userData, setUserData, profileData }) => {
             alert("Please fill out all required fields.")
             return
         }
-        setUserData(tmpUserData)
+        setUserData({...userData, ...tmpUserData})
         setEditMode(false)
     }
     
@@ -62,7 +63,10 @@ const Profile = ({ userData, setUserData, profileData }) => {
                                 disabled={profileData.fixed.includes(key)}
                             />
                         ) : (
-                            <p className='fixed'>{tmpUserData[key] || '.'}</p>
+                            <p className='fixed'>
+                                {key === 'statusName' ? (rights.names[userData.genStatus] || '.') : (tmpUserData[key] || '.')}
+                            </p>
+                            
                         )}
                     </div>
                 ))}

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 
 import AppContent from './AppContent'
 
-const AppDynamicContent = ({editorData, setEditorData, profileData, state, setState, orgData, setOrgData, rights, users, setUsers, itemStructure, defaultStructure, isCompany, updates, setUpdates, recentActivities, setRecentActivities }) => {
+const AppDynamicContent = ({userData, setUserData, editorData, setEditorData, profileData, state, setState, orgData, setOrgData, rights, users, setUsers, itemStructure, defaultStructure, isCompany, updates, setUpdates, recentActivities, setRecentActivities }) => {
     
   const location = useLocation()
   const navigate = useNavigate()
@@ -15,7 +15,7 @@ const AppDynamicContent = ({editorData, setEditorData, profileData, state, setSt
       setState((prevState) => ({
         ...prevState,
         currentPage: page,
-        dataType: DT
+        currentEditor: DT
       }))
     }
 
@@ -26,6 +26,9 @@ const AppDynamicContent = ({editorData, setEditorData, profileData, state, setSt
       }
       case 1: {
         if (state.currentPage === pathParts[0]) return
+        if (pathParts[0] === "Users") {
+          navigate(`/${pathParts[0]}/Users`)
+        }
         updateState(pathParts[0], undefined)
         break
       }
@@ -43,6 +46,8 @@ const AppDynamicContent = ({editorData, setEditorData, profileData, state, setSt
   
   return (
     <AppContent
+      userData={userData}
+      setUserData={setUserData}
       editorData={editorData}
       setEditorData={setEditorData}
       profileData={profileData}

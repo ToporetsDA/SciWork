@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import useWebSocket from 'react-use-websocket'
 import LogIn from './pages/dialogs/LogIn'
 
-const Connection = ({ state, setState, editorData, setEditorData, userData, setUserData, isLoggedIn, setLoggedIn, setOrgData, setUsers, isUserUpdatingData, setIsUserUpdatingData }) => {
+const Connection = ({ state, setState, editorData, setEditorData, userData, setUserData, isLoggedIn, setLoggedIn, setOrgData, users, setUsers, isUserUpdatingData, setIsUserUpdatingData }) => {
 
     const [servers, setServers] = useState([])
     const [loading, setLoading] = useState(true)
@@ -10,6 +10,10 @@ const Connection = ({ state, setState, editorData, setEditorData, userData, setU
     const [receivedData, setReceivedData] = useState()
     const [formValues, setFormValues] = useState()
     const [wsUrl, setWsUrl] = useState(null)
+
+    const format = (str) => {
+        return str.replace(/\s+/g, '')
+    }
 
     //create server address string
     const serverAddress = (address) => {
@@ -35,7 +39,7 @@ const Connection = ({ state, setState, editorData, setEditorData, userData, setU
         onOpen: () => {
             console.log('WebSocket connection established.')
             // Send the login message after the connection is established
-            sendMsg(receivedData.sessionToken, "login", { login: formValues.login });
+            sendMsg("login", { login: formValues.login });
         },
         onClose: () => console.log('WebSocket connection closed'),
         onMessage: (event) => handleResponse(event),
@@ -48,20 +52,19 @@ const Connection = ({ state, setState, editorData, setEditorData, userData, setU
     })
 
     // Callback to send a message
-    const sendMsg = useCallback((sessionToken, type, data) => {
+    const sendMsg = useCallback((type, data) => {
         const message = {
             type: type,          // e.g., "login"
             sessionToken,        // Auth token
             data: data,          // Payload data
             timestamp: new Date().toISOString(), // Optional timestamp
         }
-
         // Send the message as a JSON string
         sendMessage(JSON.stringify(message))
         console.log('Sent message:', message)
 
         setIsUserUpdatingData(false) // Reset flag
-    }, [sendMessage, setIsUserUpdatingData])
+    }, [sendMessage, sessionToken, setIsUserUpdatingData])
 
     const handleResponse = useCallback((event) => {
         try {
@@ -92,7 +95,7 @@ const Connection = ({ state, setState, editorData, setEditorData, userData, setU
                     setOrgData(fetchedData)
                     break
                 }
-                case "users": {
+                case "Users": {
                     setUsers(fetchedData)
                     break
                 }
@@ -143,23 +146,34 @@ const Connection = ({ state, setState, editorData, setEditorData, userData, setU
         }
     }, [editorData, setEditorData, setUserData, setLoggedIn, setOrgData, setUsers])
 
-    // Track user-initiated changes
-    const updateData = useCallback((sessionToken, updatedEditorData) => {
+    //send update ONLY when value changes
+    const lastSentPage = useRef(null)
+    useEffect(() => {
+        if (lastSentPage.current === state.currentPage || !isLoggedIn) return
+            sendMsg("goTo", format(state.currentPage))
+        lastSentPage.current = state.currentPage
+    }, [sendMsg, state.currentPage, isLoggedIn])
 
+    // Track user-initiated changes
+    const updateData = useCallback((type, updatedData, id) => {
+        const updatedItem = { item: updatedData.find(item => item._id === id), id: id}
         if (readyState === 1) { // Check if WebSocket is open
-            sendMsg(sessionToken, "addEditUser", updatedEditorData)
-            console.log("Sent user update:", updatedEditorData)
+            const data = { type: type, data: updatedItem}
+            sendMsg("addEditData", data)
+            console.log("Sent update:", data)
         } else {
-            console.error("WebSocket is not open. Cannot send user update.")
+            console.error("WebSocket is not open. Cannot send update.")
         }
     }, [readyState, sendMsg])
 
     // Trigger user updates data in editor
     useEffect(() => {
-        if (isUserUpdatingData) {
-            updateData(sessionToken, editorData) // Pass session token and updated user data
+        if (isUserUpdatingData && state.currentEditor) {
+            const data = (state.currentEditor === "Users") ? users : editorData
+            console.log("list data:", data)
+            updateData(state.currentEditor, data, isUserUpdatingData)
         }
-    }, [editorData, updateData, sessionToken, isUserUpdatingData])
+    }, [editorData, users, updateData, isUserUpdatingData, state.currentEditor])
 
     //on login
     const loginToServer = async (formValues) => {

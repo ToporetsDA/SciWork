@@ -9,7 +9,7 @@ import AppDynamicContent from './Components/AppDynamicContent'
 const App = () => {
 
   const [state, setState] = useState({
-    currentPage: 'Home Page',   //string
+    currentPage: 'HomePage',   //string
     currentEditor: undefined,
     currentDialog: {
       name: undefined,  //string
@@ -102,16 +102,17 @@ const App = () => {
 
   const [isUserUpdatingData, setIsUserUpdatingData] = useState(false)
 
-  const [users, setUsers] = useState()
+  const [users, setUsers] = useState([])
 
-  const editUserList = (user, action) => {
+  const editUserList = (action, id, data) => {
+    setIsUserUpdatingData(id)
     if (action === "add") {
-      setUsers(prev => [ ...prev, user ])
+      setUsers(prev => [ ...prev, data ])
     }
     if (action === "edit") {
       setUsers(prev => 
         prev.map(prevUser => 
-          prevUser._id === user._id ? user : prevUser
+          prevUser._id === id ? { ...prevUser, ...data } : prevUser
         )
       )
     }
@@ -139,6 +140,8 @@ const App = () => {
         <Routes>
           <Route path="*" element={
             <AppDynamicContent
+              userData={userData}
+              setUserData={setUserData}
               editorData={editorData}
               setEditorData={setEditorData}
               profileData={defaultProfileData}
@@ -172,6 +175,7 @@ const App = () => {
       isLoggedIn={isLoggedIn}
       setLoggedIn={setLoggedIn}
       setOrgData={setOrgData}
+      users={users}
       setUsers={setUsers}
       isUserUpdatingData={isUserUpdatingData}
       setIsUserUpdatingData={setIsUserUpdatingData}

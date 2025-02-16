@@ -3,7 +3,7 @@ import '../css/AppContent.css'
 import * as Pages from './pages'
 import * as Dialogs from './pages/dialogs'
 
-const AppContent = ({editorData, setEditorData, profileData, state, setState, rights, orgData, setOrgData, users, setUsers, itemStructure, defaultStructure, isCompany, updates, setUpdates, recentActivities, setRecentActivities }) => {
+const AppContent = ({userData, setUserData, editorData, setEditorData, profileData, state, setState, rights, orgData, setOrgData, users, setUsers, itemStructure, defaultStructure, isCompany, updates, setUpdates, recentActivities, setRecentActivities }) => {
 
     // dialogs
 
@@ -17,7 +17,6 @@ const AppContent = ({editorData, setEditorData, profileData, state, setState, ri
     
     const loadPageComponent = (pageName) => {
         const formattedPageName = (pageName === 'Editor') ? 'Editors' : pageName
-        console.log(pageName)
         return Pages[formattedPageName.replace(/\s+/g, '')]
     }
 
@@ -50,6 +49,8 @@ const AppContent = ({editorData, setEditorData, profileData, state, setState, ri
             {PageComponent ? (
                 <Suspense fallback={<div>Loading...</div>}>
                     <PageComponent
+                        userData={userData}
+                        setUserData={setUserData}
                         editorData={editorData}
                         setEditorData={setEditorData}
                         profileData={profileData}

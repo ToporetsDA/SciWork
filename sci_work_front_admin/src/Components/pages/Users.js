@@ -1,7 +1,13 @@
-import React, { useMemo, useCallback } from 'react'
+import React, { useState } from 'react'
 import '../../css/pages/Users.css'
+import ControlPanel from './sharedComponents/ControlPanel'
+import * as Shared from './sharedComponents/index'
 
 const Users = ({ userData, setUserData, state, setState, data, setData, itemsToDisplay, setItemsToDisplay, rights, users, setUsers }) => {
+
+    const ShowFullData = Shared.ShowFullData
+
+    const [expandedUser, setExpandedUser] = useState(null)
 
     const getFullName = (user) => {
         let fullName = user.name + ' '
@@ -17,94 +23,75 @@ const Users = ({ userData, setUserData, state, setState, data, setData, itemsToD
         return fullName
     }
 
-    const getAccess = useCallback((user, userList) => {
-        return userList.find(listItem => listItem.id === user._id)?.access
-    }, [])
-    
-    // const usersWithAccess = useMemo(() => {
-    //     return users.filter(user => users.some(listItem => listItem.id === user._id))
-    //         .map(user => {
-    //             const userAccess = users.find(listItem => listItem.id === user._id)?.access
-    //             return { ...user, access: userAccess }
-    //         });
-    // }, [users])
-
-    // const usersWithoutAccess = useMemo(() => {
-    //     return users.filter(user => !users.some(listItem => listItem.id === user._id))
-    //         .map(user => {
-    //             return { ...user, access: null }
-    //         })
-    // }, [users])
-
-    // Close the dialog
-
-    const saveChanges = (updatedUserList) => {
-        // Update state
-        setState(prevState => {
-            const newState = {
-                ...prevState,
-                currentProject: {
-                    ...state.currentProject,
-                    userList: updatedUserList,
-                },
-            }
-            
-            // Ensure the state is updated before sending data to the server
-            setData({ action: "edit", item: newState.currentProject })
-    
-            // Return updated state
-            return newState
-        })
+    const handleRightChange = (id, data) => {
+        setUsers("edit", id, data)
     }
 
-    const handleRemoveUser = (userId) => {
-        const updatedUserList = users.filter(item => item.id !== userId)
-        saveChanges(updatedUserList)
+    const toggleExpand = (userId) => {
+        setExpandedUser(prev => (prev === userId ? null : userId))
     }
 
-    const handleAddUser = (userId) => {
-        const defaultAccess = rights.length - 1 //lowest
-        const updatedUserList = [...users, { id: userId, access: defaultAccess }]
-        saveChanges(updatedUserList)
-    }
-
-    const handleRightChange = (userId, newRight) => {
-        const updatedUserList = userList.map(item => 
-            item.id === userId ? { ...item, access: newRight } : item
-        )
-        saveChanges(updatedUserList)
+    const OpenDialog = (name, params) => {
+        setState((prevState) => ({
+            ...prevState,
+            currentDialog: {
+                name: name,
+                params: params},
+        }))
     }
 
     return (
         <div className='itemList'>
-            <h3>Users with Access</h3>
+            {/* <ControlPanel
+                userData={userData}
+                setUserData={setUserData}
+                state={state}
+                setState={setState}
+                data={data}
+                rights={rights}
+                setItemsToDisplay={setItemsToDisplay}
+            /> */}
             <div className="scrollableList">
-                {users.map(user => (
-                    <div key={user._id} className="userItem" >
-                        <span>{getFullName(user)}</span>
-                        { (user.genStatus !== 0) &&
-                        (userData.access) &&
-                        <>
-                            <select
-                                value={user.access}
-                                onChange={(e) => handleRightChange(user._id, e.target.value)}
-                            >
-                                {rights.names.map((right, index) => {
-                                    if (index !== 0) { // Exclude access level 0
-                                        return (
-                                            <option key={index} value={index}>
-                                                {right}
-                                            </option>
-                                        )
-                                    }
-                                    return null
-                                })}
-                            </select>
-                            <button onClick={() => handleRemoveUser(user._id)}>Remove</button>
-                        </>
-                        }
-                    </div>
-                ))}
+                {users
+                .sort((a, b) => a.genStatus - b.genStatus)
+                .map(user => {
+                    return (
+                        (user._id !== userData._id) &&
+                        <div key={user._id} className="userItem" >
+                            <span>{getFullName(user)}</span>
+                            { (user.genStatus !== 0) &&
+                            <>
+                                <select
+                                    value={user.genStatus}
+                                    onChange={(e) => handleRightChange(user._id, { genStatus: e.target.value })}
+                                >
+                                    {rights.names.map((right, index) => {
+                                        if (index !== 0) { // Exclude access level 0
+                                            return (
+                                                <option key={index} value={index}>
+                                                    {right}
+                                                </option>
+                                            )
+                                        }
+                                        return null
+                                    })}
+                                </select>
+                                <button onClick={() => toggleExpand(user._id)}>
+                                    {expandedUser === user._id ? "Hide Details" : "Show Details"}
+                                </button>
+                                <button onClick={() => {OpenDialog("Action", [user, (!user.ban) ? "ban" : "unban"])}}>
+                                    {(!user.ban) ? "Ban" : "Unban"}
+                                </button>
+                                {expandedUser === user._id && (
+                                    <div className="extraData">
+                                        {ShowFullData(user)}
+                                    </div>
+                                )}
+                            </>
+                            }
+                        </div>
+                    )
+                })}
             </div>
         </div>
     )

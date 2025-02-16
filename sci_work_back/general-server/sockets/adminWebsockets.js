@@ -31,20 +31,6 @@ const getData = async (type, login, ws, sessionToken) => {
       data = { user, organisation }
       break
     }
-    case "users": {
-
-      // Fetch user by login
-      const users = await User.find({}, {
-        currentSettings: 0,
-        notifications: 0,
-        password: 0,
-        login: 0,
-        safetyMail: 0,
-        safetyPhone: 0
-      })
-      data = user
-      break
-    }
     case "projects": {
 
       const projects = await Project.find({}, {
@@ -68,18 +54,22 @@ const getData = async (type, login, ws, sessionToken) => {
       data = organisation
       break
     }
-    case "users": {
+    //page specific
+    case "Users": {
       const users = await User.find({}, {
-        login: 0,
-        password: 0,
         currentSettings: 0,
         notifications: 0,
-        statusName: 0
+        password: 0,
+        login: 0,
+        safetyMail: 0,
+        safetyPhone: 0
       })
       data = users
+      break
     }
     default: {
-      throw new Error(`Invalid type: ${type}`)
+      console.log(`Invalid type: ${type}`)
+      return
     }
   }
   send(ws, "data", sessionToken, type, data)
@@ -102,7 +92,6 @@ const startAdminWebSocketServer = (port) => {
       try {
         const parsedMessage = JSON.parse(message)
 
-        // Handle login message (associating WebSocket with sessionToken)
         if (!parsedMessage.sessionToken) {
           return
         }
@@ -112,7 +101,7 @@ const startAdminWebSocketServer = (port) => {
             sessionToken = parsedMessage.sessionToken // Store session token
             if (sessionToken) {
               // Store WebSocket connection with session token
-              admins.set(sessionToken, {socket: ws, login: parsedMessage.data.login}) // Add WebSocket connection to the map
+              admins.set(sessionToken, {socket: ws, login: parsedMessage.data.login, page: "HomePage"}) // Add WebSocket connection to the map
               console.log(`WebSocket connection associated with session token: ${sessionToken}`)
               
               getData("setup",  parsedMessage.data.login, ws, sessionToken)
@@ -122,32 +111,44 @@ const startAdminWebSocketServer = (port) => {
             }
             break
           }
+          case "goTo": {
+            const page = parsedMessage.data
+            admins.get(sessionToken).page = page
+
+            getData(page, parsedMessage.data.login, ws, sessionToken)
+            break
+          }
           case "addEditData": {
             const {data, type} = parsedMessage.data
-            const userId = data._id
+            const {item, id} = data
             
             switch (type) {
-              case "users": {
-                User.findByIdAndUpdate(userId, data, { new: true })
+              case "Users": {
+                User.findByIdAndUpdate(id, item, { new: true })
                 .then((user) => {
                   if (user) {
                     console.error(`Failed to update user with ID ${userId}.`)
                     return
                   }
-                  console.log(`User ${userId} updated successfully.`)
+                  console.log(`User ${id} updated successfully.`)
 
                   // Ensure the user is not the sender before broadcasting the update
-                  const senderLogin = clients.get(sessionToken).login
+                  const senderLogin = admins.get(sessionToken).login
 
-                  // Notify relevant WebSocket client (not the sender)
-                  const targetClient = clients.get(user.login)?.socket
+                  // Broadcast update to all admins who are on the "Users" page
+                  admins.forEach((admin, sessionId) => {
+                      if (admin.page === "Users" && admin.login !== senderLogin) {
+                          const targetClient = admin.socket;
 
-                  if (user.login !== senderLogin && targetClient.readyState === WebSocket.OPEN) {
-                    send(targetClient, "addEdit", sessionToken, "user", user)
-                  }
+                          // Ensure the WebSocket is open before sending the message
+                          if (targetClient.readyState === WebSocket.OPEN) {
+                              send(targetClient, "addEdit", sessionToken, "user", user);
+                          }
+                      }
+                  });
                 })
                 .catch((err) => {
-                  console.error(`Error updating user with ID ${userId}:`, err.message)
+                  console.error(`Error updating user with ID ${id}:`, err.message)
                 })
                 break
               }
@@ -163,7 +164,6 @@ const startAdminWebSocketServer = (port) => {
           }
           default: {
             console.log("Received unidentified message:", parsedMessage)
-            wss.send(JSON.stringify({ message: "Data updated successfully" }))
           }
         }
       } catch (error) {

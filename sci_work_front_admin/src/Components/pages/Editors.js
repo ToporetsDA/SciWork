@@ -88,7 +88,7 @@ const Editors = ({ userData, setUserData, state, setState, data, setData, itemsT
                                                     currentDialog: {
                                                         name: 'AddEditItem',
                                                         params: [project]},
-                                                }));
+                                                }))
                                             }}
                                         >
                                             ⚙️
